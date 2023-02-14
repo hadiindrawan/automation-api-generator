@@ -87,7 +87,7 @@ async function writeTest(element, path, requestPath) {
         code = code.replace("{{keyDataDriven2}}", keysObj) 
 
         // create file test
-        fs.writeFile(path + '/' + name + '.js',
+        fs.writeFile(path + '/' + name + '.spec.js',
         code, function (err) { if (err) throw err; });
     } else {
         // write describe
@@ -109,15 +109,15 @@ async function writeTest(element, path, requestPath) {
         await waitFor(50);
         code = code.replace("{{header}}", headers)
 
-        // create file test
-        fs.writeFile(path + '/' + name + '.js',
+        // create test file
+        fs.writeFile(path + '/' + name + '.spec.js',
         code, function (err) { if (err) throw err; });
     }
 
 }
 
 // Body generator
-async function writeBody(element, path) {
+async function writeRequest(element, path) {
     let contents = fs.readFileSync('template/body.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
@@ -180,7 +180,7 @@ async function writeBody(element, path) {
         code = code.replace("{{params}}", params)
         code = code.replace("{{constructor}}", constructor)
 
-        // create file test
+        // create request file
         fs.writeFile(path + '/' + name + '.js',
             code, function (err) { if (err) throw err ; });
     }
@@ -205,7 +205,7 @@ fs.readFile('Reqres.json', (err, data) => {
                 if (second.hasOwnProperty('item') == false) {
                     // console.log(second.name)
                     writeTest(second, testPath, requestPath)
-                    writeBody(second, requestPath)
+                    writeRequest(second, requestPath)
                     // await waitFor(10)
                 } else {
                     // console.log('write third')
