@@ -52,7 +52,7 @@ async function writeTest(element, path, bodyPath) {
                 dataDriven += element1 + ': ' + '"' + dataraw[element1] + '"';
                 firstddt = false;
             });
-            dataDriven += ', cases: " ", responseStatus: "" }'
+            dataDriven += ', cases: "success", responseStatus: "" }'
         } else 
         if (element.request.body?.mode == 'formdata') {
             let firstObj = true;
@@ -67,7 +67,7 @@ async function writeTest(element, path, bodyPath) {
                 if (firstddt === false) dataDriven += ',';
                 dataDriven += body.key + ': ' + '"' + body.value + '"';
                 firstddt = false;
-                dataDriven += ', cases: "Valid", responseStatus: "" }'
+                dataDriven += ', cases: "success", responseStatus: "" }'
             })
         }
 
@@ -104,7 +104,7 @@ async function writeBody(element, path) {
 
             Object.keys(dataraw).forEach(element1 => {
                 if (first === false) keysraw += ','+'\r\n';
-                keysraw += '"' + element1+'"'  + ': ' + 'this.param_' + element1;
+                keysraw += '"' + element1+'"'  + ': ' + 'this.value_' + element1;
                 first = false;
 
                 if (firstparam === false) params += ', ';
@@ -126,7 +126,7 @@ async function writeBody(element, path) {
 
             asyncForEach(element.request.body.formdata, async (body) => {
                 if (first === false) keysraw += ','+'\r\n';
-                keysraw += '"' + body.key+'"'  + ': ' + 'this.param_' + body.key;
+                keysraw += '"' + body.key+'"'  + ': ' + 'this.value_' + body.key;
                 first = false;
 
                 if (firstparam === false) params += ', ';
