@@ -7,7 +7,8 @@ async function asyncForEach(array, callback) {
 
 // Test generator
 async function writeTest(element, path, bodyPath) {
-    let contents = fs.readFileSync('template/test.dot', 'utf8');
+    let contents_POST = fs.readFileSync('template/test_POST.dot', 'utf8');
+    let contents_GET = fs.readFileSync('template/test_GET.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
@@ -15,26 +16,26 @@ async function writeTest(element, path, bodyPath) {
     // _postman_isSubFolder
     console.log('ø  Generate Test ' + path + '/' + name + '.js')
 
-    // write describe
-    let code = contents.replace("{{describe}}", 'Test ' + element.name)
-    // write method
-    code = code.replace("{{method}}", (element.request.method).toLowerCase())
-    // write endpoint
-    code = code.replace("{{endpoint}}", (element.request.url.raw).replace("{{url}}", ""))
-    // write headers
-    let headers = '';
-    asyncForEach(element.request.header, async (header) => {
-        headers += '.set("' + header.key + '", "' + header.value + '")';
-        console.log(headers);
-    })
-    await waitFor(50);
-    code = code.replace("{{header}}", headers)
-
-    // write path body
-    let body_path = '../../' + bodyPath + '/' + name
-    code = code.replace("{{bodyPath}}", body_path)
-
     if (element.request.method != "GET") {
+        // write describe
+        let code = contents_POST.replace("{{describe}}", 'Test ' + element.name)
+        // write method
+        code = code.replace("{{method}}", (element.request.method).toLowerCase())
+        // write endpoint
+        code = code.replace("{{endpoint}}", (element.request.url.raw).replace("{{url}}", ""))
+        // write headers
+        let headers = '';
+        asyncForEach(element.request.header, async (header) => {
+            headers += '.set("' + header.key + '", "' + header.value + '")';
+            console.log(headers);
+        })
+        await waitFor(50);
+        code = code.replace("{{header}}", headers)
+
+        // write path body
+        let body_path = '../../' + bodyPath + '/' + name
+        code = code.replace("{{bodyPath}}", body_path)
+
         let keysObj = '';
         let dataDriven = '';
         if (element.request.body?.mode == 'raw') {
@@ -74,17 +75,36 @@ async function writeTest(element, path, bodyPath) {
         code = code.replace("{{dataDriven}}", dataDriven) 
         code = code.replace("{{keyDataDriven1}}", keysObj) 
         code = code.replace("{{keyDataDriven2}}", keysObj) 
+
+        // create file test
+        fs.writeFile(path + '/' + name + '.js',
+        code, function (err) { if (err) throw err; });
+    } else {
+        // write describe
+        let code = contents_GET.replace("{{describe}}", 'Test ' + element.name)
+        // write method
+        code = code.replace("{{method}}", (element.request.method).toLowerCase())
+        // write endpoint
+        code = code.replace("{{endpoint}}", (element.request.url.raw).replace("{{url}}", ""))
+        // write headers
+        let headers = '';
+        asyncForEach(element.request.header, async (header) => {
+            headers += '.set("' + header.key + '", "' + header.value + '")';
+            console.log(headers);
+        })
+        await waitFor(50);
+        code = code.replace("{{header}}", headers)
+
+        // create file test
+        fs.writeFile(path + '/' + name + '.js',
+        code, function (err) { if (err) throw err; });
     }
 
-    // create file test
-    fs.writeFile(path + '/' + name + '.js',
-        code, function (err) { if (err) throw err; });
 }
 
 // Body generator
 async function writeBody(element, path) {
     let contents = fs.readFileSync('template/body.dot', 'utf8');
-    let contentsTest = fs.readFileSync('template/test.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
