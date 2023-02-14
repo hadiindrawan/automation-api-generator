@@ -1,9 +1,9 @@
-class body {
+class request {
   constructor({{params}}) {
     {{constructor}}
   }
  
-  request() {
+  body() {
     // Define desired object
     var obj = {{objectBody}}
     // Return it
@@ -11,4 +11,4 @@ class body {
   }
 }
 
-module.exports = body
+module.exports = request

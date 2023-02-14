@@ -8,11 +8,11 @@ const api = chai.request(process.env.APP_URL);
 module.exports = function (){
     describe("{{describe}}", function () {
         
-        it(cases, function (done) {
+        it("Success", function (done) {
             api.{{method}}("{{endpoint}}")
             {{header}}
             .end(function (err, res) {
-                expect(res.status).to.equals(responseStatus);
+                expect(res.status).to.equals(200);
                 done();
             });
         });

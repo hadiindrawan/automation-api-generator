@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { hostname } = require('os');
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
         await callback(array[index], index, array);
@@ -6,7 +7,7 @@ async function asyncForEach(array, callback) {
 }
 
 // Test generator
-async function writeTest(element, path, bodyPath) {
+async function writeTest(element, path, requestPath) {
     let contents_POST = fs.readFileSync('template/test_POST.dot', 'utf8');
     let contents_GET = fs.readFileSync('template/test_GET.dot', 'utf8');
 
@@ -22,7 +23,12 @@ async function writeTest(element, path, bodyPath) {
         // write method
         code = code.replace("{{method}}", (element.request.method).toLowerCase())
         // write endpoint
-        code = code.replace("{{endpoint}}", (element.request.url.raw).replace("{{url}}", ""))
+        let url = element.request.url.raw
+        if (url.includes('http')) {
+            code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
+        } else {
+            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+        }
         // write headers
         let headers = '';
         asyncForEach(element.request.header, async (header) => {
@@ -33,8 +39,8 @@ async function writeTest(element, path, bodyPath) {
         code = code.replace("{{header}}", headers)
 
         // write path body
-        let body_path = '../../' + bodyPath + '/' + name
-        code = code.replace("{{bodyPath}}", body_path)
+        let body_path = '../../' + requestPath + '/' + name
+        code = code.replace("{{requestPath}}", body_path)
 
         let keysObj = '';
         let dataDriven = '';
@@ -49,11 +55,11 @@ async function writeTest(element, path, bodyPath) {
                 keysObj += element1;
                 firstObj = false;
 
-                if (firstddt === false) dataDriven += ',';
+                if (firstddt === false) dataDriven += ', ';
                 dataDriven += element1 + ': ' + '"' + dataraw[element1] + '"';
                 firstddt = false;
             });
-            dataDriven += ', cases: "success", responseStatus: "" }'
+            dataDriven += ', cases: "success", responseStatus: 200 }'
         } else 
         if (element.request.body?.mode == 'formdata') {
             let firstObj = true;
@@ -65,10 +71,10 @@ async function writeTest(element, path, bodyPath) {
                 firstObj = false;
 
                 dataDriven += '{ '
-                if (firstddt === false) dataDriven += ',';
+                if (firstddt === false) dataDriven += ', ';
                 dataDriven += body.key + ': ' + '"' + body.value + '"';
                 firstddt = false;
-                dataDriven += ', cases: "success", responseStatus: "" }'
+                dataDriven += ', cases: "success", responseStatus: 200 }'
             })
         }
 
@@ -85,7 +91,12 @@ async function writeTest(element, path, bodyPath) {
         // write method
         code = code.replace("{{method}}", (element.request.method).toLowerCase())
         // write endpoint
-        code = code.replace("{{endpoint}}", (element.request.url.raw).replace("{{url}}", ""))
+        let url = element.request.url.raw
+        if (url.includes('http')) {
+            code = code.replace("{{endpoint}}", new URL(url).pathname+new URL(url).search)
+        } else {
+            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+        }
         // write headers
         let headers = '';
         asyncForEach(element.request.header, async (header) => {
@@ -170,7 +181,7 @@ async function writeBody(element, path) {
     }
 }
 
-fs.readFile('Todoist.json', (err, data) => {
+fs.readFile('Reqres.json', (err, data) => {
     if (err) throw err;
     let items = JSON.parse(data).item;
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
@@ -180,15 +191,15 @@ fs.readFile('Todoist.json', (err, data) => {
         if (element.hasOwnProperty('item')) {
             const testPath = 'tests/' + element.name;
             fs.mkdirSync(testPath, { recursive: true })
-            const bodyPath = 'body/' + element.name;
-            fs.mkdirSync(bodyPath, { recursive: true })
+            const requestPath = 'requests/' + element.name;
+            fs.mkdirSync(requestPath, { recursive: true })
             // await waitFor(50)
             asyncForEach(element.item, async (second) => {
                 const second_path = testPath
                 if (second.hasOwnProperty('item') == false) {
                     // console.log(second.name)
-                    writeTest(second, testPath, bodyPath)
-                    writeBody(second, bodyPath)
+                    writeTest(second, testPath, requestPath)
+                    writeBody(second, requestPath)
                     // await waitFor(10)
                 } else {
                     // console.log('write third')

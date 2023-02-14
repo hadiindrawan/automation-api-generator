@@ -5,8 +5,7 @@ chai.use(require('chai-json-schema'))
 require('dotenv').config()
 const api = chai.request(process.env.APP_URL);
 
-const bodyRequest = require('{{bodyPath}}');
-let body = new bodyRequest()
+const Request = require('{{requestPath}}');
 
 let data = [
     {{dataDriven}}
@@ -19,7 +18,7 @@ module.exports = function (){
             it(cases, function (done) {
                 api.{{method}}("{{endpoint}}")
                 {{header}}
-                .send(new bodyRequest({{keyDataDriven2}}).request())
+                .send(new Request({{keyDataDriven2}}).body())
                 .end(function (err, res) {
                     expect(res.status).to.equals(responseStatus);
                     done();
