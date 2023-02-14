@@ -1,0 +1,14 @@
+class body {
+  constructor({{params}}) {
+    {{constructor}}
+  }
+ 
+  request() {
+    // Define desired object
+    var obj = {{objectBody}}
+    // Return it
+    return obj
+  }
+}
+
+module.exports = body
