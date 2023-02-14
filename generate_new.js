@@ -33,7 +33,6 @@ async function writeTest(element, path, requestPath) {
         let headers = '';
         asyncForEach(element.request.header, async (header) => {
             headers += '.set("' + header.key + '", "' + header.value + '")';
-            console.log(headers);
         })
         await waitFor(50);
         code = code.replace("{{header}}", headers)
@@ -46,11 +45,12 @@ async function writeTest(element, path, requestPath) {
         let dataDriven = '';
         if (element.request.body?.mode == 'raw') {
             let firstObj = true;
+            let firstddt = true;
 
             let dataraw = JSON.parse(element.request.body.raw)
             dataDriven += '{ '
-            let firstddt = true;
             Object.keys(dataraw).forEach(element1 => {
+                console.log(element1);
                 if (firstObj === false) keysObj += ', ';
                 keysObj += element1;
                 firstObj = false;
@@ -59,24 +59,28 @@ async function writeTest(element, path, requestPath) {
                 dataDriven += element1 + ': ' + '"' + dataraw[element1] + '"';
                 firstddt = false;
             });
+            await waitFor(50);
             dataDriven += ', cases: "success", responseStatus: 200 }'
         } else 
         if (element.request.body?.mode == 'formdata') {
             let firstObj = true;
             let firstddt = true;
 
+            dataDriven += '{ '
             asyncForEach(element.request.body.formdata, async (body) => {
                 if (firstObj === false) keysObj += ', ';
                 keysObj += body.key;
                 firstObj = false;
 
-                dataDriven += '{ '
                 if (firstddt === false) dataDriven += ', ';
                 dataDriven += body.key + ': ' + '"' + body.value + '"';
                 firstddt = false;
-                dataDriven += ', cases: "success", responseStatus: 200 }'
             })
+            await waitFor(50);
+            dataDriven += ', cases: "success", responseStatus: 200 }'
         }
+
+        await waitFor(50);
 
         code = code.replace("{{dataDriven}}", dataDriven) 
         code = code.replace("{{keyDataDriven1}}", keysObj) 
@@ -101,7 +105,6 @@ async function writeTest(element, path, requestPath) {
         let headers = '';
         asyncForEach(element.request.header, async (header) => {
             headers += '.set("' + header.key + '", "' + header.value + '")';
-            console.log(headers);
         })
         await waitFor(50);
         code = code.replace("{{header}}", headers)
@@ -168,8 +171,10 @@ async function writeBody(element, path) {
                 constructor += 'this.value_' + body.key + ' = ' + 'param_' + body.key;
                 firstcons = false;
             })
+            await waitFor(50);
             keysraw += '\r\n'+'}'
         }
+        await waitFor(50);
 
         let code = contents.replace("{{objectBody}}", keysraw)
         code = code.replace("{{params}}", params)
@@ -179,6 +184,7 @@ async function writeBody(element, path) {
         fs.writeFile(path + '/' + name + '.js',
             code, function (err) { if (err) throw err ; });
     }
+    
 }
 
 fs.readFile('Reqres.json', (err, data) => {
@@ -203,34 +209,34 @@ fs.readFile('Reqres.json', (err, data) => {
                     // await waitFor(10)
                 } else {
                     // console.log('write third')
-                    // asyncForEach(second.item, async (third) => {
-                    //     // console.log(third);
-                    //     const third_path = second_path + '/' + second.name;
-                    //     fs.mkdirSync(third_path + '/', { recursive: true })
-                    //     if (third.hasOwnProperty('item') == false) {
-                    //         write(third, third_path, contents)
-                    //     } else {
-                    //         asyncForEach(third.item, async (fourth) => {
-                    //             const fourth_path = third_path + '/' + third.name;
-                    //             fs.mkdirSync(fourth_path + '/', { recursive: true })
-                    //             if (fourth.hasOwnProperty('item') == false) {
-                    //                 write(fourth, fourth_path, contents)
-                    //             } else {
-                    //                 asyncForEach(fourth.item, async (fifth) => {
-                    //                     const fifth_path = fourth_path + '/' + fourth.name;
-                    //                     fs.mkdirSync(fifth_path + '/', { recursive: true })
-                    //                     await waitFor(50)
-                    //                     if (fifth.hasOwnProperty('item') == false) {
-                    //                         write(fifth, fifth_path, contents)
-                    //                         await waitFor(10)
-                    //                     } else {
+                    asyncForEach(second.item, async (third) => {
+                        // console.log(third);
+                        const third_path = second_path + '/' + second.name;
+                        fs.mkdirSync(third_path + '/', { recursive: true })
+                        if (third.hasOwnProperty('item') == false) {
+                            write(third, third_path, contents)
+                        } else {
+                            asyncForEach(third.item, async (fourth) => {
+                                const fourth_path = third_path + '/' + third.name;
+                                fs.mkdirSync(fourth_path + '/', { recursive: true })
+                                if (fourth.hasOwnProperty('item') == false) {
+                                    write(fourth, fourth_path, contents)
+                                } else {
+                                    asyncForEach(fourth.item, async (fifth) => {
+                                        const fifth_path = fourth_path + '/' + fourth.name;
+                                        fs.mkdirSync(fifth_path + '/', { recursive: true })
+                                        await waitFor(50)
+                                        if (fifth.hasOwnProperty('item') == false) {
+                                            write(fifth, fifth_path, contents)
+                                            await waitFor(10)
+                                        } else {
 
-                    //                     }
-                    //                 })
-                    //             }
-                    //         })
-                    //     }
-                    // })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
                 }
             })
         } else {

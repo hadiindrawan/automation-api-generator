@@ -92,23 +92,15 @@
 			"item": [
 				{
 					"name": "Register",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "email",
-									"value": "eve.holt@reqres.in",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "pistol",
-									"type": "text"
-								}
-							]
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"eve.holt@reqres.in\",\r\n    \"password\": \"pistol\"\r\n}"
 						},
 						"url": {
 							"raw": "https://reqres.in/api/register",
@@ -140,7 +132,7 @@
 								},
 								{
 									"key": "password",
-									"value": "cityslicka",
+									"value": "pistol",
 									"type": "text"
 								}
 							]

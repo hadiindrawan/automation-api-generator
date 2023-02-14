@@ -1,2 +1,2 @@
 // Write your runner in this file
-require('../tests/Users/getuser')()
+require('../tests/Auth/login')()
