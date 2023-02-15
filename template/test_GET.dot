@@ -5,6 +5,8 @@ chai.use(require('chai-json-schema'))
 require('dotenv').config()
 const api = chai.request(process.env.APP_URL);
 
+const Request = require('{{requestPath}}');
+
 module.exports = function (){
     describe("{{describe}}", function () {
         
@@ -13,6 +15,7 @@ module.exports = function (){
             {{header}}
             .end(function (err, res) {
                 expect(res.status).to.equals(200);
+                expect(res.body).to.be.jsonSchema(new Request().expect())
                 done();
             });
         });

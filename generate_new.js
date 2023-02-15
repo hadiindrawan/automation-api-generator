@@ -50,7 +50,6 @@ async function writeTest(element, path, requestPath) {
             let dataraw = JSON.parse(element.request.body.raw)
             dataDriven += '{ '
             Object.keys(dataraw).forEach(element1 => {
-                console.log(element1);
                 if (firstObj === false) keysObj += ', ';
                 keysObj += element1;
                 firstObj = false;
@@ -109,6 +108,10 @@ async function writeTest(element, path, requestPath) {
         await waitFor(50);
         code = code.replace("{{header}}", headers)
 
+        // write path body
+        let body_path = '../../' + requestPath + '/' + name
+        code = code.replace("{{requestPath}}", body_path)
+
         // create test file
         fs.writeFile(path + '/' + name + '.spec.js',
         code, function (err) { if (err) throw err; });
@@ -117,8 +120,8 @@ async function writeTest(element, path, requestPath) {
 }
 
 // Body generator
-async function writeRequest(element, path) {
-    let contents = fs.readFileSync('template/body.dot', 'utf8');
+async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelativePath) {
+    let contents = fs.readFileSync('template/request.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
@@ -179,10 +182,31 @@ async function writeRequest(element, path) {
         let code = contents.replace("{{objectBody}}", keysraw)
         code = code.replace("{{params}}", params)
         code = code.replace("{{constructor}}", constructor)
+        code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
 
         // create request file
         fs.writeFile(path + '/' + name + '.js',
             code, function (err) { if (err) throw err ; });
+
+        // create json_responses file
+        fs.writeFile(jsonSchemaPath + '/' + name + '.json',
+            fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
+    } else 
+    {
+        let keysraw = '""'
+        let params = ''
+        let constructor = '//write your constructor if you need'
+        let code = contents.replace("{{objectBody}}", keysraw)
+        code = code.replace("{{params}}", params)
+        code = code.replace("{{constructor}}", constructor)
+        code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
+
+        // create request file
+        fs.writeFile(path + '/' + name + '.js',
+            code, function (err) { if (err) throw err ; });
+        // create json_responses file
+        fs.writeFile(jsonSchemaPath + '/' + name + '.json',
+            fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
     }
     
 }
@@ -191,21 +215,26 @@ fs.readFile('Reqres.json', (err, data) => {
     if (err) throw err;
     let items = JSON.parse(data).item;
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
-    console.log('')
     asyncForEach(items, async (element) => {
         // console.log(element);
         if (element.hasOwnProperty('item')) {
+            // write test dir
             const testPath = 'tests/' + element.name;
             fs.mkdirSync(testPath, { recursive: true })
-            const requestPath = 'requests/' + element.name;
+            // write request dir
+            const requestPath = 'src/requests/' + element.name;
             fs.mkdirSync(requestPath, { recursive: true })
+            // write json_schema dir
+            const jsonSchemaPath = 'src/json_responses/' + element.name;
+            const jsonSchemaRelativePath = 'json_responses/' + element.name;
+            fs.mkdirSync(jsonSchemaPath, { recursive: true })
             // await waitFor(50)
             asyncForEach(element.item, async (second) => {
                 const second_path = testPath
                 if (second.hasOwnProperty('item') == false) {
                     // console.log(second.name)
                     writeTest(second, testPath, requestPath)
-                    writeRequest(second, requestPath)
+                    writeSrcRequest(second, requestPath, jsonSchemaPath, jsonSchemaRelativePath)
                     // await waitFor(10)
                 } else {
                     // console.log('write third')

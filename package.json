@@ -12,7 +12,8 @@
     "chai-http": "^4.3.0",
     "chai-json-schema": "^1.5.1",
     "cryptlib": "^1.0.3",
-    "dotenv": "^16.0.1"
+    "dotenv": "^16.0.1",
+    "to-json-schema": "^0.2.5"
   },
   "devDependencies": {
     "chai": "^4.3.6",

@@ -1,0 +1,22 @@
+const toJsonSchema = require('to-json-schema');
+const json_responses = require('{{jsonSchemaPath}}');
+
+class request {
+  constructor({{params}}) {
+    {{constructor}}
+  }
+ 
+  body() {
+    // Define desired object
+    var obj = {{objectBody}}
+    // Return it
+    return obj
+  }
+
+  expect(cases="success") {
+    if (json_responses.hasOwnProperty(cases))
+    return toJsonSchema(json_responses)
+  }
+}
+
+module.exports = request
