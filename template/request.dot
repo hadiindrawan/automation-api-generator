@@ -14,8 +14,15 @@ class request {
   }
 
   expect(cases="success") {
+    // options for jsonSchema
+    const options = {
+      objects: {
+        postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
+      }
+    }
+    
     if (json_responses.hasOwnProperty(cases))
-    return toJsonSchema(json_responses[cases])
+    return toJsonSchema(json_responses[cases], options)
   }
 }
 

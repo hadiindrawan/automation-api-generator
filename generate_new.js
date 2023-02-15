@@ -222,7 +222,7 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
             const testPath = 'tests/' + element.name;
             fs.mkdirSync(testPath, { recursive: true })
             // write request dir
-            const requestPath = 'src/requests/' + element.name;
+            const requestPath = 'src/request_config/' + element.name;
             fs.mkdirSync(requestPath, { recursive: true })
             // write json_schema dir
             const jsonSchemaPath = 'src/json_responses/' + element.name;
