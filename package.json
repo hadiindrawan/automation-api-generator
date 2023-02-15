@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "generate": "node generate_new.js",
     "test": "mocha runner/regression.js --timeout 15000"
   },
   "author": "",
