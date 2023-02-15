@@ -15,7 +15,7 @@ class request {
 
   expect(cases="success") {
     if (json_responses.hasOwnProperty(cases))
-    return toJsonSchema(json_responses)
+    return toJsonSchema(json_responses[cases])
   }
 }
 
