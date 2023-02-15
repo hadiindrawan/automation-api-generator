@@ -211,7 +211,7 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     
 }
 
-fs.readFile('Reqres.json', (err, data) => {
+fs.readFile(process.argv.slice(2)[0], (err, data) => {
     if (err) throw err;
     let items = JSON.parse(data).item;
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
