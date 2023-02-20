@@ -9,13 +9,12 @@ module.exports = function (){
     describe("{{describe}}", function () {
         
         it("Success", function (done) {
-            api.{{method}}("{{endpoint}}")
-            {{header}}
-            .end(function (err, res) {
-                expect(res.status).to.equals(200);
-                expect(res.body).to.be.jsonSchema(new Request().expect())
-                done();
-            });
+            new Request().request(
+                function (err, res) {
+                    expect(res.status).to.equals(200);
+                    expect(res.body).to.be.jsonSchema(new Request().expect("Success"))
+                    done();
+            })
         });
     })
 }

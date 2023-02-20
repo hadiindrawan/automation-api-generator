@@ -43,7 +43,7 @@ async function writeTest(element, path, requestPath) {
                 firstddt = false;
             });
             await waitFor(50);
-            dataDriven += ', cases: "success", responseStatus: 200 }'
+            dataDriven += ', cases: "Success", responseStatus: 200 }'
         } else 
         if (element.request.body?.mode == 'formdata') {
             let firstObj = true;
@@ -60,7 +60,7 @@ async function writeTest(element, path, requestPath) {
                 firstddt = false;
             })
             await waitFor(50);
-            dataDriven += ', cases: "success", responseStatus: 200 }'
+            dataDriven += ', cases: "Success", responseStatus: 200 }'
         }
 
         await waitFor(50);
@@ -89,32 +89,33 @@ async function writeTest(element, path, requestPath) {
 
 // Body generator
 async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelativePath) {
-    let contents = fs.readFileSync('template/request.dot', 'utf8');
+    let contents_POST = fs.readFileSync('template/request_POST.dot', 'utf8');
+    let contents_GET = fs.readFileSync('template/request_GET.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
 
-    // write method
-    let code = contents.replace("{{method}}", (element.request.method).toLowerCase())
-    // write endpoint
-    let url = element.request.url.raw
-    if (url.includes('http')) {
-        code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
-    } else {
-        code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
-    }
-    // write headers
-    let headers = '';
-    asyncForEach(element.request.header, async (header) => {
-        headers += '.set("' + header.key + '", "' + header.value + '")';
-    })
-    await waitFor(50);
-    code = code.replace("{{header}}", headers)
-
     let keysObj = '';
 
     if (element.request.method != "GET") {
+        // write method
+        let code = contents_POST.replace("{{method}}", (element.request.method).toLowerCase())
+        // write endpoint
+        let url = element.request.url.raw
+        if (url.includes('http')) {
+            code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
+        } else {
+            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+        }
+        // write headers
+        let headers = '';
+        asyncForEach(element.request.header, async (header) => {
+            headers += '.set("' + header.key + '", "' + header.value + '")';
+        })
+        await waitFor(50);
+        code = code.replace("{{header}}", headers)
+        
         let keysraw = '';
         let params = '';
 
@@ -181,12 +182,27 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
             fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
     } else 
     {
+        // write method
+        let code = contents_GET.replace("{{method}}", (element.request.method).toLowerCase())
+        // write endpoint
+        let url = element.request.url.raw
+        if (url.includes('http')) {
+            code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
+        } else {
+            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+        }
+        // write headers
+        let headers = '';
+        asyncForEach(element.request.header, async (header) => {
+            headers += '.set("' + header.key + '", "' + header.value + '")';
+        })
+        await waitFor(50);
+        code = code.replace("{{header}}", headers)
+
         let keysraw = '""'
         let params = ''
-        let constructor = '//write your constructor if you need'
-        let code = contents.replace("{{objectBody}}", keysraw)
+        code = code.replace("{{objectBody}}", keysraw)
         code = code.replace("{{params}}", params)
-        code = code.replace("{{constructor}}", constructor)
         code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
 
         // create request file
