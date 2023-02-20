@@ -1,9 +1,7 @@
 const expect = require('chai').expect
 const chai = require('chai')
-chai.use(require('chai-http'))
 chai.use(require('chai-json-schema'))
 require('dotenv').config()
-const api = chai.request(process.env.APP_URL);
 
 const Request = require('{{requestPath}}');
 

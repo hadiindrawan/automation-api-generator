@@ -1,5 +1,8 @@
+const chai = require('chai')
+chai.use(require('chai-http'))
 const toJsonSchema = require('to-json-schema');
 const json_responses = require('{{jsonSchemaPath}}');
+const api = chai.request(process.env.APP_URL);
 
 class request {
   constructor() {
