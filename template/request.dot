@@ -2,11 +2,18 @@ const toJsonSchema = require('to-json-schema');
 const json_responses = require('{{jsonSchemaPath}}');
 
 class request {
-  constructor({{params}}) {
-    {{constructor}}
+  constructor() {
+    // Write your constructor here, if you need
+  }
+
+  request({{keyDataDriven1}}, expect) {
+    return api.{{method}}("{{endpoint}}")
+    .set("accept", "application/json").set("Content-Type", "application/json"){{header}}
+    .send(this.body({{keyDataDriven2}}))
+    .end(expect)
   }
  
-  body() {
+  body({{params}}) {
     // Define desired object
     var obj = {{objectBody}}
     // Return it

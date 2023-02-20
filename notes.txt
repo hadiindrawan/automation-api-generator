@@ -30,3 +30,7 @@
 [Efficiency]
 - SDET hanya perlu adjust di bagian body/data sesuai dengan case yang dibutuhkan
 - SDET memasukan file JSON expect result untuk setiap request
+
+[Idea]
+- Config untuk format ddt or tidak
+- Config untuk validation keys (mungkin dibuat file config, atau simpan di script runner)

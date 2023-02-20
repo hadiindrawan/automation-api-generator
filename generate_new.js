@@ -20,22 +20,6 @@ async function writeTest(element, path, requestPath) {
     if (element.request.method != "GET") {
         // write describe
         let code = contents_POST.replace("{{describe}}", 'Test ' + element.name)
-        // write method
-        code = code.replace("{{method}}", (element.request.method).toLowerCase())
-        // write endpoint
-        let url = element.request.url.raw
-        if (url.includes('http')) {
-            code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
-        } else {
-            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
-        }
-        // write headers
-        let headers = '';
-        asyncForEach(element.request.header, async (header) => {
-            headers += '.set("' + header.key + '", "' + header.value + '")';
-        })
-        await waitFor(50);
-        code = code.replace("{{header}}", headers)
 
         // write path body
         let body_path = '../../' + requestPath + '/' + name
@@ -91,22 +75,6 @@ async function writeTest(element, path, requestPath) {
     } else {
         // write describe
         let code = contents_GET.replace("{{describe}}", 'Test ' + element.name)
-        // write method
-        code = code.replace("{{method}}", (element.request.method).toLowerCase())
-        // write endpoint
-        let url = element.request.url.raw
-        if (url.includes('http')) {
-            code = code.replace("{{endpoint}}", new URL(url).pathname+new URL(url).search)
-        } else {
-            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
-        }
-        // write headers
-        let headers = '';
-        asyncForEach(element.request.header, async (header) => {
-            headers += '.set("' + header.key + '", "' + header.value + '")';
-        })
-        await waitFor(50);
-        code = code.replace("{{header}}", headers)
 
         // write path body
         let body_path = '../../' + requestPath + '/' + name
@@ -127,62 +95,82 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
 
+    // write method
+    let code = contents.replace("{{method}}", (element.request.method).toLowerCase())
+    // write endpoint
+    let url = element.request.url.raw
+    if (url.includes('http')) {
+        code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
+    } else {
+        code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+    }
+    // write headers
+    let headers = '';
+    asyncForEach(element.request.header, async (header) => {
+        headers += '.set("' + header.key + '", "' + header.value + '")';
+    })
+    await waitFor(50);
+    code = code.replace("{{header}}", headers)
+
+    let keysObj = '';
+
     if (element.request.method != "GET") {
         let keysraw = '';
         let params = '';
-        let constructor = '';
 
         if (element.request.body?.mode == 'raw') {
             keysraw += '{'+'\r\n'
+            let firstObj = true;
             let first = true;
             let firstparam = true;
-            let firstcons = true;
             let dataraw = JSON.parse(element.request.body.raw)
 
             Object.keys(dataraw).forEach(element1 => {
+                if (firstObj === false) keysObj += ', ';
+                keysObj += element1;
+                firstObj = false;
+
                 if (first === false) keysraw += ','+'\r\n';
-                keysraw += '"' + element1+'"'  + ': ' + 'this.value_' + element1;
+                keysraw += '"' + element1+'"'  + ': ' + 'param_' + element1;
                 first = false;
 
                 if (firstparam === false) params += ', ';
                 params += 'param_' + element1 + '=' + '"' + dataraw[element1] + '"';
                 firstparam = false;
-
-                if (firstcons === false) constructor += ','+'\r\n';
-                constructor += 'this.value_' + element1 + ' = ' + 'param_' + element1;
-                firstcons = false;
             });
             keysraw += '\r\n'+'}'
 
         } else 
         if (element.request.body?.mode == 'formdata') {
             keysraw += '{'+'\r\n'
+            let firstObj = true;
             let first = true;
             let firstparam = true;
-            let firstcons = true;
 
             asyncForEach(element.request.body.formdata, async (body) => {
+                if (firstObj === false) keysObj += ', ';
+                keysObj += body.key;
+                firstObj = false;
+
                 if (first === false) keysraw += ','+'\r\n';
-                keysraw += '"' + body.key+'"'  + ': ' + 'this.value_' + body.key;
+                keysraw += '"' + body.key+'"'  + ': ' + 'param_' + body.key;
                 first = false;
 
                 if (firstparam === false) params += ', ';
                 params += 'param_' + body.key + '=' + '"' + body.value + '"';
                 firstparam = false;
 
-                if (firstcons === false) constructor += ','+'\r\n';
-                constructor += 'this.value_' + body.key + ' = ' + 'param_' + body.key;
-                firstcons = false;
             })
             await waitFor(50);
             keysraw += '\r\n'+'}'
         }
         await waitFor(50);
 
-        let code = contents.replace("{{objectBody}}", keysraw)
+        code = code.replace("{{objectBody}}", keysraw)
         code = code.replace("{{params}}", params)
-        code = code.replace("{{constructor}}", constructor)
         code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
+        code = code.replace("{{keyDataDriven1}}", keysObj) 
+        code = code.replace("{{keyDataDriven2}}", keysObj)
 
         // create request file
         fs.writeFile(path + '/' + name + '.js',
