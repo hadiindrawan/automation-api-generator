@@ -17,7 +17,7 @@ async function writeTest(element, path, requestPath) {
     // _postman_isSubFolder
     console.log('ø  Generate Test ' + path + '/' + name + '.js')
 
-    if (element.request.method == "POST") {
+    if (element.request.method == "POST" || element.request.method == "PUT") {
         // write describe
         let code = contents_POST.replace("{{describe}}", 'Test ' + element.name)
 
@@ -98,7 +98,7 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
 
     let keysObj = '';
 
-    if (element.request.method == "POST") {
+    if (element.request.method == "POST" || element.request.method == "PUT") {
         // write method
         let code = contents_POST.replace("{{method}}", (element.request.method).toLowerCase())
         // write endpoint
