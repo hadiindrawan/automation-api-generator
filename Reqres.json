@@ -15,7 +15,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://reqres.in/api/users?page=2",
+							"raw": "https://reqres.in/api/users?page=2&key=aku",
 							"protocol": "https",
 							"host": [
 								"reqres",
@@ -29,6 +29,10 @@
 								{
 									"key": "page",
 									"value": "2"
+								},
+								{
+									"key": "key",
+									"value": "aku"
 								}
 							]
 						}

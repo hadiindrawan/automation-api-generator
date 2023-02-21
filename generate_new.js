@@ -89,38 +89,59 @@ async function writeTest(element, path, requestPath) {
 
 // Body generator
 async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelativePath) {
-    let contents_POST = fs.readFileSync('template/request_POST.dot', 'utf8');
-    let contents_GET = fs.readFileSync('template/request_GET.dot', 'utf8');
+    let contents = fs.readFileSync('template/request.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
 
-    let keysObj = '';
+    // write method
+    let code = contents.replace("{{method}}", (element.request.method).toLowerCase())
+    // write headers
+    let headers = '';
+    asyncForEach(element.request.header, async (header) => {
+        headers += '.set("' + header.key + '", "' + header.value + '")';
+    })
+    await waitFor(50);
+    code = code.replace("{{header}}", headers)
 
-    if (element.request.method == "POST" || element.request.method == "PUT") {
-        // write method
-        let code = contents_POST.replace("{{method}}", (element.request.method).toLowerCase())
-        // write endpoint
-        let url = element.request.url.raw
-        if (url.includes('http')) {
-            code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
-        } else {
-            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
-        }
-        // write headers
-        let headers = '';
-        asyncForEach(element.request.header, async (header) => {
-            headers += '.set("' + header.key + '", "' + header.value + '")';
+    // write endpoint
+    let url = element.request.url.raw
+    let dataQuery = ''
+    if (element.request.url.hasOwnProperty('query')) {
+
+        let firstData = true
+
+        dataQuery += '\r\n'+ '\t\t'+ '.query({ '
+        asyncForEach(element.request.url.query, async (query) => {
+            if (firstData === false) dataQuery += ', ';
+                dataQuery += query.key + ': "' + query.value + '"';
+                firstData = false;
         })
         await waitFor(50);
-        code = code.replace("{{header}}", headers)
-        
-        let keysraw = '';
-        let params = '';
+        dataQuery += ' })'
+    } else {
+        dataQuery = ''
+    }
+    await waitFor(50);
+    code = code.replace("{{query}}", dataQuery)
 
+    if (url.includes('http')) {
+        code = code.replace("{{endpoint}}", new URL(url).pathname)
+    } else {
+        code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+    }
+
+    // write body
+    let keysraw = '';
+    let params = '';
+    let bodyFunc = '';
+    let paramKey = '';
+
+    if (element.request.hasOwnProperty('body')) {
+        let keysObj = '';
         if (element.request.body?.mode == 'raw') {
-            keysraw += '{'+'\r\n'
+            keysraw += '{'+'\r\n'+'\t\t\t'
             let firstObj = true;
             let first = true;
             let firstparam = true;
@@ -131,7 +152,7 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
                 keysObj += element1;
                 firstObj = false;
 
-                if (first === false) keysraw += ','+'\r\n';
+                if (first === false) keysraw += ','+'\r\n'+'\t\t\t';
                 keysraw += '"' + element1+'"'  + ': ' + 'param_' + element1;
                 first = false;
 
@@ -139,11 +160,15 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
                 params += 'param_' + element1 + '=' + '"' + dataraw[element1] + '"';
                 firstparam = false;
             });
-            keysraw += '\r\n'+'}'
-
+            await waitFor(50);
+            keysraw += '\r\n'+'\t\t'+'}'
+            await waitFor(50);
+            bodyFunc = '\r\n'+ '\t\t'+ ".send(this.body("+ keysObj + "))"
+            await waitFor(50);
+            paramKey = keysObj + ", expect"
         } else 
         if (element.request.body?.mode == 'formdata') {
-            keysraw += '{'+'\r\n'
+            keysraw += '{'+'\r\n'+'\t\t\t'
             let firstObj = true;
             let first = true;
             let firstparam = true;
@@ -153,7 +178,7 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
                 keysObj += body.key;
                 firstObj = false;
 
-                if (first === false) keysraw += ','+'\r\n';
+                if (first === false) keysraw += ','+'\r\n'+'\t\t\t';
                 keysraw += '"' + body.key+'"'  + ': ' + 'param_' + body.key;
                 first = false;
 
@@ -163,56 +188,35 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
 
             })
             await waitFor(50);
-            keysraw += '\r\n'+'}'
+            keysraw += '\r\n'+'\t\t'+'}'
+            await waitFor(50);
+            bodyFunc = '\r\n'+ '\t\t'+".send(this.body("+ keysObj + "))"
+            await waitFor(50);
+            paramKey = keysObj + ", expect"
         }
+    } else {
         await waitFor(50);
-
-        code = code.replace("{{objectBody}}", keysraw)
-        code = code.replace("{{params}}", params)
-        code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
-        code = code.replace("{{keyDataDriven1}}", keysObj) 
-        code = code.replace("{{keyDataDriven2}}", keysObj)
-
-        // create request file
-        fs.writeFile(path + '/' + name + '.js',
-            code, function (err) { if (err) throw err ; });
-
-        // create json_responses file
-        fs.writeFile(jsonSchemaPath + '/' + name + '.json',
-            fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
-    } else 
-    {
-        // write method
-        let code = contents_GET.replace("{{method}}", (element.request.method).toLowerCase())
-        // write endpoint
-        let url = element.request.url.raw
-        if (url.includes('http')) {
-            code = code.replace("{{endpoint}}", new URL(element.request.url.raw).pathname)
-        } else {
-            code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
-        }
-        // write headers
-        let headers = '';
-        asyncForEach(element.request.header, async (header) => {
-            headers += '.set("' + header.key + '", "' + header.value + '")';
-        })
-        await waitFor(50);
-        code = code.replace("{{header}}", headers)
-
-        let keysraw = '""'
-        let params = ''
-        code = code.replace("{{objectBody}}", keysraw)
-        code = code.replace("{{params}}", params)
-        code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
-
-        // create request file
-        fs.writeFile(path + '/' + name + '.js',
-            code, function (err) { if (err) throw err ; });
-        // create json_responses file
-        fs.writeFile(jsonSchemaPath + '/' + name + '.json',
-            fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
+        bodyFunc = ""
+        keysObj = ""
+        keysraw = "''"
+        paramKey = "expect"
     }
-    
+
+    await waitFor(50);
+
+    code = code.replace("{{objectBody}}", keysraw)
+    code = code.replace("{{params}}", params)
+    code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
+    code = code.replace("{{keyDataDriven1}}", paramKey) 
+    code = code.replace("{{bodyFunc}}", bodyFunc)
+
+    // create request file
+    fs.writeFile(path + '/' + name + '.js',
+        code, function (err) { if (err) throw err ; });
+
+    // create json_responses file
+    fs.writeFile(jsonSchemaPath + '/' + name + '.json',
+        fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
 }
 
 fs.readFile(process.argv.slice(2)[0], (err, data) => {

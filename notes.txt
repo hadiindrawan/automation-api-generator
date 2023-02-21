@@ -34,3 +34,9 @@
 [Idea]
 - Config untuk format ddt or tidak
 - Config untuk validation keys (mungkin dibuat file config, atau simpan di script runner)
+
+[To be handling]
+- Anggap semua request punya body, pengkondisiannya di body bukan di method
+- Handling untuk request query (pakai parameter) .query()
+- handling untuk data attachment (file) .attach()
+
