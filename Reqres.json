@@ -65,6 +65,10 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"eve.holt@reqres.in\",\r\n    \"password\": \"pistol\"\r\n}"
+						},
 						"url": {
 							"raw": "https://reqres.in/api/users/2",
 							"protocol": "https",

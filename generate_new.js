@@ -8,25 +8,25 @@ async function asyncForEach(array, callback) {
 
 // Test generator
 async function writeTest(element, path, requestPath) {
-    let contents_POST = fs.readFileSync('template/test_POST.dot', 'utf8');
-    let contents_GET = fs.readFileSync('template/test_GET.dot', 'utf8');
+    let contents = fs.readFileSync('template/test.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
     // _postman_isSubFolder
     console.log('ø  Generate Test ' + path + '/' + name + '.js')
+    // write describe
+    let code = contents.replace("{{describe}}", 'Test ' + element.name)
 
-    if (element.request.method == "POST" || element.request.method == "PUT") {
-        // write describe
-        let code = contents_POST.replace("{{describe}}", 'Test ' + element.name)
+    // write path body
+    let body_path = '../../' + requestPath + '/' + name
+    code = code.replace("{{requestPath}}", body_path)
 
-        // write path body
-        let body_path = '../../' + requestPath + '/' + name
-        code = code.replace("{{requestPath}}", body_path)
+    let dataDriven = '';
+    let testFunc = ``
 
+    if (element.request.hasOwnProperty('body')) {
         let keysObj = '';
-        let dataDriven = '';
         if (element.request.body?.mode == 'raw') {
             let firstObj = true;
             let firstddt = true;
@@ -44,6 +44,19 @@ async function writeTest(element, path, requestPath) {
             });
             await waitFor(50);
             dataDriven += ', cases: "Success", responseStatus: 200 }'
+            await waitFor(50);
+            testFunc = `
+            data.forEach(({ ${keysObj}, cases, responseStatus}) => {
+                it(cases, function (done) {
+                    new Request().request(${keysObj}, 
+                        function (err, res) {
+                            expect(res.status).to.equals(responseStatus);
+                            expect(res.body).to.be.jsonSchema(new Request().expect(cases))
+                            done();
+                    })
+                });
+            })
+            `
         } else 
         if (element.request.body?.mode == 'formdata') {
             let firstObj = true;
@@ -61,29 +74,41 @@ async function writeTest(element, path, requestPath) {
             })
             await waitFor(50);
             dataDriven += ', cases: "Success", responseStatus: 200 }'
+            await waitFor(50);
+            testFunc = `
+            data.forEach(({ ${keysObj}, cases, responseStatus}) => {
+                it(cases, function (done) {
+                    new Request().request(${keysObj}, 
+                        function (err, res) {
+                            expect(res.status).to.equals(responseStatus);
+                            expect(res.body).to.be.jsonSchema(new Request().expect(cases))
+                            done();
+                    })
+                });
+            })
+            `
         }
-
-        await waitFor(50);
-
-        code = code.replace("{{dataDriven}}", dataDriven) 
-        code = code.replace("{{keyDataDriven1}}", keysObj) 
-        code = code.replace("{{keyDataDriven2}}", keysObj) 
-
-        // create file test
-        fs.writeFile(path + '/' + name + '.spec.js',
-        code, function (err) { if (err) throw err; });
     } else {
-        // write describe
-        let code = contents_GET.replace("{{describe}}", 'Test ' + element.name)
-
-        // write path body
-        let body_path = '../../' + requestPath + '/' + name
-        code = code.replace("{{requestPath}}", body_path)
-
-        // create test file
-        fs.writeFile(path + '/' + name + '.spec.js',
-        code, function (err) { if (err) throw err; });
+        testFunc = `
+        it('Success', function (done) {
+            new Request().request( 
+                function (err, res) {
+                    expect(res.status).to.equals(200);
+                    expect(res.body).to.be.jsonSchema(new Request().expect('Success'))
+                    done();
+            })
+        });
+        `
     }
+
+    await waitFor(50);
+
+    code = code.replace("{{dataDriven}}", dataDriven) 
+    code = code.replace("{{testFunc}}", testFunc)
+
+    // create file test
+    fs.writeFile(path + '/' + name + '.spec.js',
+    code, function (err) { if (err) throw err; });
 
 }
 
