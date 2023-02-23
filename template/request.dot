@@ -2,6 +2,7 @@ const chai = require('chai')
 chai.use(require('chai-http'))
 const toJsonSchema = require('to-json-schema');
 const json_responses = require('{{jsonSchemaPath}}');
+const requestHelper = require('../../../helper/requestHelper');
 require('dotenv').config()
 const api = chai.request(process.env.APP_URL);
 
@@ -10,15 +11,21 @@ class request {
     // Write your constructor here, if you need
   }
 
-  request({{keyDataDriven1}}) {
+  request(...args) {
     return api.{{method}}("{{endpoint}}"){{query}}
     .set("accept", "application/json").set("Content-Type", "application/json"){{header}}{{bodyFunc}}
-    .end(expect)
+    .end(new requestHelper().getExpectFunc(args))
   }
  
-  body({{params}}) {
-    // Define desired object
+  body(...args) {
+    const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
+
+    // your rawJSON body
     var obj = {{objectBody}}
+
+    new requestHelper().objectMapping(obj, args[0])
+    waitFor(100)
+
     // Return it
     return obj
   }

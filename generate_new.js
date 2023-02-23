@@ -22,72 +22,28 @@ async function writeTest(element, path, requestPath) {
     let body_path = '../../' + requestPath + '/' + name
     code = code.replace("{{requestPath}}", body_path)
 
-    let dataDriven = '';
     let testFunc = ``
+    let dataDriven = ``
 
     if (element.request.hasOwnProperty('body')) {
-        let keysObj = '';
-        if (element.request.body?.mode == 'raw') {
-            let firstObj = true;
-            let firstddt = true;
-
-            let dataraw = JSON.parse(element.request.body.raw)
-            dataDriven += '{ '
-            Object.keys(dataraw).forEach(element1 => {
-                if (firstObj === false) keysObj += ', ';
-                keysObj += element1;
-                firstObj = false;
-
-                if (firstddt === false) dataDriven += ', ';
-                dataDriven += element1 + ': ' + '"' + dataraw[element1] + '"';
-                firstddt = false;
+        testFunc = `
+        data.forEach((datas) => {
+            it(datas.response.case, function (done) {
+                new Request().request(datas, 
+                    function (err, res) {
+                        expect(res.status).to.equals(datas.response.status);
+                        expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.case))
+                        done();
+                })
             });
-            await waitFor(50);
-            dataDriven += ', cases: "Success", responseStatus: 200 }'
-            await waitFor(50);
-            testFunc = `
-            data.forEach(({ ${keysObj}, cases, responseStatus}) => {
-                it(cases, function (done) {
-                    new Request().request(${keysObj}, 
-                        function (err, res) {
-                            expect(res.status).to.equals(responseStatus);
-                            expect(res.body).to.be.jsonSchema(new Request().expect(cases))
-                            done();
-                    })
-                });
-            })
-            `
-        } else 
-        if (element.request.body?.mode == 'formdata') {
-            let firstObj = true;
-            let firstddt = true;
-
-            dataDriven += '{ '
-            asyncForEach(element.request.body.formdata, async (body) => {
-                if (firstObj === false) keysObj += ', ';
-                keysObj += body.key;
-                firstObj = false;
-
-                if (firstddt === false) dataDriven += ', ';
-                dataDriven += body.key + ': ' + '"' + body.value + '"';
-                firstddt = false;
-            })
-            await waitFor(50);
-            dataDriven += ', cases: "Success", responseStatus: 200 }'
-            await waitFor(50);
-            testFunc = `
-            data.forEach(({ ${keysObj}, cases, responseStatus}) => {
-                it(cases, function (done) {
-                    new Request().request(${keysObj}, 
-                        function (err, res) {
-                            expect(res.status).to.equals(responseStatus);
-                            expect(res.body).to.be.jsonSchema(new Request().expect(cases))
-                            done();
-                    })
-                });
-            })
-            `
-        }
+        })
+        `
+        dataDriven = 
+`
+// If you need data driven, just write driven keys (no need all keys)
+let data = [
+    { example: "value_example", example2: "value_example2", response: { case: "Success", status: 201 } }
+]`
     } else {
         testFunc = `
         it('Success', function (done) {
@@ -99,12 +55,13 @@ async function writeTest(element, path, requestPath) {
             })
         });
         `
+        dataDriven = ''
     }
-
+ 
     await waitFor(50);
 
-    code = code.replace("{{dataDriven}}", dataDriven) 
     code = code.replace("{{testFunc}}", testFunc)
+    code = code.replace("{{dataDriven}}", dataDriven)
 
     // create file test
     fs.writeFile(path + '/' + name + '.spec.js',
@@ -158,81 +115,37 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     }
 
     // write body
-    let keysraw = '';
-    let params = '';
-    let bodyFunc = '';
-    let paramKey = '';
+    let bodyRaw = ''
+    let bodyFunc = ''
 
     if (element.request.hasOwnProperty('body')) {
-        let keysObj = '';
         if (element.request.body?.mode == 'raw') {
-            keysraw += '{'+'\r\n'+'\t\t\t'
-            let firstObj = true;
-            let first = true;
-            let firstparam = true;
-            let dataraw = JSON.parse(element.request.body.raw)
-
-            Object.keys(dataraw).forEach(element1 => {
-                if (firstObj === false) keysObj += ', ';
-                keysObj += element1;
-                firstObj = false;
-
-                if (first === false) keysraw += ','+'\r\n'+'\t\t\t';
-                keysraw += '"' + element1+'"'  + ': ' + 'param_' + element1;
-                first = false;
-
-                if (firstparam === false) params += ', ';
-                params += 'param_' + element1 + '=' + '"' + dataraw[element1] + '"';
-                firstparam = false;
-            });
-            await waitFor(50);
-            keysraw += '\r\n'+'\t\t'+'}'
-            await waitFor(50);
-            bodyFunc = '\r\n'+ '\t\t'+ ".send(this.body("+ keysObj + "))"
-            await waitFor(50);
-            paramKey = keysObj + ", expect"
+            bodyRaw = element.request.body.raw
+            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParams(args[0])))"
         } else 
         if (element.request.body?.mode == 'formdata') {
-            keysraw += '{'+'\r\n'+'\t\t\t'
-            let firstObj = true;
             let first = true;
-            let firstparam = true;
+            bodyRaw += '{'+'\r\n'+'\t\t\t'
 
             asyncForEach(element.request.body.formdata, async (body) => {
-                if (firstObj === false) keysObj += ', ';
-                keysObj += body.key;
-                firstObj = false;
-
-                if (first === false) keysraw += ','+'\r\n'+'\t\t\t';
-                keysraw += '"' + body.key+'"'  + ': ' + 'param_' + body.key;
+                if (first === false) bodyRaw += ','+'\r\n'+'\t\t\t';
+                bodyRaw += '"' + body.key+'"'  + ': ' + '"' + body.value +'"';
                 first = false;
-
-                if (firstparam === false) params += ', ';
-                params += 'param_' + body.key + '=' + '"' + body.value + '"';
-                firstparam = false;
-
             })
             await waitFor(50);
-            keysraw += '\r\n'+'\t\t'+'}'
+            bodyRaw += '\r\n'+'\t\t'+'}'
             await waitFor(50);
-            bodyFunc = '\r\n'+ '\t\t'+".send(this.body("+ keysObj + "))"
-            await waitFor(50);
-            paramKey = keysObj + ", expect"
+            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParams(args[0])))"
         }
     } else {
         await waitFor(50);
         bodyFunc = ""
-        keysObj = ""
-        keysraw = "''"
-        paramKey = "expect"
+        bodyRaw = "''"
     }
-
     await waitFor(50);
 
-    code = code.replace("{{objectBody}}", keysraw)
-    code = code.replace("{{params}}", params)
+    code = code.replace("{{objectBody}}", bodyRaw)
     code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
-    code = code.replace("{{keyDataDriven1}}", paramKey) 
     code = code.replace("{{bodyFunc}}", bodyFunc)
 
     // create request file

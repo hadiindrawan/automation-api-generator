@@ -2,11 +2,7 @@ const expect = require('chai').expect
 const chai = require('chai')
 chai.use(require('chai-json-schema'))
 const Request = require('{{requestPath}}');
-
-// If you need data driven
-let data = [
-    {{dataDriven}}
-]
+{{dataDriven}}
 
 module.exports = function (){
     describe("{{describe}}", function () {

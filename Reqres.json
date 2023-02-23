@@ -67,7 +67,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"eve.holt@reqres.in\",\r\n    \"password\": \"pistol\"\r\n}"
+							"raw": "{\r\n    \"test\": [\r\n        {\"key\": \"value\"},\r\n        {\"key1\": \"value1\"}\r\n    ],\r\n    \"test1\": {\"key2\": \"key2\"}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "https://reqres.in/api/users/2",
