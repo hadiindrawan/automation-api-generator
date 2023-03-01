@@ -23,7 +23,9 @@ class request {
     // your rawJSON body
     var obj = {{objectBody}}
 
-    new requestHelper().objectMapping(obj, args[0])
+    if (args.length > 0) {
+      new requestHelper().objectMapping(obj, args[0])
+    }
     waitFor(100)
 
     // Return it
@@ -31,15 +33,8 @@ class request {
   }
 
   expect(cases="success") {
-    // options for jsonSchema
-    const options = {
-      objects: {
-        postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
-      }
-    }
-    
     if (json_responses.hasOwnProperty(cases))
-    return toJsonSchema(json_responses[cases], options)
+    return toJsonSchema(json_responses[cases], new requestHelper().jsonSchemaOption())
   }
 }
 

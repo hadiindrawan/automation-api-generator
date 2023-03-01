@@ -1,0 +1,76 @@
+const chai = require('chai')
+chai.use(require('chai-http'))
+const fs = require('fs')
+const toJsonSchema = require('to-json-schema');
+const json_responses = require('{{jsonSchemaPath}}');
+const requestHelper = require('../../../helper/requestHelper');
+require('dotenv').config()
+const api = chai.request(process.env.APP_URL);
+
+class request {
+  constructor() {
+    // Write your constructor here, if you need
+  }
+
+  request(...args) {
+    let datas = new requestHelper().getData(args[0])
+    let attaches = new requestHelper().getAttach(args[0])
+
+    let response = api.{{method}}("{{endpoint}}"){{query}}
+    .set("Content-Type", "multipart/form-data"){{header}}
+
+    Object.keys(Object.keys(datas).length > 0 ? datas : this.body()).forEach((key) => {
+      response = response.field(key, JSON.stringify(this.body(datas)[key]))
+    })
+
+    Object.keys(Object.keys(attaches).length > 0 ? attaches : this.attach()[0]).forEach((at) => {
+      let att = this.attach(attaches, at)
+      response = response.attach(at, att[1], att[2])
+    })
+
+    return response.end(new requestHelper().getExpectFunc(args))
+  }
+ 
+  body(...args) {
+    const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
+
+    // your rawJSON body
+    var obj = {{objectBody}}
+
+    if (args.length > 0) {
+      new requestHelper().objectMapping(obj, args[0])
+    }
+    waitFor(100)
+
+    // Return it
+    return obj
+  }
+
+  attach(...args) {
+    const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
+    let name
+    let file
+
+    // your rawJSON attachment
+    let rawData = {{rawAtt}}
+
+    if (args.length > 0) {
+      if (Object.keys(args[0]).length > 0) {
+        let path = args[0][args[1]].split('/')
+        name = path[path.length-1]
+        file = fs.readFileSync(args[0][args[1]])
+      }
+    }
+
+    waitFor(100)
+    // Return it
+    return [rawData, file, name]
+  }
+
+  expect(cases="success") {
+    if (json_responses.hasOwnProperty(cases))
+    return toJsonSchema(json_responses[cases], new requestHelper().jsonSchemaOption())
+  }
+}
+
+module.exports = request

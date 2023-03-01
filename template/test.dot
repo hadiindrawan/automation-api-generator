@@ -4,8 +4,8 @@ chai.use(require('chai-json-schema'))
 const Request = require('{{requestPath}}');
 {{dataDriven}}
 
-module.exports = function (){
-    describe("{{describe}}", function () {
+module.exports = () => {
+    describe("{{describe}}", () =>  {
         {{testFunc}}
     })
 }

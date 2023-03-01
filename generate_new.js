@@ -28,9 +28,9 @@ async function writeTest(element, path, requestPath) {
     if (element.request.hasOwnProperty('body')) {
         testFunc = `
         data.forEach((datas) => {
-            it(datas.response.case, function (done) {
+            it(datas.response.case, (done) => {
                 new Request().request(datas, 
-                    function (err, res) {
+                    (err, res) => {
                         expect(res.status).to.equals(datas.response.status);
                         expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.case))
                         done();
@@ -46,9 +46,9 @@ let data = [
 ]`
     } else {
         testFunc = `
-        it('Success', function (done) {
+        it('Success', (done) => {
             new Request().request( 
-                function (err, res) {
+                (err, res) => {
                     expect(res.status).to.equals(200);
                     expect(res.body).to.be.jsonSchema(new Request().expect('Success'))
                     done();
@@ -77,6 +77,69 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
 
+    // write body
+    let bodyRaw = ''
+    let bodyFunc = ''
+    let attKey = ''
+
+    if (element.request.hasOwnProperty('body')) {
+        if (element.request.body?.mode == 'raw') {
+            bodyRaw = element.request.body.raw
+            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParam(args[0])))"
+        } else 
+        if (element.request.body?.mode == 'formdata') {
+            let data = element.request.body.formdata
+            let first = true
+            bodyRaw += '{'+'\r\n'+'\t\t\t'
+            attKey += '{'+'\r\n'+'\t\t\t'
+            let i = 1;
+
+            if (data.some(datas => datas['type'] === 'file')) {
+                contents = fs.readFileSync('template/requestWithAttach.dot', 'utf8');
+
+                asyncForEach(data, async (body) => {
+                    if (body.disabled != true) {
+                        if(body.type == 'text') {
+                            if(body.value.includes('{') || body.value.includes('[')) {
+                                bodyRaw += '"' + body.key+'"'  + ': ' + body.value ;
+                            } else {
+                                if (first === false) bodyRaw += ','+'\r\n'+'\t\t\t';
+                                bodyRaw += '"' + body.key+'"'  + ': ' + '"'+ body.value +'"';
+                                first = false;
+                            }
+                        } else {
+                            if (first === false) attKey += ','+'\r\n'+'\t\t\t';
+                                attKey += '"' + body.key+'"'  + ': ' + '"'+ body.src +'"';
+                                first = false;
+                        }
+                    }
+                })
+            } else {
+                contents = fs.readFileSync('template/request.dot', 'utf8');
+                asyncForEach(data, async (body) => {
+                    if (body.disabled != true) {
+                        if (first === false) bodyRaw += ','+'\r\n'+'\t\t\t';
+                        bodyRaw += '"' + body.key+'"'  + ': ' + '"'+ body.value +'"';
+                        first = false;
+                    }
+                })
+                // console.log(data);
+            }
+            
+            await waitFor(50);
+            bodyRaw += '\r\n'+'\t\t'+'}'
+            await waitFor(50);
+            attKey += '\r\n'+'\t\t'+'}'
+            await waitFor(50);
+            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParam(args[0])))"
+        }
+    } else {
+        await waitFor(50);
+        bodyFunc = ""
+        bodyRaw = "''"
+    }
+    await waitFor(50);
+
     // write method
     let code = contents.replace("{{method}}", (element.request.method).toLowerCase())
     // write headers
@@ -91,9 +154,7 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     let url = element.request.url.raw
     let dataQuery = ''
     if (element.request.url.hasOwnProperty('query')) {
-
         let firstData = true
-
         dataQuery += '\r\n'+ '\t\t'+ '.query({ '
         asyncForEach(element.request.url.query, async (query) => {
             if (firstData === false) dataQuery += ', ';
@@ -114,39 +175,10 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
         code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
     }
 
-    // write body
-    let bodyRaw = ''
-    let bodyFunc = ''
-
-    if (element.request.hasOwnProperty('body')) {
-        if (element.request.body?.mode == 'raw') {
-            bodyRaw = element.request.body.raw
-            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParams(args[0])))"
-        } else 
-        if (element.request.body?.mode == 'formdata') {
-            let first = true;
-            bodyRaw += '{'+'\r\n'+'\t\t\t'
-
-            asyncForEach(element.request.body.formdata, async (body) => {
-                if (first === false) bodyRaw += ','+'\r\n'+'\t\t\t';
-                bodyRaw += '"' + body.key+'"'  + ': ' + '"' + body.value +'"';
-                first = false;
-            })
-            await waitFor(50);
-            bodyRaw += '\r\n'+'\t\t'+'}'
-            await waitFor(50);
-            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParams(args[0])))"
-        }
-    } else {
-        await waitFor(50);
-        bodyFunc = ""
-        bodyRaw = "''"
-    }
-    await waitFor(50);
-
     code = code.replace("{{objectBody}}", bodyRaw)
     code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
     code = code.replace("{{bodyFunc}}", bodyFunc)
+    code = code.replace("{{rawAtt}}", attKey)
 
     // create request file
     fs.writeFile(path + '/' + name + '.js',
