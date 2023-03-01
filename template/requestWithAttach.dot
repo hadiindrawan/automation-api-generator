@@ -13,7 +13,7 @@ class request {
   }
 
   request(...args) {
-    let datas = new requestHelper().getData(args[0])
+    let datas = new requestHelper().getParam(args[0])
     let attaches = new requestHelper().getAttach(args[0])
 
     let response = api.{{method}}("{{endpoint}}"){{query}}
