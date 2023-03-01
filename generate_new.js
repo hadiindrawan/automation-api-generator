@@ -40,9 +40,8 @@ async function writeTest(element, path, requestPath) {
         `
         dataDriven = 
 `
-// If you need data driven, just write driven keys (no need all keys)
 let data = [
-    { example: "value_example", example2: "value_example2", response: { case: "Success", status: 201 } }
+    { response: { case: "Success", status: 201 } }
 ]`
     } else {
         testFunc = `
@@ -197,44 +196,74 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
         // console.log(element);
         if (element.hasOwnProperty('item')) {
             // write test dir
-            const testPath = 'tests/' + element.name;
+            const requestHelper = 'tests/helper';
+            fs.mkdirSync(requestHelper, { recursive: true })
+
+            const dataDir = 'tests/data';
+            fs.mkdirSync(dataDir, { recursive: true })
+
+            fs.writeFile('tests/helper/requestHelper.js',
+                fs.readFileSync('template/requestHelper.dot', 'utf8') , function (err) { if (err) throw err ; });
+            
+            const testPath = 'tests/scenarios/' + element.name;
             fs.mkdirSync(testPath, { recursive: true })
             // write request dir
-            const requestPath = 'src/request_config/' + element.name;
+            const requestPath = 'tests/pages/' + element.name;
+            const requestPathRelativePath = 'pages/' + element.name;
             fs.mkdirSync(requestPath, { recursive: true })
             // write json_schema dir
-            const jsonSchemaPath = 'src/json_responses/' + element.name;
-            const jsonSchemaRelativePath = 'json_responses/' + element.name;
+            const jsonSchemaPath = 'tests/schema/' + element.name;
+            const jsonSchemaRelativePath = 'schema/' + element.name;
             fs.mkdirSync(jsonSchemaPath, { recursive: true })
             // await waitFor(50)
             asyncForEach(element.item, async (second) => {
-                const second_path = testPath
                 if (second.hasOwnProperty('item') == false) {
-                    // console.log(second.name)
-                    writeTest(second, testPath, requestPath)
+                    writeTest(second, testPath, requestPathRelativePath)
                     writeSrcRequest(second, requestPath, jsonSchemaPath, jsonSchemaRelativePath)
-                    // await waitFor(10)
+                    await waitFor(10)
                 } else {
-                    // console.log('write third')
                     asyncForEach(second.item, async (third) => {
-                        // console.log(third);
-                        const third_path = second_path + '/' + second.name;
-                        fs.mkdirSync(third_path + '/', { recursive: true })
+                        const third_test = testPath + '/' + second.name;
+                        const third_req = requestPath + '/' + second.name;
+                        const third_reqRe = requestPathRelativePath + '/' + second.name;
+                        const third_sch = jsonSchemaPath + '/' + second.name;
+                        const third_schRe = jsonSchemaRelativePath + '/' + second.name;
+                        fs.mkdirSync(third_test + '/', { recursive: true })
+                        fs.mkdirSync(third_req + '/', { recursive: true })
+                        fs.mkdirSync(third_sch + '/', { recursive: true })
+                        
                         if (third.hasOwnProperty('item') == false) {
-                            write(third, third_path, contents)
+                            writeTest(third, third_test, third_reqRe)
+                            writeSrcRequest(third, third_req, third_sch, third_schRe)
+                            await waitFor(10)
                         } else {
                             asyncForEach(third.item, async (fourth) => {
-                                const fourth_path = third_path + '/' + third.name;
-                                fs.mkdirSync(fourth_path + '/', { recursive: true })
+                                const fourth_test = third_test + '/' + second.name;
+                                const fourth_req = third_req + '/' + second.name;
+                                const fourth_reqRe = third_reqRe + '/' + second.name;
+                                const fourth_sch = third_sch + '/' + second.name;
+                                const fourth_schRe = third_schRe + '/' + second.name;
+                                fs.mkdirSync(fourth_test + '/', { recursive: true })
+                                fs.mkdirSync(fourth_req + '/', { recursive: true })
+                                fs.mkdirSync(fourth_sch + '/', { recursive: true })
                                 if (fourth.hasOwnProperty('item') == false) {
-                                    write(fourth, fourth_path, contents)
+                                    writeTest(fourth, fourth_test, fourth_reqRe)
+                                    writeSrcRequest(fourth, fourth_req, fourth_sch, fourth_schRe)
+                                    await waitFor(10)
                                 } else {
                                     asyncForEach(fourth.item, async (fifth) => {
-                                        const fifth_path = fourth_path + '/' + fourth.name;
-                                        fs.mkdirSync(fifth_path + '/', { recursive: true })
+                                        const fifth_test = fourth_test + '/' + second.name;
+                                        const fifth_req = fourth_req + '/' + second.name;
+                                        const fifth_reqRe = fourth_reqRe + '/' + second.name;
+                                        const fifth_sch = fourth_sch + '/' + second.name;
+                                        const fifth_schRe = fourth_schRe + '/' + second.name;
+                                        fs.mkdirSync(fifth_test + '/', { recursive: true })
+                                        fs.mkdirSync(fifth_req + '/', { recursive: true })
+                                        fs.mkdirSync(fifth_sch + '/', { recursive: true })
                                         await waitFor(50)
                                         if (fifth.hasOwnProperty('item') == false) {
-                                            write(fifth, fifth_path, contents)
+                                            writeTest(fifth, fifth_test, fifth_reqRe)
+                                            writeSrcRequest(fifth, fifth_req, fifth_sch, fifth_schRe)
                                             await waitFor(10)
                                         } else {
 

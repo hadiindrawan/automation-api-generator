@@ -2,6 +2,13 @@ const expect = require('chai').expect
 const chai = require('chai')
 chai.use(require('chai-json-schema'))
 const Request = require('{{requestPath}}');
+
+// If you need data driven, just write driven keys (no need all keys)
+/** For example
+ * let data = [
+        { example: "value_example", attachment: {"file": "tests/data/file/example.png"}, response: { case: "Success", status: 201 } }
+    ]
+*/
 {{dataDriven}}
 
 module.exports = () => {
