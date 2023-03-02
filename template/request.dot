@@ -32,9 +32,13 @@ class request {
     return obj
   }
 
-  expect(cases="success") {
-    if (json_responses.hasOwnProperty(cases))
-    return toJsonSchema(json_responses[cases], new requestHelper().jsonSchemaOption())
+  expect(cases="success", strCase=cases) {
+    if(cases.includes(strCase)) cases = strCase
+    if (json_responses.hasOwnProperty(cases)) {
+      return toJsonSchema(json_responses[cases], new requestHelper().jsonSchemaOption())
+    } else {
+      throw new Error('JSON Schema: '+cases+', does not exist!')
+    }
   }
 }
 
