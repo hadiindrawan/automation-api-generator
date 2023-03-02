@@ -5,11 +5,12 @@ class requestHelper {
 
     // options for jsonSchema
     jsonSchemaOption() {
-        return options = {
+        const options = {
             objects: {
                 postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
             }
         }
+        return options
     }
     
     getParam(arg) {

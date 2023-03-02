@@ -40,7 +40,9 @@ async function writeTest(element, path, requestPath) {
         `
         dataDriven = 
 `
+// If you need data driven, just write driven keys (no need all keys), for example
 let data = [
+    // { example: "value_example", attachment: {"file": "tests/data/file/example.png"}, response: { case: "Success", status: 201 } }
     { response: { case: "Success", status: 201 } }
 ]`
     } else {
