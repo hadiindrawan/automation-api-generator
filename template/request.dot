@@ -17,14 +17,11 @@ class request {
   }
  
   body(...args) {
-    const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
-
     // your rawJSON body
     var obj = {{objectBody}}
 
     // mapping your changes
     new requestHelper().objectMapping(obj, args[0])
-    waitFor(100)
 
     // Return it
     return obj

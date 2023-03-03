@@ -5,12 +5,14 @@ const toJsonSchema = require('to-json-schema');
 class requestHelper {
     constructor() {
         // Write your constructor here, if you need 
+        this.waitFor = (ms) => new Promise(r => setTimeout(r, ms))
     }
     
     getParam(arg) {
         let data = Object.assign({}, arg)
         delete data.attachment
         delete data.response
+        this.waitFor(50)
         return data
     }
 
@@ -19,6 +21,7 @@ class requestHelper {
         if(arg.hasOwnProperty('attachment')) {
             data = Object.assign({}, arg.attachment)
         }
+        this.waitFor(50)
         return data
     }
 
@@ -28,6 +31,7 @@ class requestHelper {
             if (typeof data == "function") 
                 expect = data
         })
+        this.waitFor(50)
         return expect
     }
 
@@ -55,6 +59,7 @@ class requestHelper {
         } else {
             throw new Error('JSON Schema: '+cases+', does not exist!')
         }
+        
     }
 
     objectMapping(obj, map) {
@@ -100,6 +105,7 @@ class requestHelper {
                     }
                 })
             })
+        this.waitFor(100)
     }
 }
 
