@@ -43,7 +43,7 @@ async function writeTest(element, path, requestPath) {
 // If you need data driven, just write driven keys (no need all keys), for example
 let data = [
     // { example: "value_example", attachment: {"file": "tests/data/file/example.png"}, response: { case: "Success", status: 201 } }
-    { response: { case: "success", status: 201 } }
+    { response: { case: "success", status: 200 } }
 ]`
     } else {
         testFunc = `
@@ -97,7 +97,7 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
 
             if (data.some(datas => datas['type'] === 'file')) {
                 contents = fs.readFileSync('template/requestWithAttach.dot', 'utf8');
-
+                
                 asyncForEach(data, async (body) => {
                     if (body.disabled != true) {
                         if(body.type == 'text') {
@@ -109,9 +109,15 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
                                 first = false;
                             }
                         } else {
-                            if (first === false) attKey += ','+'\r\n'+'\t\t\t';
-                                attKey += '"' + body.key+'"'  + ': ' + '"'+ body.src +'"';
-                                first = false;
+                            if(typeof body.src != 'object') {
+                                if (first === false) attKey += ','+'\r\n'+'\t\t\t';
+                                    attKey += '"' + body.key+'"'  + ': ' + '"'+ body.src +'"';
+                                    first = false;
+                            } else {
+                                if (first === false) attKey += ','+'\r\n'+'\t\t\t';
+                                    attKey += '"' + body.key+'"'  + ': ' + JSON.stringify(body.src);
+                                    first = false;
+                            }
                         }
                     }
                 })

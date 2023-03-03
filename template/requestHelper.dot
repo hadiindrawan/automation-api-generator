@@ -1,16 +1,10 @@
+const fs = require('fs')
+const toJsonSchema = require('to-json-schema');
+
+
 class requestHelper {
     constructor() {
         // Write your constructor here, if you need 
-    }
-
-    // options for jsonSchema
-    jsonSchemaOption() {
-        const options = {
-            objects: {
-                postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
-            }
-        }
-        return options
     }
     
     getParam(arg) {
@@ -35,6 +29,32 @@ class requestHelper {
                 expect = data
         })
         return expect
+    }
+
+    getFile(data) {
+        let file
+        let name
+
+        let path = data.split('/')
+        name = path[path.length-1]
+        file = fs.readFileSync(data)
+       
+        return [file, name]
+    }
+
+    getSchema(json_responses, cases, strCase) {
+        const options = {
+            objects: {
+                postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
+            }
+        }
+
+        if(cases.includes(strCase)) cases = strCase
+        if (json_responses.hasOwnProperty(cases)) {
+            return toJsonSchema(json_responses[cases], options)
+        } else {
+            throw new Error('JSON Schema: '+cases+', does not exist!')
+        }
     }
 
     objectMapping(obj, map) {

@@ -23,22 +23,16 @@ class request {
     // your rawJSON body
     var obj = {{objectBody}}
 
-    if (args.length > 0) {
+    if (Object.keys(args[0]).length > 0) 
       new requestHelper().objectMapping(obj, args[0])
-    }
-    waitFor(100)
+      waitFor(100)
 
     // Return it
     return obj
   }
 
   expect(cases="success", strCase=cases) {
-    if(cases.includes(strCase)) cases = strCase
-    if (json_responses.hasOwnProperty(cases)) {
-      return toJsonSchema(json_responses[cases], new requestHelper().jsonSchemaOption())
-    } else {
-      throw new Error('JSON Schema: '+cases+', does not exist!')
-    }
+    return new requestHelper().getSchema(json_responses, cases, strCase)
   }
 }
 
