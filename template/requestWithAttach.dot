@@ -59,7 +59,7 @@ class request {
   }
 
   expect(cases="success") {
-    return new requestHelper().getSchema(json_responses, cases, strCase)
+    return new requestHelper().getSchema(json_responses, cases)
   }
 }
 
