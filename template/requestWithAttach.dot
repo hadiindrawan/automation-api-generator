@@ -42,9 +42,9 @@ class request {
     // your rawJSON body
     var obj = {{objectBody}}
 
-    if (Object.keys(args[0]).length > 0) 
-      new requestHelper().objectMapping(obj, args[0])
-      waitFor(100)
+    // mapping your changes
+    new requestHelper().objectMapping(obj, args[0])
+    waitFor(100)
 
     // Return it
     return obj
@@ -56,9 +56,9 @@ class request {
     // your rawJSON attachment
     let objAtt = {{rawAtt}}
 
-    if (Object.keys(args[0]).length > 0) 
-      new requestHelper().objectMapping(objAtt, args[0])
-      waitFor(100)
+    // mapping your changes
+    new requestHelper().objectMapping(objAtt, args[0])
+    waitFor(100)
 
     // Return it
     return objAtt
