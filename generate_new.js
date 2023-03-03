@@ -32,7 +32,7 @@ async function writeTest(element, path, requestPath) {
                 new Request().request(datas, 
                     (err, res) => {
                         expect(res.status).to.equals(datas.response.status);
-                        expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.case))
+                        expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.schema))
                         done();
                 })
             });
@@ -42,8 +42,8 @@ async function writeTest(element, path, requestPath) {
 `
 // If you need data driven, just write driven keys (no need all keys), for example
 let data = [
-    // { example: "value_example", attachment: {"file": "tests/data/file/example.png"}, response: { case: "Success", status: 201 } }
-    { response: { case: "success", status: 200 } }
+    // { example: "value_example", attachment: {"file": "tests/data/file/example.png"}, response: { case: "Success", schema: "success", status: 201 } }
+    { response: { case: "success", schema: "success", status: 200 } }
 ]`
     } else {
         testFunc = `

@@ -46,14 +46,13 @@ class requestHelper {
         return [file, name]
     }
 
-    getSchema(json_responses, cases, strCase) {
+    getSchema(json_responses, cases) {
         const options = {
             objects: {
                 postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
             }
         }
 
-        if(cases.includes(strCase)) cases = strCase
         if (json_responses.hasOwnProperty(cases)) {
             return toJsonSchema(json_responses[cases], options)
         } else {

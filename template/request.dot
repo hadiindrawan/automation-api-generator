@@ -27,7 +27,7 @@ class request {
     return obj
   }
 
-  expect(cases="success", strCase=cases) {
+  expect(cases="success") {
     return new requestHelper().getSchema(json_responses, cases, strCase)
   }
 }
