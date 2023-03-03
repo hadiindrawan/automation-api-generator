@@ -63,7 +63,7 @@ class requestHelper {
     }
 
     objectMapping(obj, map) {
-        if (map.length > 0)
+        if (Object.keys(map).length > 0)
             // Define desired object
             Object.keys(map).forEach((key) => {
                 Object.keys(obj).forEach((keyObj) => {
