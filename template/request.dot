@@ -1,7 +1,7 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
 const json_responses = require('{{jsonSchemaPath}}');
-const requestHelper = require('../../helper/requestHelper');
+const requestHelper = require('{{helperPath}}');
 require('dotenv').config()
 const api = chai.request(process.env.APP_URL);
 
@@ -11,9 +11,11 @@ class request {
   }
 
   request(...args) {
-    return api.{{method}}("{{endpoint}}"){{query}}
-    .set("accept", "application/json").set("Content-Type", "application/json"){{header}}{{bodyFunc}}
+    let res = api.{{method}}("{{endpoint}}"){{query}}
+    {{header}}{{bodyFunc}}
     .end(new requestHelper().getExpectFunc(args))
+    
+    return res
   }
  
   body(...args) {

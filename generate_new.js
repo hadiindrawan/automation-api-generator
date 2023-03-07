@@ -7,7 +7,7 @@ async function asyncForEach(array, callback) {
 }
 
 // Test generator
-async function writeTest(element, path, requestPath) {
+async function writeTest(element, path, pagesPath) {
     let contents = fs.readFileSync('template/test.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
@@ -19,8 +19,8 @@ async function writeTest(element, path, requestPath) {
     let code = contents.replace("{{describe}}", 'Test ' + element.name)
 
     // write path body
-    let body_path = '../../' + requestPath + '/' + name
-    code = code.replace("{{requestPath}}", body_path)
+    let body_path = pagesPath + '/' + name
+    code = code.replace("{{pagesPath}}", body_path)
 
     let testFunc = ``
     let dataDriven = ``
@@ -71,7 +71,7 @@ let data = [
 }
 
 // Body generator
-async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelativePath) {
+async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath, helperPath) {
     let contents = fs.readFileSync('template/request.dot', 'utf8');
 
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
@@ -157,7 +157,6 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     code = code.replace("{{header}}", headers)
 
     // write endpoint
-    let url = element.request.url.raw
     let dataQuery = ''
     if (element.request.url.hasOwnProperty('query')) {
         let firstData = true
@@ -175,16 +174,19 @@ async function writeSrcRequest(element, path, jsonSchemaPath, jsonSchemaRelative
     await waitFor(50);
     code = code.replace("{{query}}", dataQuery)
 
+    let url = element.request.url.raw
     if (url.includes('http')) {
         code = code.replace("{{endpoint}}", new URL(url).pathname)
     } else {
-        code = code.replace("{{endpoint}}", (url).replace("{{url}}", ""))
+        let base = url.split('/')
+        code = code.replace("{{endpoint}}", (url).replace(base[0], ""))
     }
 
     code = code.replace("{{objectBody}}", bodyRaw)
-    code = code.replace("{{jsonSchemaPath}}", '../../' + jsonSchemaRelativePath + '/' + name + '.json')
+    code = code.replace("{{jsonSchemaPath}}", jsonSchemaRelativePath + '/' + name + '.json')
     code = code.replace("{{bodyFunc}}", bodyFunc)
     code = code.replace("{{rawAtt}}", attKey)
+    code = code.replace("{{helperPath}}", helperPath)
 
     // create request file
     fs.writeFile(path + '/' + name + '.js',
@@ -199,40 +201,45 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
     if (err) throw err;
     let items = JSON.parse(data).item;
     const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
+    
+    // write data dir
+    const dataDir = 'tests/data';
+    fs.mkdirSync(dataDir, { recursive: true })
+
+    // write helper dir
+    const requestHelper = 'tests/helper';
+    fs.mkdirSync(requestHelper, { recursive: true })
+
+    fs.writeFile('tests/helper/requestHelper.js',
+        fs.readFileSync('template/requestHelper.dot', 'utf8') , function (err) { if (err) throw err ; });
+
     asyncForEach(items, async (element) => {
         // console.log(element);
         if (element.hasOwnProperty('item')) {
+            // helper path
+            const helperPath = '../../helper/requestHelper';
             // write test dir
-            const requestHelper = 'tests/helper';
-            fs.mkdirSync(requestHelper, { recursive: true })
-
-            const dataDir = 'tests/data';
-            fs.mkdirSync(dataDir, { recursive: true })
-
-            fs.writeFile('tests/helper/requestHelper.js',
-                fs.readFileSync('template/requestHelper.dot', 'utf8') , function (err) { if (err) throw err ; });
-            
             const testPath = 'tests/scenarios/' + element.name;
             fs.mkdirSync(testPath, { recursive: true })
-            // write request dir
-            const requestPath = 'tests/pages/' + element.name;
-            const requestPathRelativePath = 'pages/' + element.name;
-            fs.mkdirSync(requestPath, { recursive: true })
+            // write pages dir
+            const pagesPath = 'tests/pages/' + element.name;
+            const pagesPathRelativePath = '../../pages/' + element.name;
+            fs.mkdirSync(pagesPath, { recursive: true })
             // write json_schema dir
             const jsonSchemaPath = 'tests/schema/' + element.name;
-            const jsonSchemaRelativePath = 'schema/' + element.name;
+            const jsonSchemaRelativePath = '../../schema/' + element.name;
             fs.mkdirSync(jsonSchemaPath, { recursive: true })
             // await waitFor(50)
             asyncForEach(element.item, async (second) => {
                 if (second.hasOwnProperty('item') == false) {
-                    writeTest(second, testPath, requestPathRelativePath)
-                    writeSrcRequest(second, requestPath, jsonSchemaPath, jsonSchemaRelativePath)
+                    writeTest(second, testPath, pagesPathRelativePath)
+                    writePages(second, pagesPath, jsonSchemaPath, jsonSchemaRelativePath, helperPath)
                     await waitFor(10)
                 } else {
                     asyncForEach(second.item, async (third) => {
                         const third_test = testPath + '/' + second.name;
-                        const third_req = requestPath + '/' + second.name;
-                        const third_reqRe = requestPathRelativePath + '/' + second.name;
+                        const third_req = pagesPath + '/' + second.name;
+                        const third_reqRe = pagesPathRelativePath + '/' + second.name;
                         const third_sch = jsonSchemaPath + '/' + second.name;
                         const third_schRe = jsonSchemaRelativePath + '/' + second.name;
                         fs.mkdirSync(third_test + '/', { recursive: true })
@@ -241,7 +248,7 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                         
                         if (third.hasOwnProperty('item') == false) {
                             writeTest(third, third_test, third_reqRe)
-                            writeSrcRequest(third, third_req, third_sch, third_schRe)
+                            writePages(third, third_req, third_sch, third_schRe, helperPath)
                             await waitFor(10)
                         } else {
                             asyncForEach(third.item, async (fourth) => {
@@ -255,7 +262,7 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                                 fs.mkdirSync(fourth_sch + '/', { recursive: true })
                                 if (fourth.hasOwnProperty('item') == false) {
                                     writeTest(fourth, fourth_test, fourth_reqRe)
-                                    writeSrcRequest(fourth, fourth_req, fourth_sch, fourth_schRe)
+                                    writePages(fourth, fourth_req, fourth_sch, fourth_schRe, helperPath)
                                     await waitFor(10)
                                 } else {
                                     asyncForEach(fourth.item, async (fifth) => {
@@ -270,7 +277,7 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                                         await waitFor(50)
                                         if (fifth.hasOwnProperty('item') == false) {
                                             writeTest(fifth, fifth_test, fifth_reqRe)
-                                            writeSrcRequest(fifth, fifth_req, fifth_sch, fifth_schRe)
+                                            writePages(fifth, fifth_req, fifth_sch, fifth_schRe, helperPath)
                                             await waitFor(10)
                                         } else {
 
@@ -283,49 +290,24 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                 }
             })
         } else {
-            // _postman_isSubFolder
-            console.log('ø  Generate Test tests/' + (element.name).toLowerCase().replace(/\s/g, '') + '.js')
+            // helper path
+            const helperPath = '../helper/requestHelper';
+            // write test dir
+            const testPath = 'tests/scenarios';
+            fs.mkdirSync(testPath, { recursive: true })
+            // write pages dir
+            const pagesPath = 'tests/pages';
+            const pagesPathRelativePath = '../pages';
+            fs.mkdirSync(pagesPath, { recursive: true })
 
-            // write describe
-            let code = contents.replace("{{describe}}", 'Test ' + element.name)
-            // write method
-            code = code.replace("{{method}}", (element.request.method).toLowerCase())
-            // write endpoint
-            code = code.replace("{{endpoint}}", (element.request.url.raw).replace("{{url}}", ""))
-            // write headers
-            let headers = '';
-            asyncForEach(element.request.header, async (header) => {
-                headers += '.set("' + header.key + '", "' + header.value + '")';
-            })
-            await waitFor(50);
-            code = code.replace("{{header}}", headers)
-            // write bodies
-            let bodies = '';
-            if (element.request.method != "GET") {
-                bodies += '.send('
-                if (element.request.body.mode == 'formdata') {
-                    bodies += '{'
-                    let first = true;
-                    asyncForEach(element.request.body.formdata, async (body) => {
-                        if (first === false) bodies += ',';
-                        bodies += body.key + ":'" + body.value + "'";
-                        // console.log(body.key+":'"+body.value+"'");
-                        first = false;
-                    })
-                    await waitFor(50);
-                    bodies += '})'
-                }
-                if (element.request.body.mode == 'raw') {
-                    let first = true;
-                    bodies += element.request.body.raw
-                    await waitFor(50);
-                    bodies += ')'
-                }
-            }
-            code = code.replace("{{body}}", bodies)
-            // create file test
-            fs.writeFile('tests/' + (element.name).toLowerCase().replace(/\s/g, '') + '.js',
-                code, function (err) { if (err) throw err; });
+            // write json_schema dir
+            const jsonSchemaPath = 'tests/schema';
+            const jsonSchemaRelativePath = '../schema';
+            fs.mkdirSync(jsonSchemaPath, { recursive: true })
+
+            writeTest(element, testPath, pagesPathRelativePath)
+            writePages(element, pagesPath, jsonSchemaPath, jsonSchemaRelativePath, helperPath)
+            await waitFor(10)
         }
     });
 });
