@@ -14,7 +14,7 @@ async function writeTest(element, path, pagesPath) {
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
     // _postman_isSubFolder
-    console.log('ø  Generate Test ' + path + '/' + name + '.js')
+    console.log('ø  Generate Test ' + path + '/' + name + '.spec.js')
     // write describe
     let code = contents.replace("{{describe}}", 'Test ' + element.name)
 
