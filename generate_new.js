@@ -151,7 +151,7 @@ async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath,
     // write headers
     let headers = '';
     asyncForEach(element.request.header, async (header) => {
-        headers += '.set("' + header.key + '", "' + header.value + '")';
+        headers += '\r\n'+'\t\t'+'.set("' + header.key + '", "' + header.value + '")';
     })
     await waitFor(50);
     code = code.replace("{{header}}", headers)
@@ -160,7 +160,7 @@ async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath,
     let dataQuery = ''
     if (element.request.url.hasOwnProperty('query')) {
         let firstData = true
-        dataQuery += '\r\n'+ '\t\t'+ '.query({ '
+        dataQuery += '\r\n'+'\t\t'+ '.query({ '
         asyncForEach(element.request.url.query, async (query) => {
             if (firstData === false) dataQuery += ', ';
                 dataQuery += query.key + ': "' + query.value + '"';

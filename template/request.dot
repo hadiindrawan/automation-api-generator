@@ -11,8 +11,7 @@ class request {
   }
 
   request(...args) {
-    const response = api.{{method}}("{{endpoint}}"){{query}}
-    {{header}}{{bodyFunc}}
+    const response = api.{{method}}("{{endpoint}}"){{query}}{{header}}{{bodyFunc}}
     .end(new requestHelper().getExpectFunc(args))
     
     return response
