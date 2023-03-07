@@ -11,11 +11,11 @@ class request {
   }
 
   request(...args) {
-    const res = api.{{method}}("{{endpoint}}"){{query}}
+    const response = api.{{method}}("{{endpoint}}"){{query}}
     {{header}}{{bodyFunc}}
     .end(new requestHelper().getExpectFunc(args))
     
-    return res
+    return response
   }
  
   body(...args) {
