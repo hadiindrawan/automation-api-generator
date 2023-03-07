@@ -239,9 +239,9 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                     asyncForEach(second.item, async (third) => {
                         const third_test = testPath + '/' + second.name;
                         const third_req = pagesPath + '/' + second.name;
-                        const third_reqRe = pagesPathRelativePath + '/' + second.name;
+                        const third_reqRe = '../' + pagesPathRelativePath + '/' + second.name;
                         const third_sch = jsonSchemaPath + '/' + second.name;
-                        const third_schRe = jsonSchemaRelativePath + '/' + second.name;
+                        const third_schRe = '../' + jsonSchemaRelativePath + '/' + second.name;
                         fs.mkdirSync(third_test + '/', { recursive: true })
                         fs.mkdirSync(third_req + '/', { recursive: true })
                         fs.mkdirSync(third_sch + '/', { recursive: true })
@@ -254,9 +254,9 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                             asyncForEach(third.item, async (fourth) => {
                                 const fourth_test = third_test + '/' + second.name;
                                 const fourth_req = third_req + '/' + second.name;
-                                const fourth_reqRe = third_reqRe + '/' + second.name;
+                                const fourth_reqRe = '../' + third_reqRe + '/' + second.name;
                                 const fourth_sch = third_sch + '/' + second.name;
-                                const fourth_schRe = third_schRe + '/' + second.name;
+                                const fourth_schRe = '../' + third_schRe + '/' + second.name;
                                 fs.mkdirSync(fourth_test + '/', { recursive: true })
                                 fs.mkdirSync(fourth_req + '/', { recursive: true })
                                 fs.mkdirSync(fourth_sch + '/', { recursive: true })
@@ -268,9 +268,9 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                                     asyncForEach(fourth.item, async (fifth) => {
                                         const fifth_test = fourth_test + '/' + second.name;
                                         const fifth_req = fourth_req + '/' + second.name;
-                                        const fifth_reqRe = fourth_reqRe + '/' + second.name;
+                                        const fifth_reqRe = '../' + fourth_reqRe + '/' + second.name;
                                         const fifth_sch = fourth_sch + '/' + second.name;
-                                        const fifth_schRe = fourth_schRe + '/' + second.name;
+                                        const fifth_schRe = '../' + fourth_schRe + '/' + second.name;
                                         fs.mkdirSync(fifth_test + '/', { recursive: true })
                                         fs.mkdirSync(fifth_req + '/', { recursive: true })
                                         fs.mkdirSync(fifth_sch + '/', { recursive: true })
@@ -279,8 +279,6 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
                                             writeTest(fifth, fifth_test, fifth_reqRe)
                                             writePages(fifth, fifth_req, fifth_sch, fifth_schRe, helperPath)
                                             await waitFor(10)
-                                        } else {
-
                                         }
                                     })
                                 }
