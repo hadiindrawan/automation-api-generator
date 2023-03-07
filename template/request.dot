@@ -11,7 +11,7 @@ class request {
   }
 
   request(...args) {
-    let res = api.{{method}}("{{endpoint}}"){{query}}
+    const res = api.{{method}}("{{endpoint}}"){{query}}
     {{header}}{{bodyFunc}}
     .end(new requestHelper().getExpectFunc(args))
     
@@ -20,7 +20,7 @@ class request {
  
   body(...args) {
     // your rawJSON body
-    var obj = {{objectBody}}
+    let obj = {{objectBody}}
 
     // mapping your changes
     new requestHelper().objectMapping(obj, args[0])
