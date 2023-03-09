@@ -6,31 +6,34 @@ require('dotenv').config()
 const api = chai.request(process.env.APP_URL);
 
 class request {
-  constructor() {
-    // Write your constructor here, if you need
-  }
+    constructor() {
+      	// Write your constructor here, if you need
+    }
 
-  request(...args) {
-    const response = api.{{method}}("{{endpoint}}"){{query}}{{header}}{{bodyFunc}}
-    .end(new requestHelper().getExpectFunc(args))
-    
-    return response
-  }
- 
-  body(...args) {
-    // your rawJSON body
-    let obj = {{objectBody}}
+    // This method used for hit test api endpoint
+    request(...args) {
+		const response = api.{{method}}("{{endpoint}}"){{query}}{{header}}{{bodyFunc}}
+		.end(new requestHelper().getExpectFunc(args))
+		
+		return response
+    }
+  
+    // This method used for provide body or payload of the request and return object
+    body(...args) {
+		// your rawJSON body
+		let obj = {{objectBody}}
 
-    // mapping your changes
-    new requestHelper().objectMapping(obj, args[0])
+		// mapping your changes
+		new requestHelper().objectMapping(obj, args[0])
 
-    // Return it
-    return obj
-  }
+		// Return it
+		return obj
+    }
 
-  expect(cases="success") {
-    return new requestHelper().getSchema(json_responses, cases)
-  }
+	// This method used for provide expectation and return json schema
+    expect(cases="success") {
+      	return new requestHelper().getSchema(json_responses, cases)
+    }
 }
 
 module.exports = request

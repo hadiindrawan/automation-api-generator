@@ -8,6 +8,7 @@ class requestHelper {
         this.waitFor = (ms) => new Promise(r => setTimeout(r, ms))
     }
     
+    // This method used for get parameter which send from test file 
     getParam(arg) {
         let data = Object.assign({}, arg)
         delete data.attachment
@@ -16,15 +17,7 @@ class requestHelper {
         return data
     }
 
-    getAttach(arg) {
-        let data = {}
-        if(arg.hasOwnProperty('attachment')) {
-            data = Object.assign({}, arg.attachment)
-        }
-        this.waitFor(50)
-        return data
-    }
-
+    // This method will get function of expect from test file
     getExpectFunc(arg) {
         let expect
         arg.forEach((data) => {
@@ -35,6 +28,17 @@ class requestHelper {
         return expect
     }
 
+    // If your test using attachment, this method used for get parameter of attachment file like path and keys
+    getAttach(arg) {
+        let data = {}
+        if(arg.hasOwnProperty('attachment')) {
+            data = Object.assign({}, arg.attachment)
+        }
+        this.waitFor(50)
+        return data
+    }
+
+    // If your test using attachment, this method used for get binary file from your computer
     getFile(data) {
         let file
         let name
@@ -46,6 +50,7 @@ class requestHelper {
         return [file, name]
     }
 
+    // This method used for convert json file to json schema
     getSchema(json_responses, cases) {
         const options = {
             objects: {
@@ -61,6 +66,7 @@ class requestHelper {
         
     }
 
+    // This method user for mapping keys object which you want to be change/replace the object
     objectMapping(obj, map) {
         if (Object.keys(map).length > 0)
             // Define desired object

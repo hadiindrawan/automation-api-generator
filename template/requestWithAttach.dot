@@ -6,61 +6,65 @@ require('dotenv').config()
 const api = chai.request(process.env.APP_URL);
 
 class request {
-  constructor() {
-    // Write your constructor here, if you need
-  }
+	constructor() {
+		// Write your constructor here, if you need
+	}
 
-  request(...args) {
-    let datas = new requestHelper().getParam(args[0])
-    let attaches = new requestHelper().getAttach(args[0])
+	// This method used for hit test api endpoint
+	request(...args) {
+		let datas = new requestHelper().getParam(args[0])
+		let attaches = new requestHelper().getAttach(args[0])
 
-    let response = api.{{method}}("{{endpoint}}"){{query}}
-    .set("Content-Type", "multipart/form-data"){{header}}
+		let response = api.{{method}}("{{endpoint}}"){{query}}
+		.set("Content-Type", "multipart/form-data"){{header}}
 
-    Object.keys(this.body(datas)).forEach((key) => {
-      response = response.field(key, JSON.stringify(this.body(datas)[key]))
-    })
+		Object.keys(this.body(datas)).forEach((key) => {
+		response = response.field(key, JSON.stringify(this.body(datas)[key]))
+		})
 
-    Object.keys(this.attach(attaches)).forEach((at) => {
-      if( typeof this.attach(attaches)[at] != 'object') {
-          let att = new requestHelper().getFile(this.attach(attaches)[at])
-          response = response.attach(at, att[0], att[1])
-      } else {
-        this.attach(attaches)[at].forEach((val) => {
-          let att = new requestHelper().getFile(val)
-          response = response.attach(at, att[0], att[1])
-        })
-      }
-    })
+		Object.keys(this.attach(attaches)).forEach((at) => {
+		if( typeof this.attach(attaches)[at] != 'object') {
+			let att = new requestHelper().getFile(this.attach(attaches)[at])
+			response = response.attach(at, att[0], att[1])
+		} else {
+			this.attach(attaches)[at].forEach((val) => {
+			let att = new requestHelper().getFile(val)
+			response = response.attach(at, att[0], att[1])
+			})
+		}
+		})
 
-    return response.end(new requestHelper().getExpectFunc(args))
-  }
- 
-  body(...args) {
-    // your rawJSON body
-    let obj = {{objectBody}}
+		return response.end(new requestHelper().getExpectFunc(args))
+	}
 
-    // mapping your changes
-    new requestHelper().objectMapping(obj, args[0])
+    // This method used for provide body or payload of the request and return object
+	body(...args) {
+		// your rawJSON body
+		let obj = {{objectBody}}
 
-    // Return it
-    return obj
-  }
+		// mapping your changes
+		new requestHelper().objectMapping(obj, args[0])
 
-  attach(...args) {
-    // your rawJSON attachment
-    let objAtt = {{rawAtt}}
+		// Return it
+		return obj
+	}
 
-    // mapping your changes
-    new requestHelper().objectMapping(objAtt, args[0])
+	// This method used for provide attachment file and return object
+	attach(...args) {
+		// your rawJSON attachment
+		let objAtt = {{rawAtt}}
 
-    // Return it
-    return objAtt
-  }
+		// mapping your changes
+		new requestHelper().objectMapping(objAtt, args[0])
 
-  expect(cases="success") {
-    return new requestHelper().getSchema(json_responses, cases)
-  }
+		// Return it
+		return objAtt
+	}
+
+	// This method used for provide expectation and return json schema
+	expect(cases="success") {
+		return new requestHelper().getSchema(json_responses, cases)
+	}
 }
 
 module.exports = request

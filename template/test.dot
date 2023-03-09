@@ -5,6 +5,7 @@ const Request = require('{{pagesPath}}');
 {{dataDriven}}
 
 module.exports = () => {
+    // Write your test here
     describe("{{describe}}", () =>  {
         {{testFunc}}
     })
