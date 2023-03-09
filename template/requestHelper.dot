@@ -10,10 +10,15 @@ class requestHelper {
     
     // This method used for get parameter which send from test file 
     getParam(arg) {
-        let data = Object.assign({}, arg[0])
-        delete data.attachment
-        delete data.response
-        this.waitFor(50)
+        let data = {}
+        arg.forEach((datas) => {
+            if(typeof datas == 'object') {
+                if(datas.hasOwnProperty('response')) {
+                    data = Object.assign({}, datas)
+                    this.waitFor(50)
+                }
+            }
+        })
         return data
     }
 
@@ -31,9 +36,13 @@ class requestHelper {
     // If your test using attachment, this method used for get parameter of attachment file like path and keys
     getAttach(arg) {
         let data = {}
-        if(arg[0].hasOwnProperty('attachment')) {
-            data = Object.assign({}, arg[0].attachment)
-        }
+        arg.forEach((datas) => {
+                if(typeof datas == 'object') {
+                    if(datas.hasOwnProperty('attachment')) {
+                        data = Object.assign({}, datas.attachment)
+                    }
+                }
+        })
         this.waitFor(50)
         return data
     }
