@@ -12,8 +12,8 @@ class request {
 
 	// This method used for hit test api endpoint
 	request(...args) {
-		let datas = new requestHelper().getParam(args[0])
-		let attaches = new requestHelper().getAttach(args[0])
+		let datas = new requestHelper().getParam(args)
+		let attaches = new requestHelper().getAttach(args)
 
 		let response = api.{{method}}("{{endpoint}}"){{query}}
 		.set("Content-Type", "multipart/form-data"){{header}}

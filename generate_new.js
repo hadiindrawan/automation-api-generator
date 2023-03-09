@@ -6,11 +6,12 @@ async function asyncForEach(array, callback) {
     }
 }
 
+const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
+
 // Test generator
 async function writeTest(element, path, pagesPath) {
     let contents = fs.readFileSync('template/test.dot', 'utf8');
 
-    const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
     // _postman_isSubFolder
@@ -71,10 +72,9 @@ let data = [
 }
 
 // Body generator
-async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath, helperPath) {
+async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
     let contents = fs.readFileSync('template/request.dot', 'utf8');
 
-    const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
 
@@ -86,7 +86,7 @@ async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath,
     if (element.request.hasOwnProperty('body')) {
         if (element.request.body?.mode == 'raw') {
             bodyRaw = element.request.body.raw
-            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParam(args[0])))"
+            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParam(args)))"
         } else 
         if (element.request.body?.mode == 'formdata') {
             let data = element.request.body.formdata
@@ -137,7 +137,7 @@ async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath,
             await waitFor(50);
             attKey += '\r\n'+'\t\t'+'}'
             await waitFor(50);
-            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParam(args[0])))"
+            bodyFunc = '\r\n'+'\t\t'+".send(this.body(new requestHelper().getParam(args)))"
         }
     } else {
         await waitFor(50);
@@ -191,16 +191,36 @@ async function writePages(element, path, jsonSchemaPath, jsonSchemaRelativePath,
     // create request file
     fs.writeFile(path + '/' + name + '.js',
         code, function (err) { if (err) throw err ; });
+}
+
+async function writeJsonSchema(element, jsonSchemaPath) {
+    let name = (element.name).toLowerCase().replace(/\s/g, '');
+    name = name.replace(/\//g, '');
 
     // create json_responses file
     fs.writeFile(jsonSchemaPath + '/' + name + '.json',
         fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
 }
 
+async function writeRunner(element, testPath, runPath) {
+    let name = (element.name).toLowerCase().replace(/\s/g, '');
+    name = name.replace(/\//g, '');
+
+    let first
+    let runner = ''
+    asyncForEach(element.item, async (item) => {
+        if (first === false) runner += '\r\n'
+            runner += "require('../"+ testPath+'/'+item.name+".spec')"
+            first = false;
+    })
+    await waitFor(10)
+    // create write runner content
+    fs.writeFile(runPath + '/' + name + '.js', runner, function (err) { if (err) throw err ; });
+}
+
 fs.readFile(process.argv.slice(2)[0], (err, data) => {
     if (err) throw err;
     let items = JSON.parse(data).item;
-    const waitFor = (ms) => new Promise(r => setTimeout(r, ms));
     
     // write data dir
     const dataDir = 'tests/data';
@@ -229,61 +249,77 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
             const jsonSchemaPath = 'tests/schema/' + element.name;
             const jsonSchemaRelativePath = '../../schema/' + element.name;
             fs.mkdirSync(jsonSchemaPath, { recursive: true })
-            // await waitFor(50)
+            // write runner dir
+            const runPath = 'runner'
+            fs.mkdirSync(runPath, { recursive: true })
+            writeRunner(element, testPath, runPath)
+
             asyncForEach(element.item, async (second) => {
                 if (second.hasOwnProperty('item') == false) {
                     writeTest(second, testPath, pagesPathRelativePath)
-                    writePages(second, pagesPath, jsonSchemaPath, jsonSchemaRelativePath, helperPath)
+                    writePages(second, pagesPath, jsonSchemaRelativePath, helperPath)
+                    writeJsonSchema(second, jsonSchemaPath)
                     await waitFor(10)
                 } else {
                     asyncForEach(second.item, async (third) => {
                         const third_test = testPath + '/' + second.name;
-                        const third_req = pagesPath + '/' + second.name;
-                        const third_reqRe = '../' + pagesPathRelativePath + '/' + second.name;
+                        const third_page = pagesPath + '/' + second.name;
+                        const third_pageRe = '../' + pagesPathRelativePath + '/' + second.name;
                         const third_sch = jsonSchemaPath + '/' + second.name;
                         const third_schRe = '../' + jsonSchemaRelativePath + '/' + second.name;
                         const third_helpRe = '../' + helperPath;
+                        const third_runPath = runPath + '/' + element.name;
 
                         fs.mkdirSync(third_test + '/', { recursive: true })
-                        fs.mkdirSync(third_req + '/', { recursive: true })
+                        fs.mkdirSync(third_page + '/', { recursive: true })
                         fs.mkdirSync(third_sch + '/', { recursive: true })
-                        
+                        fs.mkdirSync(third_runPath, { recursive: true })
+                        writeRunner(second, third_test, third_runPath)
                         if (third.hasOwnProperty('item') == false) {
-                            writeTest(third, third_test, third_reqRe)
-                            writePages(third, third_req, third_sch, third_schRe, third_helpRe)
+                            writeTest(third, third_test, third_pageRe)
+                            writePages(third, third_page, third_schRe, third_helpRe)
+                            writeJsonSchema(third, third_sch)
                             await waitFor(10)
                         } else {
                             asyncForEach(third.item, async (fourth) => {
-                                const fourth_test = third_test + '/' + second.name;
-                                const fourth_req = third_req + '/' + second.name;
-                                const fourth_reqRe = '../' + third_reqRe + '/' + second.name;
-                                const fourth_sch = third_sch + '/' + second.name;
-                                const fourth_schRe = '../' + third_schRe + '/' + second.name;
+                                const fourth_test = third_test + '/' + third.name;
+                                const fourth_page = third_page + '/' + third.name;
+                                const fourth_pageRe = '../' + third_pageRe + '/' + third.name;
+                                const fourth_sch = third_sch + '/' + third.name;
+                                const fourth_schRe = '../' + third_schRe + '/' + third.name;
                                 const fourth_helpRe = '../' + third_helpRe;
+                                const fourth_runPath = third_runPath + '/' + second.name;
 
                                 fs.mkdirSync(fourth_test + '/', { recursive: true })
-                                fs.mkdirSync(fourth_req + '/', { recursive: true })
+                                fs.mkdirSync(fourth_page + '/', { recursive: true })
                                 fs.mkdirSync(fourth_sch + '/', { recursive: true })
+                                fs.mkdirSync(fourth_runPath, { recursive: true })
+                                writeRunner(third, fourth_test, fourth_runPath)
                                 if (fourth.hasOwnProperty('item') == false) {
-                                    writeTest(fourth, fourth_test, fourth_reqRe)
-                                    writePages(fourth, fourth_req, fourth_sch, fourth_schRe, fourth_helpRe)
+                                    writeTest(fourth, fourth_test, fourth_pageRe)
+                                    writePages(fourth, fourth_page, fourth_schRe, fourth_helpRe)
+                                    writeJsonSchema(fourth, fourth_sch)
                                     await waitFor(10)
                                 } else {
                                     asyncForEach(fourth.item, async (fifth) => {
-                                        const fifth_test = fourth_test + '/' + second.name;
-                                        const fifth_req = fourth_req + '/' + second.name;
-                                        const fifth_reqRe = '../' + fourth_reqRe + '/' + second.name;
-                                        const fifth_sch = fourth_sch + '/' + second.name;
-                                        const fifth_schRe = '../' + fourth_schRe + '/' + second.name;
+                                        const fifth_test = fourth_test + '/' + fourth.name;
+                                        const fifth_page = fourth_page + '/' + fourth.name;
+                                        const fifth_pageRe = '../' + fourth_pageRe + '/' + fourth.name;
+                                        const fifth_sch = fourth_sch + '/' + fourth.name;
+                                        const fifth_schRe = '../' + fourth_schRe + '/' + fourth.name;
                                         const fifth_helpRe = '../' + fourth_helpRe;
+                                        const fifth_runPath = fourth_runPath + '/' + third.name;
 
                                         fs.mkdirSync(fifth_test + '/', { recursive: true })
-                                        fs.mkdirSync(fifth_req + '/', { recursive: true })
+                                        fs.mkdirSync(fifth_page + '/', { recursive: true })
                                         fs.mkdirSync(fifth_sch + '/', { recursive: true })
+                                        fs.mkdirSync(fifth_runPath, { recursive: true })
+                                        writeRunner(fourth, fifth_test, fifth_runPath)
                                         await waitFor(50)
                                         if (fifth.hasOwnProperty('item') == false) {
-                                            writeTest(fifth, fifth_test, fifth_reqRe)
-                                            writePages(fifth, fifth_req, fifth_sch, fifth_schRe, fifth_helpRe)
+                                            writeTest(fifth, fifth_test, fifth_pageRe)
+                                            writePages(fifth, fifth_page, fifth_schRe, fifth_helpRe)
+                                            writeJsonSchema(fifth, fifth_sch)
                                             await waitFor(10)
                                         }
                                     })
