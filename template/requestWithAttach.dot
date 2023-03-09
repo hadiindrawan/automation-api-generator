@@ -43,7 +43,7 @@ class request {
 		let obj = {{objectBody}}
 
 		// mapping your changes
-		new requestHelper().objectMapping(obj, args[0])
+		new requestHelper().objectMapping(obj, args)
 
 		// Return it
 		return obj
@@ -55,7 +55,7 @@ class request {
 		let objAtt = {{rawAtt}}
 
 		// mapping your changes
-		new requestHelper().objectMapping(objAtt, args[0])
+		new requestHelper().objectMapping(objAtt, args)
 
 		// Return it
 		return objAtt

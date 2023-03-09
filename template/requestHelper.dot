@@ -67,7 +67,8 @@ class requestHelper {
     }
 
     // This method user for mapping keys object which you want to be change/replace the object
-    objectMapping(obj, map) {
+    objectMapping(obj, arg) {
+        let map = arg[0]
         if (Object.keys(map).length > 0)
             // Define desired object
             Object.keys(map).forEach((key) => {

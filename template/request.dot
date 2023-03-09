@@ -24,7 +24,7 @@ class request {
 		let obj = {{objectBody}}
 
 		// mapping your changes
-		new requestHelper().objectMapping(obj, args[0])
+		new requestHelper().objectMapping(obj, args)
 
 		// Return it
 		return obj
