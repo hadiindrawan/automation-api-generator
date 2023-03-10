@@ -8,6 +8,8 @@ const api = chai.request(process.env.APP_URL);
 class request {
 	constructor() {
 		// Write your constructor here, if you need
+		this.api = chai.request(process.env.APP_URL)
+		this.path = "{{endpoint}}"
 	}
 
 	// This method used for hit test api endpoint
@@ -15,7 +17,7 @@ class request {
 		let datas = new requestHelper().getParam(args)
 		let attaches = new requestHelper().getAttach(args)
 
-		let response = api.{{method}}("{{endpoint}}"){{query}}
+		let response = this.api.{{method}}(this.path){{query}}
 		.set("Content-Type", "multipart/form-data"){{header}}
 
 		Object.keys(this.body(datas)).forEach((key) => {

@@ -236,14 +236,12 @@ async function writeRunner(element, testPath, runPath) {
             }
         })
     } else {
-        if (!element.hasOwnProperty('item')) {
-            let namet = (element.name).toLowerCase().replace(/\s/g, '');
-            namet = namet.replace(/\//g, '');
+        let namet = (element.name).toLowerCase().replace(/\s/g, '');
+        namet = namet.replace(/\//g, '');
 
-            if (first === false) runner += '\r\n'
-                runner += "require('"+ testPath+'/'+namet+".spec')()"
-                first = false;
-        }
+        if (first === false) runner += '\r\n'
+            runner += "require('"+ testPath+'/'+namet+".spec')()"
+            first = false;
     }
     await waitFor(10)
     runner += '\r\n'+'module.exports = () => {}'

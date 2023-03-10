@@ -8,11 +8,13 @@ const api = chai.request(process.env.APP_URL);
 class request {
     constructor() {
       	// Write your constructor here, if you need
+		this.api = chai.request(process.env.APP_URL)
+		this.path = "{{endpoint}}"
     }
 
     // This method used for hit test api endpoint
     request(...args) {
-		const response = api.{{method}}("{{endpoint}}"){{query}}{{header}}{{bodyFunc}}
+		const response = this.api.{{method}}(this.path){{query}}{{header}}{{bodyFunc}}
 		.end(new requestHelper().getExpectFunc(args))
 		
 		return response
