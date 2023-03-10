@@ -91,6 +91,7 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
         if (element.request.body?.mode == 'formdata') {
             let data = element.request.body.formdata
             let first = true
+            let first1 = true
             bodyRaw += '{'+'\r\n'+'\t\t\t'
             attKey += '{'+'\r\n'+'\t\t\t'
             let i = 1;
@@ -110,13 +111,13 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
                             }
                         } else {
                             if(typeof body.src != 'object') {
-                                if (first === false) attKey += ','+'\r\n'+'\t\t\t';
+                                if (first1 === false) attKey += ','+'\r\n'+'\t\t\t';
                                     attKey += '"' + body.key+'"'  + ': ' + '"'+ body.src +'"';
-                                    first = false;
+                                    first1 = false;
                             } else {
-                                if (first === false) attKey += ','+'\r\n'+'\t\t\t';
+                                if (first1 === false) attKey += ','+'\r\n'+'\t\t\t';
                                     attKey += '"' + body.key+'"'  + ': ' + JSON.stringify(body.src);
-                                    first = false;
+                                    first1 = false;
                             }
                         }
                     }
@@ -148,23 +149,37 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
 
     // write method
     let code = contents.replace("{{method}}", (element.request.method).toLowerCase())
+
     // write headers
     let headers = '';
     asyncForEach(element.request.header, async (header) => {
-        headers += '\r\n'+'\t\t'+'.set("' + header.key + '", "' + header.value + '")';
+        if (header.disabled != true) {
+            headers += '\r\n'+'\t\t'+'.set("' + header.key + '", "' + header.value + '")';
+        }
     })
     await waitFor(50);
-    code = code.replace("{{header}}", headers)
+    // if any auth
+    if (element.request.hasOwnProperty('auth')){
+        let auth = element.request.auth
+        if (auth.type == "bearer"){
+            headers += '\r\n'+'\t\t'+'.set("Authorization", "' + (auth.type).replace(/\w\S*/g, (auth.type).charAt(0).toUpperCase() + (auth.type).substr(1).toLowerCase()) + ' ' + auth.bearer[0].value + '")';
+        }
+    }
+    await waitFor(50);
 
+    code = code.replace("{{header}}", headers)
+    
     // write endpoint
     let dataQuery = ''
     if (element.request.url.hasOwnProperty('query')) {
         let firstData = true
         dataQuery += '\r\n'+'\t\t'+ '.query({ '
         asyncForEach(element.request.url.query, async (query) => {
-            if (firstData === false) dataQuery += ', ';
-                dataQuery += query.key + ': "' + query.value + '"';
-                firstData = false;
+            if (query.disabled != true) {
+                if (firstData === false) dataQuery += ', ';
+                    dataQuery += query.key + ': "' + query.value + '"';
+                    firstData = false;
+            }
         })
         await waitFor(50);
         dataQuery += ' })'
@@ -178,8 +193,9 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
     if (url.includes('http')) {
         code = code.replace("{{endpoint}}", new URL(url).pathname)
     } else {
+        const fakeBase = 'https://fake.dot'
         let base = url.split('/')
-        code = code.replace("{{endpoint}}", (url).replace(base[0], ""))
+        code = code.replace("{{endpoint}}", new URL((url).replace(base[0], fakeBase)).pathname)
     }
 
     code = code.replace("{{objectBody}}", bodyRaw)
