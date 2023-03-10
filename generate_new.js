@@ -224,16 +224,27 @@ async function writeRunner(element, testPath, runPath) {
 
     let first
     let runner = ''
-    asyncForEach(element.item, async (item) => {
-        if (!item.hasOwnProperty('item')) {
-            let namet = (item.name).toLowerCase().replace(/\s/g, '');
+    if (element.hasOwnProperty('item')) {
+        asyncForEach(element.item, async (item) => {
+            if (!item.hasOwnProperty('item')) {
+                let namet = (item.name).toLowerCase().replace(/\s/g, '');
+                namet = namet.replace(/\//g, '');
+
+                if (first === false) runner += '\r\n'
+                    runner += "require('"+ testPath+'/'+namet+".spec')()"
+                    first = false;
+            }
+        })
+    } else {
+        if (!element.hasOwnProperty('item')) {
+            let namet = (element.name).toLowerCase().replace(/\s/g, '');
             namet = namet.replace(/\//g, '');
 
             if (first === false) runner += '\r\n'
                 runner += "require('"+ testPath+'/'+namet+".spec')()"
                 first = false;
         }
-    })
+    }
     await waitFor(10)
     runner += '\r\n'+'module.exports = () => {}'
     await waitFor(10)
@@ -385,19 +396,24 @@ fs.readFile(process.argv.slice(2)[0], (err, data) => {
             const helperPath = '../helper/requestHelper';
             // write test dir
             const testPath = 'tests/scenarios';
+            const testRelativePath = '../tests/scenarios';
             fs.mkdirSync(testPath, { recursive: true })
             // write pages dir
             const pagesPath = 'tests/pages';
             const pagesPathRelativePath = '../pages';
             fs.mkdirSync(pagesPath, { recursive: true })
-
             // write json_schema dir
             const jsonSchemaPath = 'tests/schema';
             const jsonSchemaRelativePath = '../schema';
             fs.mkdirSync(jsonSchemaPath, { recursive: true })
+            // write runner dir
+            const runPath = 'runner'
+            fs.mkdirSync(runPath, { recursive: true })
 
+            writeRunner(element, testRelativePath, runPath)
             writeTest(element, testPath, pagesPathRelativePath)
             writePages(element, pagesPath, jsonSchemaPath, jsonSchemaRelativePath, helperPath)
+            writeJsonSchema(element, jsonSchemaPath)
             await waitFor(10)
         }
     });
