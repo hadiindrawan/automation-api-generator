@@ -30,7 +30,7 @@ async function writeTest(element, path, pagesPath) {
         testFunc = `
         data.forEach((datas) => {
             it(datas.response.case, (done) => {
-                new Request().request(datas, 
+                new Request().request(datas.ddt, 
                     (err, res) => {
                         expect(res.status).to.equals(datas.response.status);
                         expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.schema))
@@ -43,7 +43,7 @@ async function writeTest(element, path, pagesPath) {
 `
 // If you need data driven, just write driven keys (no need all keys), for example
 let data = [
-    // { example: "value_example", attachment: {"file": "tests/data/file/example.png"}, response: { case: "Success cases", schema: "success", status: 201 } }
+    // { ddt: { example: "value_example", attachment: {"file": "tests/data/file/example.png"} }, response: { case: "Success cases", schema: "success", status: 201 } }
     { response: { case: "Success cases", schema: "success", status: 200 } }
 ]`
     } else {
@@ -209,8 +209,11 @@ async function writeRunner(element, testPath, runPath) {
     let first
     let runner = ''
     asyncForEach(element.item, async (item) => {
+        let namet = (item.name).toLowerCase().replace(/\s/g, '');
+        namet = namet.replace(/\//g, '');
+
         if (first === false) runner += '\r\n'
-            runner += "require('../"+ testPath+'/'+item.name+".spec')"
+            runner += "require('../"+ testPath+'/'+namet+".spec')"
             first = false;
     })
     await waitFor(10)
