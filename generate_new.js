@@ -43,8 +43,8 @@ async function writeTest(element, path, pagesPath) {
 `
 // If you need data driven, just write driven keys (no need all keys), for example
 let data = [
-    // { ddt: { example: "value_example", attachment: {"file": "tests/data/file/example.png"} }, response: { case: "Success cases", schema: "success", status: 201 } }
-    { response: { case: "Success cases", schema: "success", status: 200 } }
+    // Example data driven, some default keys need exist: ddt, response, attachment (if any)
+    { ddt: { example: "value_example", attachment: {"file": "tests/data/file/example.png"} }, response: { case: "Success cases", schema: "success", status: 200 } }
 ]`
     } else {
         testFunc = `
