@@ -13,10 +13,8 @@ class requestHelper {
         let data = {}
         arg.forEach((datas) => {
             if(typeof datas == 'object') {
-                if(datas.hasOwnProperty('response')) {
-                    data = Object.assign({}, datas)
-                    this.waitFor(50)
-                }
+                data = Object.assign({}, datas)
+                this.waitFor(50)
             }
         })
         return data
