@@ -3,5 +3,6 @@ package-lock.json
 .env
 src
 tests
+runner
 mochawesome-report
 notes.txt

@@ -209,13 +209,17 @@ async function writeRunner(element, testPath, runPath) {
     let first
     let runner = ''
     asyncForEach(element.item, async (item) => {
-        let namet = (item.name).toLowerCase().replace(/\s/g, '');
-        namet = namet.replace(/\//g, '');
+        if (!item.hasOwnProperty('item')) {
+            let namet = (item.name).toLowerCase().replace(/\s/g, '');
+            namet = namet.replace(/\//g, '');
 
-        if (first === false) runner += '\r\n'
-            runner += "require('../"+ testPath+'/'+namet+".spec')"
-            first = false;
+            if (first === false) runner += '\r\n'
+                runner += "require('../"+ testPath+'/'+namet+".spec')()"
+                first = false;
+        }
     })
+    await waitFor(10)
+    runner += '\r\n'+'module.exports = () => {}'
     await waitFor(10)
     // create write runner content
     fs.writeFile(runPath + '/' + name + '.js', runner, function (err) { if (err) throw err ; });
