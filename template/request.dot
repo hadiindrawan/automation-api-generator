@@ -3,7 +3,6 @@ chai.use(require('chai-http'))
 const json_responses = require('{{jsonSchemaPath}}');
 const requestHelper = require('{{helperPath}}');
 require('dotenv').config()
-const api = chai.request(process.env.APP_URL);
 
 class request {
     constructor() {
