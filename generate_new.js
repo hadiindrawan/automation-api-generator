@@ -222,26 +222,6 @@ async function writeJsonSchema(element, jsonSchemaPath) {
     name = name.replace(/\//g, '');
     let method = element.request.method
 
-    // This code if you when generate response from collection
-    // if (element.response.length > 0) {
-    //     let json = ''
-    //     let first = true
-    //     json += '{'+'\r\n'+'\t'
-    //     element.response.forEach((data, i) => {
-    //         if (first === false) json += ','+'\r\n'+'\t';
-    //             json += '"'+data.name+'"'  + ': ' +'\r\n'+ data.body;
-    //             first = false;
-    //     })
-    //     json += '\r\n'+'}'
-    //     waitFor(10)
-        
-    //     fs.writeFile(jsonSchemaPath + '/' +method+'_'+ name + '.json',
-    //         json , function (err) { if (err) throw err ; });
-    // } else {
-    //     fs.writeFile(jsonSchemaPath + '/' +method+'_'+ name + '.json',
-    //         fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
-    // }
-
     // create json_responses file
     fs.writeFile(jsonSchemaPath + '/' +method+'_'+ name + '.json',
             fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
