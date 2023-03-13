@@ -14,14 +14,17 @@ async function writeTest(element, path, pagesPath) {
 
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
+    let method = element.request.method
+
     // _postman_isSubFolder
-    console.log('ø  Generate Test ' + path + '/' + name + '.spec.js')
+    console.log('ø  Generate Test ' + path + '/' + method + '_' + name + '.spec.js')
     // write describe
     let code = contents.replace("{{describe}}", 'Test ' + element.name)
 
     // write path body
-    let body_path = pagesPath + '/' + name
+    let body_path = pagesPath + '/' + method + '_' + name
     code = code.replace("{{pagesPath}}", body_path)
+    await waitFor(50);
 
     let testFunc = ``
     let dataDriven = ``
@@ -64,9 +67,10 @@ let data = [
 
     code = code.replace("{{testFunc}}", testFunc)
     code = code.replace("{{dataDriven}}", dataDriven)
+    await waitFor(50);
 
     // create file test
-    fs.writeFile(path + '/' + name + '.spec.js',
+    fs.writeFile(path + '/' + method + '_' +name + '.spec.js',
     code, function (err) { if (err) throw err; });
 
 }
@@ -148,7 +152,9 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
     await waitFor(50);
 
     // write method
-    let code = contents.replace("{{method}}", (element.request.method).toLowerCase())
+    let method = element.request.method
+    let code = contents.replace("{{method}}", (method).toLowerCase())
+    await waitFor(50);
 
     // write headers
     let headers = '';
@@ -161,7 +167,7 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
     // if any auth
     if (element.request.hasOwnProperty('auth')){
         let auth = element.request.auth
-        if (auth.type == "bearer"){
+        if (auth.hasOwnProperty('bearer')){
             headers += '\r\n'+'\t\t'+'.set("Authorization", "' + (auth.type).replace(/\w\S*/g, (auth.type).charAt(0).toUpperCase() + (auth.type).substr(1).toLowerCase()) + ' ' + auth.bearer[0].value + '")';
         }
     }
@@ -199,22 +205,25 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
     }
 
     code = code.replace("{{objectBody}}", bodyRaw)
-    code = code.replace("{{jsonSchemaPath}}", jsonSchemaRelativePath + '/' + name + '.json')
+    code = code.replace("{{jsonSchemaPath}}", jsonSchemaRelativePath + '/' + method + '_'+ name + '.json')
     code = code.replace("{{bodyFunc}}", bodyFunc)
     code = code.replace("{{rawAtt}}", attKey)
     code = code.replace("{{helperPath}}", helperPath)
 
+    await waitFor(50);
+
     // create request file
-    fs.writeFile(path + '/' + name + '.js',
+    fs.writeFile(path + '/' + method + '_' + name + '.js',
         code, function (err) { if (err) throw err ; });
 }
 
 async function writeJsonSchema(element, jsonSchemaPath) {
     let name = (element.name).toLowerCase().replace(/\s/g, '');
     name = name.replace(/\//g, '');
+    let method = element.request.method
 
     // create json_responses file
-    fs.writeFile(jsonSchemaPath + '/' + name + '.json',
+    fs.writeFile(jsonSchemaPath + '/' +method+'_'+ name + '.json',
         fs.readFileSync('template/json_responses.dot', 'utf8') , function (err) { if (err) throw err ; });
 }
 
@@ -229,18 +238,20 @@ async function writeRunner(element, testPath, runPath) {
             if (!item.hasOwnProperty('item')) {
                 let namet = (item.name).toLowerCase().replace(/\s/g, '');
                 namet = namet.replace(/\//g, '');
+                let method = item.request.method
 
                 if (first === false) runner += '\r\n'
-                    runner += "require('"+ testPath+'/'+namet+".spec')()"
+                    runner += "require('"+ testPath+'/'+method+'_'+namet+".spec')()"
                     first = false;
             }
         })
     } else {
         let namet = (element.name).toLowerCase().replace(/\s/g, '');
         namet = namet.replace(/\//g, '');
+        let method = element.request.method
 
         if (first === false) runner += '\r\n'
-            runner += "require('"+ testPath+'/'+namet+".spec')()"
+            runner += "require('"+ testPath+'/'+method+'_'+namet+".spec')()"
             first = false;
     }
     await waitFor(10)
