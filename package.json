@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "generate": "node generate_new.js",
-    "test": "mocha runner/regression.js --timeout 15000"
+    "test": "mocha runner/Auth/subauth.js --timeout 15000",
+    "alami": "mocha runner/Backoffice/account.js --timeout 15000"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "chai": "^4.3.6",
+    "eslint": "^8.36.0",
     "mocha": "^10.0.0"
   }
 }
