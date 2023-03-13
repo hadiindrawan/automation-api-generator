@@ -6,7 +6,7 @@ require('dotenv').config()
 
 class request {
     constructor() {
-      	// Write your constructor here, if you need
+		// Write your constructor here, if you need
 		this.api = chai.request(process.env.APP_URL)
 		this.path = "{{endpoint}}"
     }
@@ -33,7 +33,7 @@ class request {
 
 	// This method used for provide expectation and return json schema
     expect(cases="success") {
-      	return new requestHelper().getSchema(json_responses, cases)
+		return new requestHelper().getSchema(json_responses, cases)
     }
 }
 

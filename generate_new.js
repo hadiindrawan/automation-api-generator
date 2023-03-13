@@ -1,5 +1,4 @@
 const fs = require('fs');
-const { hostname } = require('os');
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
         await callback(array[index], index, array);
@@ -98,7 +97,6 @@ async function writePages(element, path, jsonSchemaRelativePath, helperPath) {
             let first1 = true
             bodyRaw += '{'+'\r\n'+'\t\t\t'
             attKey += '{'+'\r\n'+'\t\t\t'
-            let i = 1;
 
             if (data.some(datas => datas['type'] === 'file')) {
                 contents = fs.readFileSync('template/requestWithAttach.dot', 'utf8');
