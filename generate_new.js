@@ -258,7 +258,8 @@ async function writeRunner(element, testPath, runPath) {
     runner += '\r\n'+'module.exports = () => {}'
     await waitFor(10)
     // create write runner content
-    fs.writeFile(runPath + '/' + name + '.js', runner, function (err) { if (err) throw err ; });
+    if (runner.includes('require'))
+        fs.writeFile(runPath + '/' + name + '.js', runner, function (err) { if (err) throw err ; });
 }
 
 fs.readFile(process.argv.slice(2)[0], (err, data) => {
