@@ -1,24 +1,14 @@
 {
-  "name": "api-generator",
-  "version": "1.0.0",
+  "name": "dot-generator-mocha",
+  "version": "1.2.3",
   "main": "index.js",
   "scripts": {
-    "generate": "node generate_new.js",
-    "test": "mocha runner/regression.js --timeout 15000"
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+  "bin": {
+    "generate": "index.js"
   },
-  "author": "",
+  "author": "Hadi Indrawan",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "chai-http": "^4.3.0",
-    "chai-json-schema": "^1.5.1",
-    "cryptlib": "^1.0.3",
-    "dotenv": "^16.0.1",
-    "to-json-schema": "^0.2.5"
-  },
-  "devDependencies": {
-    "chai": "^4.3.6",
-    "eslint": "^8.36.0",
-    "mocha": "^10.0.0"
-  }
+  "description": "This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection, and run the Generator to write the automation code."
 }
