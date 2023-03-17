@@ -15,17 +15,17 @@ class main {
 
             // The following case checks whether the given environment includes dev in it or not 
             case this.env.includes('dev'):
-                // If 'dev' environment, then will get dev url
+                // If 'dev' environment, then will return dev url
                 return chai.request(process.env.DEV_MAIN);
 
             // The following case checks whether the given environment includes staging in it or not 
             case this.env.includes('staging'):
-                // If 'staging' environment, then will get staging url
+                // If 'staging' environment, then will return staging url
                 return chai.request(process.env.STAGING_MAIN);
 
             // The following case checks whether the given environment includes prod in it or not 
             case this.env.includes('prod'):
-                // If 'prod' environment, then will get prod url
+                // If 'prod' environment, then will return prod url
                 return chai.request(process.env.PROD_MAIN);
 
             // The default case throws an error when none of the above cases are matched, specifying an invalid environemnt 
