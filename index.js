@@ -6,7 +6,7 @@ const generator = require('./lib/generate.js')
 
 function addScriptRunner() {
     const scriptName = 'test:regression'; // Name of your new script
-    const scriptCommand = 'mocha runner/regression.js --timeout 15000'; // Command to execute your script
+    const scriptCommand = 'mocha runner/regression.js --timeout 15000 --dev'; // Command to execute your script
 
     // Read the package.json file
     const packageJson = JSON.parse(fs.readFileSync('./package.json'));
@@ -44,9 +44,6 @@ function runGenAll(strPack) {
                     rl.question('Type your json file to be generate : ', (file) => {
                         if(file.includes('.json')) {
                             let npm = ''
-                            // if(services == 'y' || services == 'Y') {
-                            //     npm += ' services'
-                            // }
                             if(eslint == 'y' || eslint == 'Y') {
                                 npm += ' eslint'
                             }
@@ -85,7 +82,7 @@ function runGenAll(strPack) {
                                     console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
                                     
                                     //Call the generator function to generate automation tests.
-                                    // generator(file)
+                                    generator(file.includes('"') ? file.replace(/"/g, '') : file)
 
                                     // write test script for run the regression test 
                                     addScriptRunner()
@@ -116,9 +113,6 @@ function withMochawesome(strPack) {
             rl.question('Type your json file to be generate : ', (file) => {
                 if(file.includes('.json')) {
                     let npm = ''
-                    // if(services == 'y' || services == 'Y') {
-                    //     npm += ' services'
-                    // }
                     if(mochawe == 'y' || mochawe == 'Y') {
                         npm += ' mochawesome'
                     }
@@ -151,7 +145,7 @@ function withMochawesome(strPack) {
                             console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
                             
                             //Call the generator function to generate automation tests.
-                            // generator(file)
+                            generator(file.includes('"') ? file.replace(/"/g, '') : file)
 
                             // write test script for run the regression test 
                             addScriptRunner()
@@ -177,9 +171,6 @@ function withEslint(strPack) {
             rl.question('Type your json file to be generate : ', (file) => {
                 if(file.includes('.json')) {
                     let npm = ''
-                    // if(services == 'y' || services == 'Y') {
-                    //     npm += ' services'
-                    // }
                     if(eslint == 'y' || eslint == 'Y') {
                         npm += ' eslint'
                     }
@@ -215,7 +206,7 @@ function withEslint(strPack) {
                             console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
                             
                             //Call the generator function to generate automation tests.
-                            // generator(file)
+                            generator(file.includes('"') ? file.replace(/"/g, '') : file)
 
                             // write test script for run the regression test 
                             addScriptRunner()
@@ -237,16 +228,16 @@ function withEslint(strPack) {
 function runGen(strPack) {
     rl.question('Type your json file to be generate : ', (file) => {
         if(file.includes('.json')) {
-            //Print message indicating automation test generation has started..
-            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
-            
-            //Call the generator function to generate automation tests.
-            generator(file)
+                //Print message indicating automation test generation has started..
+                console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
+                
+                //Call the generator function to generate automation tests.
+                generator(file.includes('"') ? file.replace(/"/g, '') : file)
 
-            // write test script for run the regression test 
-            addScriptRunner()
+                // write test script for run the regression test 
+                addScriptRunner()
 
-            rl.close()
+                rl.close()
         } else {
             console.log(`${'\x1b[31m'}Please input correct answer, the file must json format!${'\x1b[0m'}`)
             runGen()
