@@ -6,3 +6,4 @@ runner
 mochawesome-report
 notes.txt
 *.json
+json
