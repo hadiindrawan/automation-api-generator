@@ -1,21 +1,26 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
+const main = require('./main.pages');
 const json_responses = require('{{jsonSchemaPath}}');
 const requestHelper = require('{{helperPath}}');
 require('dotenv').config()
 
-class request {
+class request extends main {
     constructor() {
 		// Write your constructor here, if you need
-		this.api = chai.request(process.env.APP_URL)
-		this.path = "{{endpoint}}"
+		super()
+		this.api = this.mainServices() // Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.path = "{{endpoint}}" // Set up the API path to the route endpoint
     }
 
-    // This method used for hit test api endpoint
+    // This method handles making the HTTP request based on given arguments.
     request(...args) {
+		// Send HTTP POST request to the specified path and send the required body with params extracted from args.
 		const response = this.api.{{method}}(this.path){{query}}{{header}}{{bodyFunc}}
+		// Finally, end the request by returning expected behavior by analyzing input args
 		.end(new requestHelper().getExpectFunc(args))
 		
+		// Return the complete response
 		return response
     }
   

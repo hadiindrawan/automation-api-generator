@@ -41,155 +41,6 @@ function runGenAll(strPack) {
         if(eslint == 'y' || eslint == 'Y' || eslint == 'n' || eslint == 'N') {
             rl.question('Do you want to install Mochawesome? (y/n) : ', (mochawe) => {
                 if(mochawe == 'y' || mochawe == 'Y' || mochawe == 'n' || mochawe == 'N') {
-                    rl.question('Do your requests use multiple services? (y/n) : ', (services) => {
-                        if(services == 'y' || services == 'Y' || services == 'n' || services == 'N') {
-                            rl.question('Type your json file to be generate : ', (file) => {
-                                if(file.includes('.json')) {
-                                    let npm = ''
-                                    // if(services == 'y' || services == 'Y') {
-                                    //     npm += ' services'
-                                    // }
-                                    if(eslint == 'y' || eslint == 'Y') {
-                                        npm += ' eslint'
-                                    }
-                                    if(mochawe == 'y' || mochawe == 'Y') {
-                                        npm += ' mochawesome'
-                                    }
-                                    // This line of code will print "Installing dependencies..." on the console.
-                                    console.log("Installing dependencies...");
-
-                                    const installProcess = exec('npm install '+strPack);
-
-                                    //This code is registering a listener to the exit event of installProcess
-                                    installProcess.on('exit', (code) => { 
-                                        //checking if npm install failed or succeeded by checking exit code
-                                        if (code !== 0) { 
-                                            //if the exit code is not 0, it means the installation has failed. So, print error message and return.
-                                            console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
-                                            return;
-                                        }
-
-                                        const installOption = exec('npm install'+npm+' --save-dev')
-                                        installOption.on('exit', (res) => {
-                                            //checking if npm install failed or succeeded by checking exit code
-                                            if (res !== 0) { 
-                                                //if the exit code is not 0, it means the installation has failed. So, print error message and return.
-                                                console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
-                                                return;
-                                            }
-                                            if (eslint == 'y' || eslint == 'Y') {
-                                                fs.writeFile('.eslintrc.json', eslintConfig , function (err) { if (err) throw err ; });
-                                            }
-                                            //If the program reaches here, it means the install process was successful. Print a success message.
-                                            console.log(`${'\x1b[32m'}Installation completed successfully!${'\x1b[0m'}`)
-                                            
-                                            //Print message indicating automation test generation has started..
-                                            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
-                                            
-                                            //Call the generator function to generate automation tests.
-                                            // generator(file)
-
-                                            // write test script for run the regression test 
-                                            addScriptRunner()
-                                        })
-                                    })
-
-                                    rl.close()
-                            } else {
-                                    console.log(`${'\x1b[31m'}Please input correct answer, the file must json format!${'\x1b[0m'}`)
-                                    runGen()
-                                }
-                            })
-                        } else {
-                            console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
-                            runGen()
-                        }
-                    })
-                } else {
-                    console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
-                    runGen()
-                }
-            })
-        } else {
-            console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
-            runGen()
-        }
-    });
-}
-
-function withMochawesome(strPack) {
-    rl.question('Do you want to install Mochawesome? (y/n) : ', (mochawe) => {
-        if(mochawe == 'y' || mochawe == 'Y' || mochawe == 'n' || mochawe == 'N') {
-            rl.question('Do your requests use multiple services? (y/n) : ', (services) => {
-                if(services == 'y' || services == 'Y' || services == 'n' || services == 'N') {
-                    rl.question('Type your json file to be generate : ', (file) => {
-                        if(file.includes('.json')) {
-                            let npm = ''
-                            // if(services == 'y' || services == 'Y') {
-                            //     npm += ' services'
-                            // }
-                            if(mochawe == 'y' || mochawe == 'Y') {
-                                npm += ' mochawesome'
-                            }
-                            // This line of code will print "Installing dependencies..." on the console.
-                            console.log("Installing dependencies...");
-
-                            const installProcess = exec('npm install '+strPack);
-
-                            //This code is registering a listener to the exit event of installProcess
-                            installProcess.on('exit', (code) => { 
-                                //checking if npm install failed or succeeded by checking exit code
-                                if (code !== 0) { 
-                                    //if the exit code is not 0, it means the installation has failed. So, print error message and return.
-                                    console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
-                                    return;
-                                }
-
-                                const installOption = exec('npm install'+npm+' --save-dev')
-                                installOption.on('exit', (res) => {
-                                    //checking if npm install failed or succeeded by checking exit code
-                                    if (res !== 0) { 
-                                        //if the exit code is not 0, it means the installation has failed. So, print error message and return.
-                                        console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
-                                        return;
-                                    }
-                                    //If the program reaches here, it means the install process was successful. Print a success message.
-                                    console.log(`${'\x1b[32m'}Installation completed successfully!${'\x1b[0m'}`)
-                                    
-                                    //Print message indicating automation test generation has started..
-                                    console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
-                                    
-                                    //Call the generator function to generate automation tests.
-                                    // generator(file)
-
-                                    // write test script for run the regression test 
-                                    addScriptRunner()
-                                })
-                            })
-
-                            rl.close()
-                    } else {
-                            console.log(`${'\x1b[31m'}Please input correct answer, the file must json format!${'\x1b[0m'}`)
-                            runGen()
-                        }
-                    })
-                } else {
-                    console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
-                    runGen()
-                }
-            })
-        } else {
-            console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
-            runGen()
-        }
-    })
-}
-
-function withEslint(strPack) {
-    rl.question('Do you want to install ESlint? (y/n) : ', (eslint) => {
-        if(eslint == 'y' || eslint == 'Y' || eslint == 'n' || eslint == 'N') {
-            rl.question('Do your requests use multiple services? (y/n) : ', (services) => {
-                if(services == 'y' || services == 'Y' || services == 'n' || services == 'N') {
                     rl.question('Type your json file to be generate : ', (file) => {
                         if(file.includes('.json')) {
                             let npm = ''
@@ -198,6 +49,9 @@ function withEslint(strPack) {
                             // }
                             if(eslint == 'y' || eslint == 'Y') {
                                 npm += ' eslint'
+                            }
+                            if(mochawe == 'y' || mochawe == 'Y') {
+                                npm += ' mochawesome'
                             }
                             // This line of code will print "Installing dependencies..." on the console.
                             console.log("Installing dependencies...");
@@ -239,7 +93,7 @@ function withEslint(strPack) {
                             })
 
                             rl.close()
-                        } else {
+                    } else {
                             console.log(`${'\x1b[31m'}Please input correct answer, the file must json format!${'\x1b[0m'}`)
                             runGen()
                         }
@@ -255,23 +109,118 @@ function withEslint(strPack) {
         }
     })
 }
-function runGen(strPack) {
-    rl.question('Do your requests use multiple services? (y/n) : ', (services) => {
-        if(services == 'y' || services == 'Y' || services == 'n' || services == 'N') {
+
+function withMochawesome(strPack) {
+    rl.question('Do you want to install Mochawesome? (y/n) : ', (mochawe) => {
+        if(mochawe == 'y' || mochawe == 'Y' || mochawe == 'n' || mochawe == 'N') {
             rl.question('Type your json file to be generate : ', (file) => {
                 if(file.includes('.json')) {
+                    let npm = ''
                     // if(services == 'y' || services == 'Y') {
                     //     npm += ' services'
                     // }
+                    if(mochawe == 'y' || mochawe == 'Y') {
+                        npm += ' mochawesome'
+                    }
+                    // This line of code will print "Installing dependencies..." on the console.
+                    console.log("Installing dependencies...");
 
-                    //Print message indicating automation test generation has started..
-                    console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
-                    
-                    //Call the generator function to generate automation tests.
-                    generator(file)
+                    const installProcess = exec('npm install '+strPack);
 
-                    // write test script for run the regression test 
-                    addScriptRunner()
+                    //This code is registering a listener to the exit event of installProcess
+                    installProcess.on('exit', (code) => { 
+                        //checking if npm install failed or succeeded by checking exit code
+                        if (code !== 0) { 
+                            //if the exit code is not 0, it means the installation has failed. So, print error message and return.
+                            console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
+                            return;
+                        }
+
+                        const installOption = exec('npm install'+npm+' --save-dev')
+                        installOption.on('exit', (res) => {
+                            //checking if npm install failed or succeeded by checking exit code
+                            if (res !== 0) { 
+                                //if the exit code is not 0, it means the installation has failed. So, print error message and return.
+                                console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
+                                return;
+                            }
+                            //If the program reaches here, it means the install process was successful. Print a success message.
+                            console.log(`${'\x1b[32m'}Installation completed successfully!${'\x1b[0m'}`)
+                            
+                            //Print message indicating automation test generation has started..
+                            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
+                            
+                            //Call the generator function to generate automation tests.
+                            // generator(file)
+
+                            // write test script for run the regression test 
+                            addScriptRunner()
+                        })
+                    })
+
+                    rl.close()
+            } else {
+                    console.log(`${'\x1b[31m'}Please input correct answer, the file must json format!${'\x1b[0m'}`)
+                    runGen()
+                }
+            })
+        } else {
+            console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
+            runGen()
+        }
+    })
+}
+
+function withEslint(strPack) {
+    rl.question('Do you want to install ESlint? (y/n) : ', (eslint) => {
+        if(eslint == 'y' || eslint == 'Y' || eslint == 'n' || eslint == 'N') {
+            rl.question('Type your json file to be generate : ', (file) => {
+                if(file.includes('.json')) {
+                    let npm = ''
+                    // if(services == 'y' || services == 'Y') {
+                    //     npm += ' services'
+                    // }
+                    if(eslint == 'y' || eslint == 'Y') {
+                        npm += ' eslint'
+                    }
+                    // This line of code will print "Installing dependencies..." on the console.
+                    console.log("Installing dependencies...");
+
+                    const installProcess = exec('npm install '+strPack);
+
+                    //This code is registering a listener to the exit event of installProcess
+                    installProcess.on('exit', (code) => { 
+                        //checking if npm install failed or succeeded by checking exit code
+                        if (code !== 0) { 
+                            //if the exit code is not 0, it means the installation has failed. So, print error message and return.
+                            console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
+                            return;
+                        }
+
+                        const installOption = exec('npm install'+npm+' --save-dev')
+                        installOption.on('exit', (res) => {
+                            //checking if npm install failed or succeeded by checking exit code
+                            if (res !== 0) { 
+                                //if the exit code is not 0, it means the installation has failed. So, print error message and return.
+                                console.error(`${'\x1b[31m'}npm install failed with code ${res}${'\x1b[0m'}`)
+                                return;
+                            }
+                            if (eslint == 'y' || eslint == 'Y') {
+                                fs.writeFile('.eslintrc.json', eslintConfig , function (err) { if (err) throw err ; });
+                            }
+                            //If the program reaches here, it means the install process was successful. Print a success message.
+                            console.log(`${'\x1b[32m'}Installation completed successfully!${'\x1b[0m'}`)
+                            
+                            //Print message indicating automation test generation has started..
+                            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
+                            
+                            //Call the generator function to generate automation tests.
+                            // generator(file)
+
+                            // write test script for run the regression test 
+                            addScriptRunner()
+                        })
+                    })
 
                     rl.close()
                 } else {
@@ -281,6 +230,25 @@ function runGen(strPack) {
             })
         } else {
             console.log(`${'\x1b[31m'}Please input correct answer!${'\x1b[0m'}`)
+            runGen()
+        }
+    })
+}
+function runGen(strPack) {
+    rl.question('Type your json file to be generate : ', (file) => {
+        if(file.includes('.json')) {
+            //Print message indicating automation test generation has started..
+            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
+            
+            //Call the generator function to generate automation tests.
+            generator(file)
+
+            // write test script for run the regression test 
+            addScriptRunner()
+
+            rl.close()
+        } else {
+            console.log(`${'\x1b[31m'}Please input correct answer, the file must json format!${'\x1b[0m'}`)
             runGen()
         }
     })

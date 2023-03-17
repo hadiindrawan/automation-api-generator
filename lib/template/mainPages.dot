@@ -1,0 +1,41 @@
+const chai = require('chai')
+chai.use(require('chai-http'))
+require('dotenv').config()
+
+class main {
+    constructor() {
+		// Write your constructor here, if you need
+        this.env = process.argv[process.argv.length - 1];
+    }
+
+    // This function is named `mainService` which contains switch statements that return different Chai request urls based on the environment specified
+    mainService() {
+        // A Switch statement which will perform action based on the matches of cases 
+        switch (true) {
+
+            // The following case checks whether the given environment includes dev in it or not 
+            case this.env.includes('dev'):
+                // If 'dev' environment, then will get dev url
+                return chai.request(process.env.DEV_MAIN);
+
+            // The following case checks whether the given environment includes staging in it or not 
+            case this.env.includes('staging'):
+                // If 'staging' environment, then will get staging url
+                return chai.request(process.env.STAGING_MAIN);
+
+            // The following case checks whether the given environment includes prod in it or not 
+            case this.env.includes('prod'):
+                // If 'prod' environment, then will get prod url
+                return chai.request(process.env.PROD_MAIN);
+
+            // The default case throws an error when none of the above cases are matched, specifying an invalid environemnt 
+            default:
+                throw new Error(`Invalid environment specified: ${this.env}`);
+        }
+    }
+
+    // write other services here
+    // ...
+}
+
+module.exports = main
