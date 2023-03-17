@@ -1,8 +1,8 @@
 node_modules
 package-lock.json
 .env
-src
 tests
 runner
 mochawesome-report
 notes.txt
+*.json
