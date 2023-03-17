@@ -1,0 +1,9 @@
+node_modules
+package-lock.json
+.env
+.example.env
+tests
+runner
+mochawesome-report
+notes.txt
+*.json
