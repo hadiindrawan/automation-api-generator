@@ -5,7 +5,7 @@ require('dotenv').config()
 class main {
     constructor() {
 		// Write your constructor here, if you need
-        this.env = process.argv[process.argv.length - 1];
+        this.env = process.env.npm_lifecycle_event
     }
 
     // This function is named `mainService` which contains switch statements that return different Chai request urls based on the environment specified
