@@ -1,7 +1,7 @@
 
 # Automation API Generator
 
-This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection, and run the Generator to write the automation code.
+This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection and run the Generator to write the automation code.
 
 ## Objectives
 
