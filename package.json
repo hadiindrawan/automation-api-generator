@@ -1,6 +1,6 @@
 {
   "name": "dot-generator-mocha",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/hadiindrawan/automation-test-generator"
+    "url": "https://github.com/hadiindrawan/automation-api-generator.git"
   },
   "author": "Hadi Indrawan",
   "license": "ISC",
