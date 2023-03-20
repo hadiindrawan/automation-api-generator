@@ -70,7 +70,9 @@ module.exports = () => {
     new Request().request( (err, res) => { <your_response_validation> } )
     ```
 
-    
+    How it's done:
+    - since the `pages` file consist a class, you can create a new object from the class to use the defined method
+    - to build request specification and execute the request, you may use the `request()` method defined in [`pages`](pages.md) file
     
 7. For response validation, the template create 2 default validations, which are:
     - status code
@@ -140,7 +142,7 @@ The difference with requests that do not have a body are, except the default tem
     The code section:
     
     ```js
-    data.forEach((datas) => { <it()_code_section> }
+    data.forEach((datas) => { <it()_code_section> })
     ```
 
     Each object from `data` variable will be stored in `datas` variable and will then be mapped based on needs.

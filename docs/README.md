@@ -27,6 +27,8 @@ This project has created to relieve work load as SDET or Automation Test Enginee
   - [Default templates with body request](scenarios.md#default-templates-with-body-request)
 - [Pages](pages.md)
   - [Default templates](pages.md#default-templates)
+  - [Default templates with JSON body](pages.md#default-templates-with-json-body)
+  - [Default templates with attachment body](pages.md#default-templates-with-attachment-body)
 - [Implementation](implementation.md)
 - [Best Practices](practice.md)
 - [Common Error](error.md)
