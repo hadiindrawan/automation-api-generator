@@ -3,7 +3,8 @@
   "version": "1.2.3",
   "main": "index.js",
   "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:regression-dev": "mocha runner/regression.js --timeout 15000"
   },
   "type": "module",
   "bin": {
@@ -11,5 +12,8 @@
   },
   "author": "Hadi Indrawan",
   "license": "ISC",
-  "description": "This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection, and run the Generator to write the automation code."
+  "description": "This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection, and run the Generator to write the automation code.",
+  "dependencies": {
+    "inquirer": "^9.1.4"
+  }
 }
