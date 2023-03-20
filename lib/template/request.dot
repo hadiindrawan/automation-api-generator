@@ -1,6 +1,6 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
-const main = require('./main.pages');
+const main = require('{{mainpagesPath}}');
 const json_responses = require('{{jsonSchemaPath}}');
 const requestHelper = require('{{helperPath}}');
 require('dotenv').config()
@@ -9,7 +9,7 @@ class request extends main {
     constructor() {
 		// Write your constructor here, if you need
 		super()
-		this.api = this.mainServices() // Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.api = this.mainService() // Set up the api with the endpoint based on the environment and change this according to endpoint service
 		this.path = "{{endpoint}}" // Set up the API path to the route endpoint
     }
 
