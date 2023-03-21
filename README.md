@@ -164,11 +164,11 @@ Folder to store required functions or methods for global use. Default will be fi
 
 ### /tests/pages
 
-Folder to store the detail request of each API. For detailed explanation, you can go to [Pages](pages.md) section.
+Folder to store the detail request of each API. For detailed explanation, you can go to [Pages](#pages) section.
 
 ### /tests/scenarios
 
-Folder to store your test files. It is linked closely with pages file, especially with the same name files. For detailed explanation, you can go to [Scenarios](scenarios.md) section.
+Folder to store your test files. It is linked closely with pages file, especially with the same name files. For detailed explanation, you can go to [Scenarios](#scenarios) section.
 
 ### /tests/schema
 
@@ -288,7 +288,7 @@ module.exports = () => {
 
     How it's done:
     - since the `pages` file consist a class, you can create a new object from the class to use the defined method
-    - to build request specification and execute the request, you may use the `request()` method defined in [`pages`](pages.md) file
+    - to build request specification and execute the request, you may use the `request()` method defined in [`pages`](#pages) file
     
 7. For response validation, the template create 2 default validations, which are:
     - status code
@@ -343,8 +343,8 @@ The difference with requests that do not have a body are, except the default tem
     | Key  | Required | Definition |
     | ------------- | ------------- | ---- |
     | <i>ddt</i>  | `true`  | object to store the combination of one data test |
-    | <i>example</i>  | `false`  | `example` key and `value_key` value is the example of key-value usage if you want to change the value of specified key from body request. <br><br>if you do not specify this key-value, the request will be executed with the default request defined in [`pages`]() file. |
-    | <i>attachment</i>  | `false`  | `attachment` is a key that stored object with key-value of body request that needs to attach some files and needs to change the default of request defined in `pages` file |
+    | <i>example</i>  | `false`  | `example` key and `value_key` value is the example of key-value usage if you want to change the value of specified key from body request. <br><br>if you do not specify this key-value, the request will be executed with the default request defined in [`pages`](#pages) file. |
+    | <i>attachment</i>  | `false`  | `attachment` is a key that stored object with key-value of body request that needs to attach some files and needs to change the default of request defined in [`pages`](#pages) file |
     | <i>file</i>  | `true` if you use `attachment` key  | `file` is example of key from body request that stores the file attachment and you want to configure the value of file <br> <br> you may configure the key based on your request API and the value based on the path where your file is stored (relative to your local project directory path) |
     | <i>response</i>  | `true`  | `response` is a key that stored object with key-value of general configurations of each data test, which are the test case name and the expected validation<br> <br> you can configure the key-value inside object based on your needs, whether you need the default key (`case`, `schema`, `status`) or maybe you need other key-value, e.g `message` |
     
@@ -381,7 +381,7 @@ The difference with requests that do not have a body are, except the default tem
     
     Except for the `datas.response.case` and `datas.ddt` mapping, you can configure the mapping freely based on the `data` variable you set up
     
-P.S: You can see the detailed implementation in [Implementation]() page
+P.S: You can see the detailed implementation in [Implementation](#implementation) page
 
 
 ## Pages
@@ -437,7 +437,7 @@ The template defines some general things, which are:
     Furthermore, it will be used to get the defined response JSON body.
 2. `class request{}`
     
-    This is the main content of page file. It will consist some default methods that will be explained below. If you want to use these methods, you can create a new object in your [`scenarios`](scenarios.md) file.
+    This is the main content of page file. It will consist some default methods that will be explained below. If you want to use these methods, you can create a new object in your [`scenarios`](#scenarios) file.
 
     Code section:
     ```js
@@ -696,7 +696,7 @@ For detailed explanation:
 
 - `attaches` variable - for file type data - you may ignore this section
 
-  If `data` variable is storing the text type data, `attaches` variable stores the file type data. If you read the [scenarios](scenarios.md#default-templates-with-body-request) section, it will get the object data of `attachment` keys.
+  If `data` variable is storing the text type data, `attaches` variable stores the file type data. If you read the [scenarios](#default-templates-with-body-request) section, it will get the object data of `attachment` keys.
 
   Later, this variable will be used as an argument in `this.attach(attaches)` code section. For each key-value of file-type body request, it will be mapped to chai syntax `.attach()`.
 
