@@ -3,30 +3,6 @@
 
 This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection, and run the Generator to write the automation code.
 
-## Table of Contents
-- [Objectives](#objectives)
-- [Prerequisite](#prerequisite)
-- [Installation](#installation)
-  - [Important information](#important-information)
-- [Lifecycle of Mocha Framework](#lifecycle-of-mocha-framework)
-- [Folder Structure and Usage](#folder-structure-and-usage)
-  - [/runner](#runner)
-  - [/tests/data](#testsdata)
-  - [/tests/helper](#testshelper)
-  - [/tests/pages](#testspages)
-  - [/tests/scenarios](#testsscenarios)
-  - [/tests/schema](#testsschema)
-- [Scenarios](#scenarios)
-  - [Default templates](#default-templates)
-  - [Default templates with body request](#default-templates-with-body-request)
-- [Pages](#pages)
-  - [Default templates](#default-templates-1)
-  - [Default templates with JSON body](#default-templates-with-json-body)
-  - [Default templates with attachment body](#default-templates-with-attachment-body)
-- [Implementation](#implementation)
-- [Best Practices](#best-practices)
-- [Common Error](#common-error)
-
 ## Objectives
 
 1. Generate Postman collection with JSON format into Mocha-Chai template scripts
@@ -35,7 +11,29 @@ This project has created to relieve work load as SDET or Automation Test Enginee
 4. Have default verification for status code and json-schema
 5. Create scripts that easy to maintain
 
-
+## Table of Contents
+  - [Prerequisite](#prerequisite)
+  - [Installation](#installation)
+    - [Important information](#important-information)
+  - [Lifecycle of Mocha Framework](#lifecycle-of-mocha-framework)
+  - [Folder Structure and Usage](#folder-structure-and-usage)
+    - [/runner](#runner)
+    - [/tests/data](#testsdata)
+    - [/tests/helper](#testshelper)
+    - [/tests/pages](#testspages)
+    - [/tests/scenarios](#testsscenarios)
+    - [/tests/schema](#testsschema)
+  - [Scenarios](#scenarios)
+    - [Default templates](#default-templates)
+    - [Default templates with body request](#default-templates-with-body-request)
+  - [Pages](#pages)
+    - [Default templates](#default-templates-1)
+    - [Default templates with JSON body](#default-templates-with-json-body)
+    - [Default templates with attachment body](#default-templates-with-attachment-body)
+    - [If You Need Other Arguments](#if-you-need-other-arguments)
+  - [Implementation](#implementation)
+  - [Best Practices](#best-practices)
+  - [Common Error](#common-error)
 
 ## Prerequisite
 
@@ -608,7 +606,7 @@ module.exports = request
 
     From above, the request has body with `username` and `password` keys. The default value of each keys is `example`.
 
-    > You can define the constant or static value of key body request in this part of code and make changes to test-related data in your tests file.
+    > You can define the constant or static value of key body request in this part of code and make changes to test-related data in your scenarios file.
 
   - `new requestHelper().objectMapping(obj, args)` section
     
@@ -758,6 +756,61 @@ For detailed explanation:
     
     You can define the static of default value of request key in this variable. Also, you can use the relative or absolute path for the value, but it is recommended to use a relative path based on your project root.
   - `objectMapping()` method of `requestHelper()` class will map the key-value defined in `objAtt` variable to the `args` variable of the arguments in `attach()` method.
+
+### If You Need Other Arguments
+
+In case you need to pass data (except the `datas.ddt` and `(err, ress)` function) from scenario file to page file, you can use the [concept of rest argument](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters) in method/function, which are location sensitive based on the value passed from method usage and method definition.
+
+For example, you need to pass below data from scenario file to your request builder in page file:
+- token
+- id
+- query
+- path URL
+- etc, something similar
+
+you can use this configuration steps:
+1. Define the value of argument in `request()` method in scenario file.
+   
+    For example the token and id value:
+    ```js
+    new Request().request(token_value, id_value, 
+      (err, res) => {});
+    ```
+
+1. Map the argument passed in `request()` method from scenario file to your request builder in page file.
+   
+   For above case, you want to map token and id value in your request API. The `request()` method in page file will look like this:
+
+    ```js
+    constructor() {
+		this.api = process.env.APP_URL;
+		this.path = "/Account/v1/User/";
+    }
+    
+    request(...args) {
+		const response = this.api.get(this.path + args[1])
+		.set("Authorization", "Bearer " + args[0])
+		.end(new requestHelper().getExpectFunc(args))
+		
+		return response
+    }
+    ```
+
+    The simple explanation:
+    - arguments in first index (`args[0]`) is used to store the token value in scenario file, so you map it to the token value in your API request.
+      
+      Code section:
+      ```js
+      "Bearer " + args[0] 
+      ```
+    - arguments in second index (`args[1]`) is used to store the id value for URL path in scenario file, so you map it to the id value in your API request.
+      
+      Code section:
+      ```js
+      this.path + args[1]
+      ```
+
+> You can configure the scenario-related data needs in your scenario files and configure the data mapping in your page file.
 
 ## Implementation
 
