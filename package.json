@@ -1,6 +1,6 @@
 {
   "name": "dot-generator-mocha",
-  "version": "1.2.6",
+  "version": "1.3.2",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,21 +10,33 @@
   "bin": {
     "generate": "index.js"
   },
+  "files": [
+    "lib",
+    "README"
+  ],
   "keywords": [
     "qa",
+    "sdet",
     "automation",
     "mocha",
     "chai",
+    "generate",
     "generator",
-    "postman"
+    "postman",
+    "collection",
+    "testing",
+    "oop",
+    "pom",
+    "webdriverio",
+    "playwright"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/hadiindrawan/automation-api-generator.git"
   },
-  "author": "Hadi Indrawan",
-  "license": "ISC",
-  "description": "This project has created to relieve work load as SDET or Automation Test Engineer. In moderation, automation API code able to write with only run the script and generate from Postman collection. You just export the collection, and run the Generator to write the automation code.",
+  "author": "Hadi Indrawan <hadiindrawan157@gmail.com>",
+  "license": "MIT",
+  "description": "This project has created to relieve work load as SDET or Automation Test Engineer. You just export the postman collection, and run this generator to write the automation code.",
   "dependencies": {
     "inquirer": "^9.1.4"
   }
