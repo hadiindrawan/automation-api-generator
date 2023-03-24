@@ -1,7 +1,6 @@
 class general {
     constructor() {
         // Write your constructor here, if you need 
-
     }
     
     // Write your method here

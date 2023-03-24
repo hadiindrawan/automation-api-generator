@@ -59,9 +59,8 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
         // Set packagesExist variable to list of object keys if packageList is not undefined, otherwise set packagesExist to an empty array
         const packagesExist = packageList !== undefined ? Object.keys(packageList) : [];
 
-        let beInstall = ['chai', 'mocha', 'chai-http', 'chai-json-schema', 'dotenv', 'to-json-schema']
-        // let beInstall = ['chai']
-        let matchedPack = beInstall.filter(key => !packagesExist.includes(key))
+        let needPackage = ['chai', 'mocha', 'chai-http', 'chai-json-schema', 'dotenv', 'to-json-schema', 'cross-env']
+        let matchedPack = needPackage.filter(key => !packagesExist.includes(key))
         let strPack = matchedPack.join(' ')
 
         let mochaExist = packagesExist.includes('mocha') ? false : true
@@ -167,8 +166,8 @@ function validateInput(input) {
 }
 
 function addScriptRunner() {
-    const scriptName = 'test:regression-dev'; // Name of your new script
-    const scriptCommand = 'mocha runner/regression.js --timeout 15000'; // Command to execute your script
+    const scriptName = 'test:dev'; // Name of your new script
+    const scriptCommand = 'cross-env NODE_ENV=dev mocha runner/regression.js --timeout 15000'; // Command to execute your script
 
     // Read the package.json answers.jsonFileQ
     const packageJson = JSON.parse(fs.readFileSync('./package.json'));
