@@ -7,4 +7,5 @@ runner
 mochawesome-report
 notes.txt
 *json
-!package.josn
+!package.json
+test.js
