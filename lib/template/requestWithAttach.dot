@@ -1,7 +1,7 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
 const main = require('{{mainpagesPath}}');
-const json_responses = require('{{jsonSchemaPath}}');
+const schema = require('{{jsonSchemaPath}}');
 const requestHelper = require('{{helperPath}}');
 require('dotenv').config()
 
@@ -68,7 +68,7 @@ class request extends main {
 
 	// This method used for provide expectation and return json schema
 	expect(cases="success") {
-		return new requestHelper().getSchema(json_responses, cases)
+		return new requestHelper().getSchema(new schema().json(), cases)
 	}
 }
 
