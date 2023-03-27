@@ -141,8 +141,6 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                             eslintConfig = JSON.stringify(jsonConfig, null,2)
                         }
 
-                        console.log(eslintConfig);
-                        
                         fs.writeFile('.eslintrc.json', eslintConfig, function (err) { if (err) throw err; });
                     }
                     if (answers.mochaweQ == 'Yes') {
