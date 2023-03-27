@@ -1,0 +1,20 @@
+import chai from 'chai'
+import chaiHttp from 'chai-http'
+import config from '../utils/config.js'
+chai.use(chaiHttp)
+
+class main {
+    constructor() {
+		// Write your constructor here, if you need
+    }
+
+    // This function is named `mainService` that return different Chai request urls based on the environment specified
+    mainService() {
+        return chai.request(new config().env().host)
+    }
+
+    // write other services here
+    // ...
+}
+
+export default main
