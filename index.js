@@ -4,7 +4,7 @@ import inquirer from 'inquirer';
 import { exec } from 'child_process';
 import generate from './lib/generate.js';
 
-const eslintConfig = 
+let eslintConfig = 
 `{
     "env": {
         "browser": true,
@@ -12,8 +12,7 @@ const eslintConfig =
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "ecmaVersion": "latest",
-        "sourceType": "module"
+        "ecmaVersion": "latest"
     },
     "rules": {
         "no-undef": 0,
@@ -21,32 +20,47 @@ const eslintConfig =
     }
 }`
 
+function projectModules() {
+    const packageJson = JSON.parse(fs.readFileSync('./package.json'))
+    const packageType = packageJson.type || 'commonjs'
+
+    return packageType === 'commonjs'
+}
+
+function validateInput(input) {
+    return input.includes('json') ? true : 'Please type correct answer, the file must be json format!'
+}
+
+function generateCommand() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'jsonFileQ',
+                message: 'Input your json file to be generate (example.json):',
+                default: 'example.json',
+                validate: validateInput
+            }
+        ])
+        .then((answers) => {
+            //Print message indicating automation test generation has started..
+            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
+
+            //Call the generate function to generate automation tests.
+            generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, projectModules() ? "CommonJS (require/exports)" : "Javascript modules (import/export)")
+            // write test script for run the regression test 
+            addScriptRunner()
+        })
+        .catch((err) => {
+            console.log(err);
+            console.log('Please type correct answer!');
+            generateCommand()
+        })
+}
+
 const argRunner = process.argv[process.argv.length - 1]
 
 if (argRunner != 'undefined' && argRunner == 'generate') {
-    function generateCommand() {
-        inquirer
-            .prompt([
-                {
-                    type: 'input',
-                    name: 'jsonFileQ',
-                    message: 'Input your json file to be generate (example.json):',
-                    validate: validateInput
-                }
-            ])
-            .then((answers) => {
-                //Print message indicating automation test generation has started..
-                console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
-
-                //Call the generate function to generate automation tests.
-                generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ)
-            })
-            .catch((err) => {
-                console.log(err);
-                console.log('Please type correct answer!');
-                generateCommand()
-            })
-    }
     generateCommand()
 } else {
     exec('npm list --json', (error, stdout) => {
@@ -74,10 +88,6 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
             }
         }
 
-        function projectModules() {
-            return true
-        }
-
         function question() {
             inquirer
                 .prompt([
@@ -85,7 +95,7 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                         type: 'list',
                         name: 'frameworkQ',
                         message: 'What framework will be used?',
-                        choices: ["Mocha chai", "WebDriverIO"],
+                        choices: ["Mocha chai"],
                         when: () => mochaExist
                     },
                     {
@@ -93,7 +103,7 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                         name: 'moduleQ',
                         message: 'What type of modules does your project use?',
                         choices: ["Javascript modules (import/export)", "CommonJS (require/exports)"],
-                        when: () => projectModules
+                        when: () => projectModules()
                     },
                     {
                         type: 'list',
@@ -113,6 +123,7 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                         type: 'input',
                         name: 'jsonFileQ',
                         message: 'Type your json file to be generate (example.json):',
+                        default: 'example.json',
                         validate: validateInput
                     }
                 ])
@@ -122,6 +133,16 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                         npm += ' eslint'
 
                         // Write eslint configuration
+                        let moduleType = answers.moduleQ || "Javascript modules (import/export)"
+                        if (moduleType == "Javascript modules (import/export)") {
+                            const jsonConfig = JSON.parse(eslintConfig)
+                            jsonConfig.parserOptions = { ecmaVersion: 'latest', sourceType: 'module' }
+
+                            eslintConfig = JSON.stringify(jsonConfig, null,2)
+                        }
+
+                        console.log(eslintConfig);
+                        
                         fs.writeFile('.eslintrc.json', eslintConfig, function (err) { if (err) throw err; });
                     }
                     if (answers.mochaweQ == 'Yes') {
@@ -131,21 +152,21 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                     if (strPack != '' && npm != '') {
                         // This line of code will print "Installing dependencies..." on the console.
                         console.log("Installing dependencies...");
-                        installPackage(strPack, npm, answers.jsonFileQ)
+                        installPackage(strPack, npm, answers.jsonFileQ, answers.moduleQ)
                     } else if (strPack != '' && npm == '') {
                         // This line of code will print "Installing dependencies..." on the console.
                         console.log("Installing dependencies...");
-                        installPackage(strPack, npm, answers.jsonFileQ)
+                        installPackage(strPack, npm, answers.jsonFileQ, answers.moduleQ)
                     } else if (strPack == '' && npm != '') {
                         // This line of code will print "Installing dependencies..." on the console.
                         console.log("Installing dependencies...");
-                        installDevPackge(npm, answers.jsonFileQ)
+                        installDevPackge(npm, answers.jsonFileQ, answers.moduleQ)
                     } else {
                         //Print message indicating automation test generation has started..
                         console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
                         //Call the generate function to generate automation tests.
-                        generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ)
+                        generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.moduleQ || "Javascript modules (import/export)")
 
                         // write test script for run the regression test 
                         addScriptRunner()
@@ -159,10 +180,6 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
         }
         question()
     })
-}
-
-function validateInput(input) {
-    return input.includes('json') ? true : 'Please type correct answer, the file must be json format!'
 }
 
 function addScriptRunner() {
@@ -179,7 +196,7 @@ function addScriptRunner() {
     fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
 }
 
-function installPackage(strPack, npm, jsonfile) {
+function installPackage(strPack, npm, jsonfile, moduleQ) {
     const installProcess = exec('npm install ' + strPack);
     //This code is registering a listener to the exit event of installProcess
     installProcess.on('exit', (code) => {
@@ -200,7 +217,7 @@ function installPackage(strPack, npm, jsonfile) {
             console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
             //Call the generate function to generate automation tests.
-            generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile)
+            generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile, moduleQ || "Javascript modules (import/export)")
 
             // write test script for run the regression test 
             addScriptRunner()
@@ -208,7 +225,7 @@ function installPackage(strPack, npm, jsonfile) {
     })
 }
 
-function installDevPackge(npm,jsonfile) {
+function installDevPackge(npm, jsonfile, moduleQ) {
     const installOption = exec('npm install' + npm + ' --save-dev')
     installOption.on('exit', (res) => {
         //checking if npm install failed or succeeded by checking exit code
@@ -225,7 +242,7 @@ function installDevPackge(npm,jsonfile) {
         console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
         //Call the generate function to generate automation tests.
-        generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile)
+        generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile, moduleQ || "Javascript modules (import/export)")
 
         // write test script for run the regression test 
         addScriptRunner()

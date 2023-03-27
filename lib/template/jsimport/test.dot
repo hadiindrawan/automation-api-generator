@@ -1,0 +1,13 @@
+import { expect } from 'chai'
+import chai from 'chai'
+import chaiJsonSchema from 'chai-json-schema'
+import Request from '{{pagesPath}}'
+chai.use(chaiJsonSchema)
+{{dataDriven}}
+
+export default () => {
+    // Write your test here
+    describe("{{describe}}", () =>  {
+        {{testFunc}}
+    })
+}
