@@ -3,6 +3,7 @@ import fs from 'fs'
 import inquirer from 'inquirer';
 import { exec } from 'child_process';
 import generate from './lib/generate.js';
+import generateEnv from './lib/generate_env.js';
 
 let eslintConfig = 
 `{
@@ -32,8 +33,12 @@ function existModuleType() {
     }
 }
 
-function validateInput(input) {
+function validateInputJson(input) {
     return input.includes('json') ? true : 'Please type correct answer, the file must be json format!'
+}
+
+function validateInputEnvName(input) {
+    return /[A-Z]/.test(input) ? 'Input must be lowercase!' : true
 }
 
 function generateCommand() {
@@ -44,7 +49,7 @@ function generateCommand() {
                 name: 'jsonFileQ',
                 message: 'Input your json file to be generate (example.json):',
                 default: 'example.json',
-                validate: validateInput
+                validate: validateInputJson
             }
         ])
         .then((answers) => {
@@ -63,10 +68,44 @@ function generateCommand() {
         })
 }
 
+function generateEnvCommand() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'jsonFileQ',
+                message: 'Input your json file to be generate (example.json):',
+                default: 'example-env.json',
+                validate: validateInputJson
+            },
+            {
+                type: 'input',
+                name: 'envQ',
+                message: 'Input your environment name:',
+                default: 'dev',
+                validate: validateInputEnvName
+            }
+        ])
+        .then((answers) => {
+            //Print message indicating environment test generation has started..
+            console.log(`${'\x1b[34m'}Generating environment test..${'\x1b[0m'}`)
+
+            //Call the generate function to generate environment tests.
+            generateEnv(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.envQ)
+        })
+        .catch((err) => {
+            console.log(err);
+            console.log('Please type correct answer!');
+            generateEnvCommand()
+        })
+}
+
 const argRunner = process.argv[process.argv.length - 1]
 
 if (argRunner == 'generate') {
     generateCommand()
+} else if (argRunner == 'env-generate') {
+    generateEnvCommand()
 } else {
     exec('npm list --json', (error, stdout) => {
         if (error) {
@@ -129,7 +168,7 @@ if (argRunner == 'generate') {
                         name: 'jsonFileQ',
                         message: 'Type your json file to be generate (example.json):',
                         default: 'example.json',
-                        validate: validateInput
+                        validate: validateInputJson
                     }
                 ])
                 .then((answers) => {
