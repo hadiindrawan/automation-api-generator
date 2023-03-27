@@ -22,9 +22,14 @@ let eslintConfig =
 
 function projectModules() {
     const packageJson = JSON.parse(fs.readFileSync('./package.json'))
-    const packageType = packageJson.type || 'commonjs'
+    return packageJson.type == undefined ? true : false
+}
 
-    return packageType === 'commonjs'
+function existModuleType() {
+    const packageJson = JSON.parse(fs.readFileSync('./package.json'))
+    if (packageJson.type != undefined) {
+        return packageJson.type == 'module' ? "Javascript modules (import/export)" : "CommonJS (require/exports)"
+    }
 }
 
 function validateInput(input) {
@@ -47,9 +52,9 @@ function generateCommand() {
             console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
             //Call the generate function to generate automation tests.
-            generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, projectModules() ? "CommonJS (require/exports)" : "Javascript modules (import/export)")
+            generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, existModuleType())
             // write test script for run the regression test 
-            addScriptRunner()
+            rebuildPackagejson()
         })
         .catch((err) => {
             console.log(err);
@@ -60,7 +65,7 @@ function generateCommand() {
 
 const argRunner = process.argv[process.argv.length - 1]
 
-if (argRunner != 'undefined' && argRunner == 'generate') {
+if (argRunner == 'generate') {
     generateCommand()
 } else {
     exec('npm list --json', (error, stdout) => {
@@ -133,7 +138,7 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                         npm += ' eslint'
 
                         // Write eslint configuration
-                        let moduleType = answers.moduleQ || "Javascript modules (import/export)"
+                        let moduleType = answers.moduleQ || existModuleType()
                         if (moduleType == "Javascript modules (import/export)") {
                             const jsonConfig = JSON.parse(eslintConfig)
                             jsonConfig.parserOptions = { ecmaVersion: 'latest', sourceType: 'module' }
@@ -164,10 +169,10 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
                         console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
                         //Call the generate function to generate automation tests.
-                        generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.moduleQ || "Javascript modules (import/export)")
+                        generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.moduleQ || existModuleType())
 
                         // write test script for run the regression test 
-                        addScriptRunner()
+                        rebuildPackagejson(answers.moduleQ)
                     }
 
                 })
@@ -180,15 +185,22 @@ if (argRunner != 'undefined' && argRunner == 'generate') {
     })
 }
 
-function addScriptRunner() {
+function rebuildPackagejson(answers) {
     const scriptName = 'test:dev'; // Name of your new script
     const scriptCommand = 'cross-env NODE_ENV=dev mocha runner/regression.js --timeout 15000'; // Command to execute your script
+    
+    const typeKey = 'type'; // Name of your new script
+    const typeValue = answers == "CommonJS (require/exports)" ? 'commonjs' : 'module'; // Command to execute your script
 
     // Read the package.json answers.jsonFileQ
     const packageJson = JSON.parse(fs.readFileSync('./package.json'));
 
     // Add the new script to the scripts object
     packageJson.scripts[scriptName] = scriptCommand;
+    // Add type project
+    if (answers != undefined) {
+        packageJson[typeKey] = typeValue
+    }
 
     // Write the updated package.json answers.jsonFileQ
     fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
@@ -215,10 +227,10 @@ function installPackage(strPack, npm, jsonfile, moduleQ) {
             console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
             //Call the generate function to generate automation tests.
-            generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile, moduleQ || "Javascript modules (import/export)")
+            generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile, moduleQ || existModuleType())
 
             // write test script for run the regression test 
-            addScriptRunner()
+            rebuildPackagejson(moduleQ)
         }
     })
 }
@@ -240,10 +252,10 @@ function installDevPackge(npm, jsonfile, moduleQ) {
         console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
 
         //Call the generate function to generate automation tests.
-        generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile, moduleQ || "Javascript modules (import/export)")
+        generate(jsonfile.includes('"') ? jsonfile.replace(/"/g, '') : jsonfile, moduleQ || existModuleType())
 
         // write test script for run the regression test 
-        addScriptRunner()
+        rebuildPackagejson(moduleQ)
     })
 }
 
