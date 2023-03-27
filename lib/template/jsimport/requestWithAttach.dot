@@ -1,15 +1,13 @@
-import chai from 'chai'
-import chaiHttp from 'chai-http'
-import main from '{{mainpagesPath}}'
-import schema from '{{jsonSchemaPath}}'
-import requestHelper from '{{helperPath}}'
-chai.use(chaiHttp)
+const chai = require('chai')
+chai.use(require('chai-http'))
+const schema = require('{{jsonSchemaPath}}');
+const requestHelper = require('{{helperPath}}');
+const config = require('{{configPath}}')
 
-class request extends main {
+class pages {
 	constructor() {
 		// Write your constructor here, if you need
-		super()
-		this.api = this.mainService() // Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.api = chai.request(new config().env().host) // Set up the api with the endpoint based on the environment and change this according to endpoint service
 		this.path = "{{endpoint}}" // Set up the API path to the route endpoint
 	}
 
@@ -72,4 +70,4 @@ class request extends main {
 	}
 }
 
-module.exports = request
+module.exports = pages
