@@ -1,8 +1,10 @@
-const chai = require('chai')
-chai.use(require('chai-http'))
-const schema = require('{{jsonSchemaPath}}');
-const requestHelper = require('{{helperPath}}');
-const config = require('{{configPath}}')
+import chai from 'chai'
+import chaiHttp from 'chai-http'
+import main from '{{mainpagesPath}}'
+import schema from '{{jsonSchemaPath}}'
+import requestHelper from '{{helperPath}}'
+import config from '{{configPath}}'
+chai.use(chaiHttp)
 
 class pages {
     constructor() {
@@ -40,4 +42,4 @@ class pages {
     }
 }
 
-module.exports = pages
+export default pages
