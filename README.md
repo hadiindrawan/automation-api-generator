@@ -53,21 +53,43 @@ npm -v
 3. Install package with npm
    
     ```bash
-    npm install dot-generator-mocha
+    npm i --save-dev '@dot.indonesia/po-gen'
     ```
+4. Create `package.json` file
+
+    ```bash
+    npm init
+    ```
+
+    Your terminal will display the option configuration for your `package.json` file. You may configure the input or follow the default with command:
+    
+    ```bash
+    npm init -y
+    ```
+
 1. Generate template Mocha-Chai script with command
     ```bash
-    npx dot-generator-mocha '<your-file-path>'
+    npx '@dot.indonesia/po-gen'
     ```
-    The file path can be absolute or relative, depending on where the file is stored.
-    For example, if your collection is stored in your local project directory:
-    ```bash
-    npx dot-generator-mocha 'My Project.postman_collection.json'
-    ```
-    or, if you use the absolute path:
-    ```bash
-    npx dot-generator-mocha 'C:\Users\Downloads\My Project.postman_collection.json'
-    ```
+    
+    Your terminal will display the option configuration for your template, for detail:
+
+    | Question | Option / Answer  |
+    |-----|-----|
+    | What framework will be used? | `Mocha chai`  |
+    | What type of modules does your project use? | `Javascript modules (import/export)` <br> `CommonJS (require/exports)`  |
+    | Do you want to install ESlint? | `Yes` <br> `No`  |
+    | Do you want to install Mochawesome? | `Yes` <br> `No` |  
+    | Type your json file to be generate (example.json): | your json file path |  
+
+    P.S:
+    - You can change the option with arrow key, based on your needs.
+    - To copy your file path in the last question, you can do:
+      - right-click on your file
+      - choose `Copy as path`
+      - in your last question in terminal, `CTRL + SHIFT + V` to paste the value and `ENTER`
+    - The file path can be absolute or relative, depending on where the file is stored.
+    
 1. Finish, the Mocha-CHai template scripts is successfully generated
 
     How to check if it's success:
@@ -75,23 +97,22 @@ npm -v
     If you have a Postman collection named "My Project" with a request inside a folder named "User".
     - In the terminal, there is log with format:
         ```bash
-        Generate Test tests/scenarios/<folder_name_of_Postman_collection>/<request_method>_<request_name>.spec.js
+        Generate Test tests/scenarios/<folder_name_of_Postman_collection>/<request_method>_<request_name>.spec.js completed successfully
         ```
         For example:
         ```bash
-        Generate Test tests/scenario/User/POST_login.spec.js
+        Generate Test tests/scenario/User/POST_login.spec.js completed successfully
         ```
     - In the local directory:
         - There are `tests` folder
-        - Inside `tests` folder, there are `pages`, `scenarios`, and `schema` folders
-        - Inside each that folder, there are folders which name same as the folder inside the Postman Collection
+        - Inside `tests` folder, there are `data`, `helper`, `pages`, `scenarios`, `schema`, and `utils` folders
+        - Inside `pages`, `scenarios`, and `schema` folder, there are folders which name same as the folder inside the Postman Collection
         - Inside the folder there are files that has same name as the request Postman name
         
          For example, in the folder structure visualization:
         ```js hl_lines="1 2"
         ├───node_modules
         ├───runner
-        ├───template
         └───tests
                 ├───data
                 ├───helper
@@ -101,18 +122,64 @@ npm -v
                 ├───scenarios
                 │   └───User
                 │       POST_login.spec.js
-                └───schema
-                        └───User
-                        POST_login.json
+                ├───schema
+                |       └───User
+                |       POST_login.json
+                └───utils
         ```
-        <!--Needs to be highlighted-->
-        The folder / file name with blue font is the newly generated files.
-2. Furhtermore, you can manage your test script files in your project directory
     
-### Important information
+## Template Generation
     
-- For repetitive usage, the package will generate files based on new requests in your Postman collection and existing files will not be replaced
-- The package will read the existing test file name and do a comparison with the file to be generated. If the file to be generated does not exist, then the package will generate a new file.
+If you have installed the package and just wants to generate your JSON file, you can use this command:
+
+  ```bash
+    npx '@dot.indonesia/po-gen' generate
+  ```
+
+  You can repeat the step for the last question in [installation](#installation) section.
+ 
+ For repetitive usage, the package will generate files based on new requests in your Postman collection. The existing files will not be replaced, instead the terminal will show a log like this:
+
+  ```bash
+  The request of <request_name> has already created
+  ```
+
+## Environment Generation
+
+This section will generate the exported environment collection in Postman to `.env` files (it is optional). Furthermore, it will store the value of several data used in automation based on the environment.
+
+Steps you can follow after you install package and init project:
+
+1. [Export the environment collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-collections) in Postman
+2. Input command in terminal:
+
+    ```bash
+    npx '@dot.indonesia/po-gen' env-generate
+    ```
+    Your terminal will display the option configuration for your template, for detail:
+
+    | Question | Answer  |
+    |-----|-----|
+    | Input your json file to be generate (example.json) | your environment json path <br> P.S: it can be a relative or absolute path and you can use the same steps as [installation](#installation) process |
+    | Input your environment name | your environment name, e.g dev, staging, prod |
+
+3. Finish, `.env` file is successfully generated
+   
+   How to check if its successful:
+    - In terminal, there is log like this:
+      ```bash
+      Generate environment file completed successfully
+      ```
+    - In your local directory, there is file `.env.<your_inputted_environment_name>`, for example: `.env.dev`
+    - Inside the file, there are key-values that are generated based on the exported JSON collection, for example:
+
+      ```.env
+      baseUrl=baseUrl_value
+      username=username_value
+      password=password_value
+      ```
+
+Furthermore, you can generate the environment based on your defined development environment. For usage in your automation script, you can see the [utils](#utils) section below.
 
 ## Lifecycle of Mocha Framework
 
@@ -125,7 +192,7 @@ After the template file is generated into your local directory, you can follow t
 
     You may use this command:
     ```bash
-    npm run test
+    npm run test:dev
     ```
     Or you can configure new command in `package.json` file
 
@@ -154,11 +221,11 @@ The simple explanation:
 
 ### /tests/data
 
-Folder to store data required for the tests. By default, it will be empty, you can easily configure it based on your needs.
+Folder to store data required for the tests. By default, there is an empty `file` folder. You can easily configure it based on your needs.
 
 ### /tests/helper
 
-Folder to store required functions or methods for global use. Default will be filled with `requestHelper.js`. You may ignore this file and create a new file for your use.
+Folder to store required functions or methods for global use. Default will be filled with `request.helper.js` file (you may ignore this file) and `general.helper.js` file (you can create your method needed here).
 
 ### /tests/pages
 
@@ -181,7 +248,7 @@ How to use this folder:
 2. Prepare your JSON response that will be saved in a file along with its schema category
     
     For example:
-    ```json
+    ```js
     //schema category -> success
     //it's json response
     {
@@ -195,22 +262,33 @@ How to use this folder:
 3. Copy the predefined JSON response to value of key that match the category
     
     For example:
-    ```json
+    ```js
     //file_name: login.json
-    {
-        "success":
-        {
-    		    "token": "1234567890",
-    		    "expires": "1970-01-01T00:00:00.00Z",
-    		    "status": "Success",
-    		    "result": "Success"
-    		},
-        "failed":
-        {
-            "example": "" 
-        }
+    class schema {
+      json() {
+          const json = 
+          {
+            "success":
+            {
+                "token": "1234567890",
+                "expires": "1970-01-01T00:00:00.00Z",
+                "status": "Success",
+                "result": "Success"
+            },
+            "failed":
+            {
+                "example": "" 
+            }
+          }
+          return json
+      }
     }
+    module.exports = schema
     ```
+
+### /tests/utils
+
+This folder stores `config.js` file that will do configuration for your `.env` file. You can see the detail explanation [here](#utils).
 
 ## Scenarios
 
@@ -222,37 +300,43 @@ Scenarios are files that configured to manage your test
 const expect = require('chai').expect
 const chai = require('chai')
 chai.use(require('chai-json-schema'))
-const Request = require('../../pages/User/GET_getuser');
-
+const pages = require('../../pages/User/GET_getuser.pages.js');
+const config = require('../../utils/config')
 
 module.exports = () => {
     describe("Test Get User", () =>  {
         
         it('Success', (done) => {
-            new Request().request( 
+            new pages().request( 
                 (err, res) => {
                     expect(res.status).to.equals(200);
-                    expect(res.body).to.be.jsonSchema(new Request().expect('success'))
+                    expect(res.body).to.be.jsonSchema(new pages().expect('success'))
                     done();
             })
         });
-        
     })
 }
 ```
 
-
 1. Import the package used, which is `chai`
-2. Import the same name page file with variable name `Request`
+2. Import the same name page file with variable name `pages`
 
     The code section referred:
     
     ```javascript
-    const Request = require('../../pages/User/GET_getuser');
+    const pages = require('../../pages/User/GET_getuser.pages.js');
     ```
     
-    This `Request` variable can be used to configure your request API in test needs.
+    This `pages` variable will be used to configure your request API in test needs.
     
+3. Import `config.js file`, in case you need to use value from `.env` file
+
+    The code section referred:
+    
+    ```js
+    const config = require('../../utils/config')
+    ```
+
 3. Exporting the module, so it can be used in your test runner
 
     The code section referred:
@@ -281,11 +365,11 @@ module.exports = () => {
     Example:
     
     ```javascript
-    new Request().request( (err, res) => { <your_response_validation> } )
+    new pages().request( (err, res) => { <your_response_validation> } )
     ```
 
     How it's done:
-    - since the `pages` file consist a class, you can create a new object from the class to use the defined method
+    - since the `pages` file consist a class, you can create a new object from the class to use the defined method. Specific code: `new pages()`
     - to build request specification and execute the request, you may use the `request()` method defined in [`pages`](#pages) file
     
 7. For response validation, the template create 2 default validations, which are:
@@ -296,10 +380,10 @@ module.exports = () => {
     
     ```js
     expect(res.status).to.equal(200);
-    expect(res.body).to.be.jsonSchema(new Request().expect('success'));
+    expect(res.body).to.be.jsonSchema(new pages().expect('success'));
     ```
     
-    The `new Request().expect('success')` section code will get the schema that has been defined in JSON schema file. If the value is `success`, the template will get the JSON schema value with key `success`.
+    The `new pages().expect('success')` section code will get the schema that has been defined in JSON schema file. If the value is `success`, the template will get the JSON schema value with key `success`.
     
 ### Default templates with body request
 
@@ -317,10 +401,10 @@ module.exports = () => {
         
         data.forEach((datas) => {
             it(datas.response.case, (done) => {
-                new Request().request(datas.ddt, 
+                new pages().request(datas.ddt, 
                     (err, res) => {
                         expect(res.status).to.equals(datas.response.status);
-                        expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.schema))
+                        expect(res.body).to.be.jsonSchema(new pages().expect(datas.response.schema))
                         done();
                 })
             });
@@ -334,8 +418,8 @@ The difference with requests that do not have a body are, except the default tem
 1. `data` variable
     
     For simple explanation:
-    - this variable is used to stored the combination of data used for tests scenarios
-    - inside data array, there are many of object type data
+    - this variable is used to store the combination of data used for tests scenarios
+    - inside `data` array, there are many of object type data
     - inside each object, there are several key defined:
     
     | Key  | Required | Definition |
@@ -363,10 +447,10 @@ The difference with requests that do not have a body are, except the default tem
     
     ```js
     it(datas.response.case, (done) => {
-        new Request().request(datas.ddt, 
+        new pages().request(datas.ddt, 
             (err, res) => {
                 expect(res.status).to.equals(datas.response.status);
-                expect(res.body).to.be.jsonSchema(new Request().expect(datas.response.schema))
+                expect(res.body).to.be.jsonSchema(new pages().expect(datas.response.schema))
                 done();
         })
     });
@@ -391,13 +475,13 @@ Pages is a folder to store files that configured to manage your request details.
 ```js
 const chai = require('chai')
 chai.use(require('chai-http'))
-const json_responses = require('../../schema/User/GET_getuserbyuserid.json');
-const requestHelper = require('../../helper/requestHelper');
-require('dotenv').config()
+const schema = require('../../schema/User/GET_getuser.schema.js');
+const requestHelper = require('../../helper/request.helper.js');
+const config = require('../../utils/config.js')
 
-class request {
+class pages {
     constructor() {
-		this.api = chai.request(process.env.APP_URL)
+		this.api = chai.request(new config().env().host)
 		this.path = "/Account/v1/User/"
     }
     
@@ -417,29 +501,29 @@ class request {
     }
 
     expect(cases="success") {
-      	return new requestHelper().getSchema(json_responses, cases)
+      	return new requestHelper().getSchema(new schema().json(), cases)
     }
 }
 
-module.exports = request
+module.exports = pages
 ```
 
 The template defines some general things, which are:
 
-1. Import JSON schema file with same name file and saving it to `json_responses` variable. 
+1. Import JSON schema file with same name file and saving it to `schema` variable. 
 
     ```js
-    const json_responses = require('../../schema/User/GET_getuser.json');
+    const schema = require('../../schema/User/GET_getuser.schema.js');
     ```
 
     Furthermore, it will be used to get the defined response JSON body.
-2. `class request{}`
+2. `class pages{}`
     
     This is the main content of page file. It will consist some default methods that will be explained below. If you want to use these methods, you can create a new object in your [`scenarios`](#scenarios) file.
 
     Code section:
     ```js
-    class request{ <detail_of_api> }
+    class pages{ <detail_of_api> }
     ```
 
     There are several detail of API that will be defined as methods, which are:
@@ -451,13 +535,13 @@ The template defines some general things, which are:
    
    The `constructor()` method is a special method for creating and initializing objects created within a class.
 
-   By default, the template will generate the endpoint of request. It will get your defined APP_URL from `.env` file and build the path URL.
+   By default, the template will generate the endpoint of request. It will get your defined host from `.env` file and build the path URL.
 
    The code section:
 
     ```js
     constructor() {
-      this.api = chai.request(process.env.APP_URL)
+      this.api = chai.request(new config().env().host)
       this.path = "/Account/v1/User/"
       }
     ```
@@ -466,7 +550,7 @@ The template defines some general things, which are:
 
     > You can cofigure your constant or static value in this method.
 4.  Build `request(){}` section
-  This section is automatically generated and used to build API requests that can be recognized by mocha-chai, you can see in this code section:
+  This section is automatically generated and used to build API requests that can be recognized by chai, you can see in this code section:
 
     ```js
     request(...args) {
@@ -480,13 +564,13 @@ The template defines some general things, which are:
     > It can vary according to the details of the request that is generated from your Postman collection.
 
     By default, here is how this template works:
-    - method `request()` will receive arguments from tests file or somewhere in tests file that use this request file, this arguments stored in `args` variable
+    - method `request()` will receive arguments from tests file that use this request file, the arguments stored in `args` variable
     - this method build request API with common chai syntax, which is:
       ```js
       const response = this.api.get(this.path) 
       ```
     - `.end(new requestHelper().getExpectFunc(args))`
-      - this part is used to get the validation part of API
+      - this part is used to get the validation part of API which is recognized by an argument of type function.
       - from tests file view, we can see it from this code section:
           ```js
           (err, res) => { <api_response_validation> }
@@ -516,13 +600,13 @@ The template defines some general things, which are:
     Default value of this section:
     ```js
     expect(cases="success") {
-      	return new requestHelper().getSchema(json_responses, cases)
+      	return new requestHelper().getSchema(new schema().json(), cases)
     }
     ```
 
     For simple explanation:
     - `expect()` method will get argument from code section that called this method. The argument will be stored in `cases` variable.
-    - this method will call `getShcema()` method in `requestHelper` class which will return the converted JSON body that matched with the `cases` value.
+    - this method will call `getShcema()` method in `requestHelper` class which will return the converted JSON body from `json()` method in exported `schema()` class that matched with the `cases` value.
 7. `module.exports = request`
   
     This section is used to export the request class so it can be used in your test file.
@@ -783,7 +867,7 @@ you can use this configuration steps:
 
     ```js
     constructor() {
-		this.api = process.env.APP_URL;
+		this.api = chai.request(new config().env().host);
 		this.path = "/Account/v1/User/";
     }
     
@@ -812,10 +896,80 @@ you can use this configuration steps:
 
 > You can configure the scenario-related data needs in your scenario files and configure the data mapping in your page file.
 
+## Utils
+
+This folder, especially `config.js` files, is used to configure the environment-based data value that will be used in automation script.
+
+> This pattern was created to meet the need to run scripts in different environments, where each environment has different test data
+
+How it works:
+1. The `config.js` file will recognize the environment value that being executed in terminal when running the tests.
+
+    You can see or configure it in `package.json` file specific in `scripts` key. By default, one of the values is:
+
+    ```json
+    "test:dev": "cross-env NODE_ENV=dev mocha runner/regression.js --timeout 15000"
+    ```
+
+    From above, we know that the `NODE_ENV` value is `dev`. Furthermore, this value will be used to recognize the `.env` file that has been created. In this case, it will get the value from `.env.dev` file.
+
+2. `env()` method stores the value from defined `.env` file into key that will be used in your automation script.
+
+    For example:
+
+    ```js
+    env() {
+        dotenv.config({ path: __dirname + `/../../.env.${process.env.NODE_ENV}` });
+
+        const env = {
+            host: process.env.MAIN
+        }
+    
+        return env
+    }
+    ```
+
+    By default, it gives example for `MAIN` key in `.env` file. Value of `MAIN` will be saved in `host` key. Later, it will be used in `pages` file like this:
+
+    ```js
+    this.api = chai.request(new config().env().host)
+    ```
+
+So, if you want to configure and use your `.env` data, you can follow this step:
+
+1. Create key-value in your `.env` file
+    For example:
+    
+    ```.env
+    USERNAME=username_value
+    ```
+2. Create new key in `env` variable inside `env()` method with value being the key of value defined in `.env` file.
+
+    For example:
+
+    ```js
+    const env = {
+      host: process.env.MAIN,
+      username: process.env.USERNAME //this is the new key-value
+    }
+    ```
+3. Use the key in `env` variable in your script file
+
+    For example:
+
+    ```js
+    const config = require('../../utils/config.js')
+
+    const username = new config().env().username;
+    ```
+
+    How to use the env variable:
+    - create new `config()` class
+    - use the `env()` method
+    - get the key defined (`.username`)
+
 ## Implementation
 
-## Best Practices
-
-## Common Error
+You can see the implementation [here](https://github.com/aisyahns/automation-api-implementation).
 
 [def]: #automation-api-generator
