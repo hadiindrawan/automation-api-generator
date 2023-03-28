@@ -49,13 +49,10 @@ npm -v
 
 ## Installation
 
+> For using this package name in your bash / terminal, you need to give ' (apostrophe) before and after the package name like below example. Otherwise, you will get an error.
+
 1. Create your local project directory
 2. [Export your Postman collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-collections) to JSON with Collection v2.1 format
-3. Install package with npm
-   
-    ```bash
-    npm i --save-dev '@dot.indonesia/po-gen'
-    ```
 4. Create `package.json` file
 
     ```bash
@@ -68,6 +65,11 @@ npm -v
     npm init -y
     ```
 
+3. Install package with npm
+   
+    ```bash
+    npm i --save-dev '@dot.indonesia/po-gen'
+    ```
 1. Generate template Mocha-Chai script with command
     ```bash
     npx '@dot.indonesia/po-gen'
@@ -119,13 +121,13 @@ npm -v
                 ├───helper
                 ├───pages
                 │   └───User
-                │       POST_login.js
+                │       POST_login.pages.js
                 ├───scenarios
                 │   └───User
                 │       POST_login.spec.js
                 ├───schema
                 |       └───User
-                |       POST_login.json
+                |       POST_login.schema.js
                 └───utils
         ```
     
@@ -858,7 +860,7 @@ you can use this configuration steps:
    
     For example the token and id value:
     ```js
-    new Request().request(token_value, id_value, 
+    new pages().request(token_value, id_value, 
       (err, res) => {});
     ```
 
