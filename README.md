@@ -266,7 +266,7 @@ How to use this folder:
     
     For example:
     ```js
-    //file_name: login.json
+    //file_name: POST_login.schema.js
     class schema {
       json() {
           const json = 
