@@ -14,7 +14,8 @@ This project has created to relieve work load as SDET or Automation Test Enginee
 ## Table of Contents
   - [Prerequisite](#prerequisite)
   - [Installation](#installation)
-    - [Important information](#important-information)
+  - [Template Generation](#template-generation)
+  - [Environment Generation](#environment-generation)
   - [Lifecycle of Mocha Framework](#lifecycle-of-mocha-framework)
   - [Folder Structure and Usage](#folder-structure-and-usage)
     - [/runner](#runner)
@@ -23,6 +24,7 @@ This project has created to relieve work load as SDET or Automation Test Enginee
     - [/tests/pages](#testspages)
     - [/tests/scenarios](#testsscenarios)
     - [/tests/schema](#testsschema)
+    - [/tests/utils](#testsutils)
   - [Scenarios](#scenarios)
     - [Default templates](#default-templates)
     - [Default templates with body request](#default-templates-with-body-request)
@@ -31,9 +33,8 @@ This project has created to relieve work load as SDET or Automation Test Enginee
     - [Default templates with JSON body](#default-templates-with-json-body)
     - [Default templates with attachment body](#default-templates-with-attachment-body)
     - [If You Need Other Arguments](#if-you-need-other-arguments)
+  - [Utils](#utils)
   - [Implementation](#implementation)
-  - [Best Practices](#best-practices)
-  - [Common Error](#common-error)
 
 ## Prerequisite
 
@@ -90,7 +91,7 @@ npm -v
       - in your last question in terminal, `CTRL + SHIFT + V` to paste the value and `ENTER`
     - The file path can be absolute or relative, depending on where the file is stored.
     
-1. Finish, the Mocha-CHai template scripts is successfully generated
+1. Finish, the Mocha-Chai template scripts is successfully generated
 
     How to check if it's success:
     
