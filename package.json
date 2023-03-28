@@ -1,6 +1,6 @@
 {
   "name": "@dot.indonesia/po-gen",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -34,7 +34,7 @@
     "type": "git",
     "url": "https://github.com/hadiindrawan/automation-api-generator.git"
   },
-  "author": "Hadi Indrawan <hadiindrawan157@gmail.com>",
+  "author": "Hadi Indrawan <hadiindrawan157@gmail.com> (https://github.com/hadiindrawan)",
   "license": "MIT",
   "description": "This project has created to relieve work load as SDET or Automation Test Engineer. You just export the postman collection, and run this generator to write the automation code.",
   "dependencies": {
