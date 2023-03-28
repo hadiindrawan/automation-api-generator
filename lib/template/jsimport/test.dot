@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import chai from 'chai'
 import chaiJsonSchema from 'chai-json-schema'
 import pages from '{{pagesPath}}'
+import config from '{{configPath}}'
 chai.use(chaiJsonSchema)
 {{dataDriven}}
 
