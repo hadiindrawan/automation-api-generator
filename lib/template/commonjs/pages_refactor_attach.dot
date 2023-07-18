@@ -42,29 +42,19 @@ class Request {
     }
   
     // This method used for provide body or payload of the request and return object
-    async body(...args) {
-		let objectMapped
-		
-		await Promise.all(data.{{data_body_name}}.map(async (item) => {
-			if (item.case.default) {
-				objectMapped = await new request_helper().mapObject(item.driven, args);
-			}
-		}))
+	async getMappedBody(...args) {
+		const defaultData = await new request_helper().getDefaultData(data.{{data_attach_name}})
+		const dataMapped = await new request_helper().mapObject(defaultData.driven, args);
 
-		return objectMapped;
+		return dataMapped
 	}
 
 	// This method used for provide attachment file and return object
 	async getMappedAttachment(...args) {
-		let objectMapped
+		const defaultData = await new request_helper().getDefaultData(data.{{data_attach_name}})
+		const dataMapped = await new request_helper().mapObject(defaultData.driven.attachment, args);
 
-		await Promise.all(data.{{data_attach_name}}.map(async (item) => {
-			if (item.case.default) {
-				objectMapped = await new request_helper().mapObject(item.driven.attachment, args);
-			}
-		}))
-
-		return objectMapped
+		return dataMapped
 	}
 	
 	// This method used for provide expectation and return json schema
