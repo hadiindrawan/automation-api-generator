@@ -41,13 +41,7 @@ class Request {
 		return response
     }
   
-    // This method used for provide body or payload of the request and return object
-	async getMappedBody(...args) {
-		const defaultData = await new request_helper().getDefaultData(data.{{data_attach_name}})
-		const dataMapped = await new request_helper().mapObject(defaultData.driven, args);
-
-		return dataMapped
-	}
+	{{body_section}}
 
 	// This method used for provide attachment file and return object
 	async getMappedAttachment(...args) {

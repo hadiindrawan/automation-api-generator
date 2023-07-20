@@ -1,8 +1,7 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
 const request_helper = require('{{path_helper}}')
-const config = require('{{path_config}}')
-const data = require('{{path_data}}')
+const config = require('{{path_config}}'){{path_data}}
 const { schema } = require('{{path_schema}}')
 
 class Request {
@@ -24,13 +23,7 @@ class Request {
 		return response
     }
   
-    // This method used for provide body or payload of the request and return object
-    async getMappedBody(...args) {
-		const defaultData = await new request_helper().getDefaultData(data.{{data_body_name}})
-		const dataMapped = await new request_helper().mapObject(defaultData.driven, args);
-
-		return dataMapped
-	}
+    {{body_section}}
 	
 	// This method used for provide expectation and return json schema
     expect(cases="success") {
