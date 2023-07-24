@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import fs from 'fs'
+import { promisify } from 'util';
 import inquirer from 'inquirer';
 import { exec } from 'child_process';
 import generate from './lib/generate.js';
 import generateEnv from './lib/generate_env.js';
+import { log } from './lib/utils/logs.js';
+import asyncForEach from './lib/utils/foreach.js';
 
 let eslintConfig = 
 `{
@@ -26,11 +29,12 @@ function projectModules() {
     return packageJson.type == undefined ? true : false
 }
 
-function existModuleType() {
-    const packageJson = JSON.parse(fs.readFileSync('./package.json'))
-    if (packageJson.type != undefined) {
-        return packageJson.type == 'module' ? "Javascript modules (import/export)" : "CommonJS (require/exports)"
-    }
+async function existModuleType() {
+    // const packageJson = JSON.parse(fs.readFileSync('./package.json'))
+    // if (packageJson.type != undefined) {
+    //     return packageJson.type == 'module' ? "Javascript modules (import/export)" : "CommonJS (require/exports)"
+    // }
+    return 'CommonJS (require/exports)'
 }
 
 function validateInputJson(input) {
@@ -41,7 +45,10 @@ function validateInputEnvName(input) {
     return /[A-Z]/.test(input) ? 'Input must be lowercase!' : true
 }
 
-function generateCommand() {
+const readFile = promisify(fs.readFile);
+
+async function generateCommand() {
+    let allAnswer = {}
     inquirer
         .prompt([
             {
@@ -52,19 +59,56 @@ function generateCommand() {
                 validate: validateInputJson
             }
         ])
-        .then((answers) => {
-            //Print message indicating automation test generation has started..
-            console.log(`${'\x1b[34m'}Generating automation test..${'\x1b[0m'}`)
+        .then(async (answers) => {
+            Object.assign(allAnswer, answers);
+            const data = await readFile(answers.jsonFileQ);
+            const { item: items } = JSON.parse(data)
 
-            //Call the generate function to generate automation tests.
-            generate(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, existModuleType())
-            // write test script for run the regression test 
-            rebuildPackagejson()
+            const sortedArr = await items.sort((a, b) => {
+              // Check if 'item' property exists in both objects
+              const aHasItem = Object.prototype.hasOwnProperty.call(a, 'item');
+              const bHasItem = Object.prototype.hasOwnProperty.call(b, 'item');
+            
+              // Sort based on presence of 'item' property
+              if (aHasItem && !bHasItem) return 1;
+              if (!aHasItem && bHasItem) return -1;
+            
+              return 0;
+            });
+
+            const option = await sortedArr.map(item => item.hasOwnProperty('item') ? { name: `${item.name} - (suite)` } : { name: `${item.name} - (test)` });
+
+
+            return inquirer.prompt([
+                {
+                    type: 'checkbox',
+                    name: 'customKey',
+                    message: 'Select one or more case or suite:',
+                    pageSize: 10,
+                    choices: option,
+                    validate: function (value) {
+                        if (value.length === 0) {
+                            return 'Please select at least one case or suite';
+                        }
+                        return true;
+                    },
+                },
+            ]);
         })
-        .catch((err) => {
+        .then(async (answers) => {
+            Object.assign(allAnswer, answers);
+            //Print message indicating automation test generation has started..
+            log(`Generating automation test..`, 'blue')
+
+            // Call the generate function to generate automation tests.
+            await generate(allAnswer, await existModuleType())
+            // write test script for run the regression test 
+            // await rebuildPackagejson()
+        })
+        .catch(async (err) => {
             console.log(err);
             console.log('Please type correct answer!');
-            generateCommand()
+            await generateCommand()
         })
 }
 
@@ -88,14 +132,14 @@ function generateEnvCommand() {
         ])
         .then((answers) => {
             //Print message indicating environment test generation has started..
-            console.log(`${'\x1b[34m'}Generating environment test..${'\x1b[0m'}`)
+            log(`Generating environment test..`, 'blue')
 
             //Call the generate function to generate environment tests.
             generateEnv(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.envQ)
         })
         .catch((err) => {
             console.log(err);
-            console.log('Please type correct answer!');
+            log('Please type correct answer!', 'yellow')
             generateEnvCommand()
         })
 }
@@ -103,7 +147,7 @@ function generateEnvCommand() {
 const argRunner = process.argv[process.argv.length - 1]
 
 if (argRunner == 'generate') {
-    generateCommand()
+    await generateCommand()
 } else if (argRunner == 'env-generate') {
     generateEnvCommand()
 } else {
@@ -224,7 +268,7 @@ if (argRunner == 'generate') {
     })
 }
 
-function rebuildPackagejson(answers) {
+async function rebuildPackagejson(answers) {
     const scriptName = 'test:dev'; // Name of your new script
     const scriptCommand = 'cross-env NODE_ENV=dev mocha runner/regression.js --timeout 15000'; // Command to execute your script
     
@@ -232,7 +276,7 @@ function rebuildPackagejson(answers) {
     const typeValue = answers == "CommonJS (require/exports)" ? 'commonjs' : 'module'; // Command to execute your script
 
     // Read the package.json answers.jsonFileQ
-    const packageJson = JSON.parse(fs.readFileSync('./package.json'));
+    const packageJson = await JSON.parse(fs.readFileSync('./package.json'));
 
     // Add the new script to the scripts object
     packageJson.scripts[scriptName] = scriptCommand;
@@ -242,7 +286,7 @@ function rebuildPackagejson(answers) {
     }
 
     // Write the updated package.json answers.jsonFileQ
-    fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
+    await fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
 }
 
 function installPackage(strPack, npm, jsonfile, moduleQ) {
