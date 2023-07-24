@@ -10,3 +10,4 @@ notes.txt
 !package.json
 test.js
 implement
+.mocharc.js
