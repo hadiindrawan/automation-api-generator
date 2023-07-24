@@ -22,7 +22,6 @@ class Request {
 
 		return response
     }
-  
     {{body_section}}
 	
 	// This method used for provide expectation and return json schema

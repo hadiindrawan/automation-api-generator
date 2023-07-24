@@ -1,8 +1,7 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
 const request_helper = require('{{path_helper}}')
-const config = require('{{path_config}}')
-const data = require('{{path_data}}')
+const config = require('{{path_config}}'){{path_data}}
 const { schema } = require('{{path_schema}}')
 
 class Request {
@@ -40,7 +39,6 @@ class Request {
 
 		return response
     }
-  
 	{{body_section}}
 
 	// This method used for provide attachment file and return object
