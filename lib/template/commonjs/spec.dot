@@ -4,9 +4,6 @@ chai.use(require('chai-json-schema')){{data_path}}
 const Request = require('{{page_path}}')
 const config = require('{{config_path}}')
 
-module.exports = () => {
-    // Write your test here
-    describe("{{describe}}", () =>  {
-        {{test_section}}
-    })
-}
+describe("{{describe}}", () =>  {
+    {{test_section}}
+})

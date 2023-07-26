@@ -320,8 +320,8 @@ if (argRunner == 'generate') {
 }
 
 async function rebuildPackagejson(answers) {
-    const scriptName = 'test:dev'; // Name of your new script
-    const scriptCommand = 'cross-env NODE_ENV=dev mocha runner/regression.js --timeout 15000'; // Command to execute your script
+    const scriptName = 'regression:dev'; // Name of your new script
+    const scriptCommand = 'cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000'; // Command to execute your script
     
     const typeKey = 'type'; // Name of your new script
     const typeValue = answers == "CommonJS (require/exports)" ? 'commonjs' : 'module'; // Command to execute your script
