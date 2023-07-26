@@ -1,73 +1,58 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
-const schema = require('{{jsonSchemaPath}}');
-const requestHelper = require('{{helperPath}}');
-const config = require('{{configPath}}')
+const request_helper = require('{{path_helper}}')
+const config = require('{{path_config}}'){{path_data}}
+const { schema } = require('{{path_schema}}')
 
-class pages{
-	constructor() {
-		// Write your constructor here, if you need
-		this.api = chai.request(new config().env().host) // Set up the api with the endpoint based on the environment and change this according to endpoint service
-		this.path = "{{endpoint}}" // Set up the API path to the route endpoint
+class Request {
+    constructor() {
+		// Write your constructor here, if you nee
+		// Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.url = "{{url}}" // Set up the API path to the route endpoint
+    }
+
+	get request() {
+		return chai.request(new config().env().host)
 	}
 
     // This method handles making the HTTP request based on given arguments.
-	request(...args) {
-		let datas = new requestHelper().getParam(args)
-		let attaches = new requestHelper().getAttach(args)
-
+    async api(...args) {
 		// Send HTTP POST request to the specified path and send the required body with params extracted from args.
-		let response = this.api.{{method}}(this.path){{query}}
+		const response = await this.request.{{method}}(this.url){{query}}
 		.set("Content-Type", "multipart/form-data"){{header}}
 
-		Object.keys(this.body(datas)).forEach((key) => {
-		response = response.field(key, JSON.stringify(this.body(datas)[key]))
+		Object.keys(await this.getMappedBody(payload)).forEach( async (key) => {
+			response = await response.field(key, JSON.stringify(await this.getMappedBody(payload)[key]))
 		})
 
-		Object.keys(this.attach(attaches)).forEach((at) => {
-		if( typeof this.attach(attaches)[at] != 'object') {
-			let att = new requestHelper().getFile(this.attach(attaches)[at])
-			response = response.attach(at, att[0], att[1])
-		} else {
-			this.attach(attaches)[at].forEach((val) => {
-			let att = new requestHelper().getFile(val)
-			response = response.attach(at, att[0], att[1])
-			})
-		}
+		Object.keys(await this.getMappedAttachment(attachment)).forEach(async (key) => {
+			if( typeof await this.getMappedAttachment(attachment)[key] != 'object') {
+				const raw = await new request_helper().getFile(await this.getMappedAttachment(attachment)[key])
+				response = await response.attach(key, raw.file, raw.name)
+			} else {
+				await this.getMappedAttachment(attachment)[key].forEach(async (val) => {
+					const raw = await new request_helper().getFile(val)
+					response = await response.attach(key, raw.file, raw.name)
+				})
+			}
 		})
 
-		// Finally, end the request by returning expected behavior by analyzing input args
-		return response.end(new requestHelper().getExpectFunc(args))
-	}
-
-    // This method used for provide body or payload of the request and return object
-	body(...args) {
-		// your rawJSON body
-		let obj = {{objectBody}}
-
-		// mapping your changes
-		new requestHelper().objectMapping(obj, args)
-
-		// Return it
-		return obj
-	}
+		return response
+    }
+	{{body_section}}
 
 	// This method used for provide attachment file and return object
-	attach(...args) {
-		// your rawJSON attachment
-		let objAtt = {{rawAtt}}
+	async getMappedAttachment(...args) {
+		const defaultData = await new request_helper().getDefaultData(data.{{data_attach_name}})
+		const dataMapped = await new request_helper().mapObject(defaultData.driven.attachment, args);
 
-		// mapping your changes
-		new requestHelper().objectMapping(objAtt, args)
-
-		// Return it
-		return objAtt
+		return dataMapped
 	}
-
+	
 	// This method used for provide expectation and return json schema
-	expect(cases="success") {
-		return new requestHelper().getSchema(new schema().json(), cases)
-	}
+    expect(cases="success") {
+		return new request_helper().getSchema(schema, cases)
+    }
 }
 
-module.exports = pages
+module.exports = Request

@@ -1,43 +1,33 @@
 const chai = require('chai')
 chai.use(require('chai-http'))
-const schema = require('{{jsonSchemaPath}}');
-const requestHelper = require('{{helperPath}}');
-const config = require('{{configPath}}')
+const request_helper = require('{{path_helper}}')
+const config = require('{{path_config}}'){{path_data}}
+const { schema } = require('{{path_schema}}')
 
-class pages {
+class Request {
     constructor() {
-		// Write your constructor here, if you need
-		this.api = chai.request(new config().env().host) // Set up the api with the endpoint based on the environment and change this according to endpoint service
-		this.path = "{{endpoint}}" // Set up the API path to the route endpoint
+		// Write your constructor here, if you nee
+		// Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.url = "{{url}}" // Set up the API path to the route endpoint
     }
+
+	get request() {
+		return chai.request(new config().env().host)
+	}
 
     // This method handles making the HTTP request based on given arguments.
-    request(...args) {
+    async api(...args) {
 		// Send HTTP POST request to the specified path and send the required body with params extracted from args.
-		const response = this.api.{{method}}(this.path){{query}}{{header}}{{bodyFunc}}
-		// Finally, end the request by returning expected behavior by analyzing input args
-		.end(new requestHelper().getExpectFunc(args))
-		
-		// Return the complete response
+		const response = await this.request.{{method}}(this.url){{query}}{{header}}{{payload}}
+
 		return response
     }
-  
-    // This method used for provide body or payload of the request and return object
-    body(...args) {
-		// your rawJSON body
-		let obj = {{objectBody}}
-
-		// mapping your changes
-		new requestHelper().objectMapping(obj, args)
-
-		// Return it
-		return obj
-    }
-
+    {{body_section}}
+	
 	// This method used for provide expectation and return json schema
     expect(cases="success") {
-		return new requestHelper().getSchema(new schema().json(), cases)
+		return new request_helper().getSchema(schema, cases)
     }
 }
 
-module.exports = pages
+module.exports = Request
