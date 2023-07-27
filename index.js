@@ -229,7 +229,7 @@ if (argRunner == 'generate') {
                 ])
                 .then(async (answers) => {
                     Object.assign(allAnswer, answers);
-                    const data = await readFile(answers.jsonFileQ);
+                    const data = await readFile(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ);
                     const { item: items } = JSON.parse(data)
 
                     const sortedArr = await items.sort((a, b) => {
