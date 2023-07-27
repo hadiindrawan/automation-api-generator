@@ -1,5 +1,5 @@
-const fs = require('fs')
-const toJsonSchema = require('to-json-schema');
+import fs from "fs";
+import toJsonSchema from "to-json-schema";
 
 class request_helper {
     constructor() {
