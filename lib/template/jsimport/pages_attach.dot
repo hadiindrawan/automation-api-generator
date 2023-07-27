@@ -1,0 +1,59 @@
+import chai from 'chai'
+import chaiHttp from 'chai-http'
+import request_helper from '{{path_helper}}'
+import config from '{{path_config}}'
+import { schema } from '{{path_schema}}'{{path_data}}
+chai.use(chaiHttp)
+
+class Request {
+    constructor() {
+		// Write your constructor here, if you nee
+		// Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.url = "{{url}}" // Set up the API path to the route endpoint
+    }
+
+	get request() {
+		return chai.request(new config().env().host)
+	}
+
+    // This method handles making the HTTP request based on given arguments.
+    async api(...args) {
+		// Send HTTP POST request to the specified path and send the required body with params extracted from args.
+		const response = await this.request.{{method}}(this.url){{query}}
+		.set("Content-Type", "multipart/form-data"){{header}}
+
+		Object.keys(await this.getMappedBody(payload)).forEach( async (key) => {
+			response = await response.field(key, JSON.stringify(await this.getMappedBody(payload)[key]))
+		})
+
+		Object.keys(await this.getMappedAttachment(attachment)).forEach(async (key) => {
+			if( typeof await this.getMappedAttachment(attachment)[key] != 'object') {
+				const raw = await new request_helper().getFile(await this.getMappedAttachment(attachment)[key])
+				response = await response.attach(key, raw.file, raw.name)
+			} else {
+				await this.getMappedAttachment(attachment)[key].forEach(async (val) => {
+					const raw = await new request_helper().getFile(val)
+					response = await response.attach(key, raw.file, raw.name)
+				})
+			}
+		})
+
+		return response
+    }
+	{{body_section}}
+
+	// This method used for provide attachment file and return object
+	async getMappedAttachment(...args) {
+		const defaultData = await new request_helper().getDefaultData(data.{{data_attach_name}})
+		const dataMapped = await new request_helper().mapObject(defaultData.driven.attachment, args);
+
+		return dataMapped
+	}
+	
+	// This method used for provide expectation and return json schema
+    expect(cases="success") {
+		return new request_helper().getSchema(schema, cases)
+    }
+}
+
+module.exports = Request

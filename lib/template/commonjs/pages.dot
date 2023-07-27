@@ -1,0 +1,33 @@
+const chai = require('chai')
+chai.use(require('chai-http'))
+const request_helper = require('{{path_helper}}')
+const config = require('{{path_config}}'){{path_data}}
+const { schema } = require('{{path_schema}}')
+
+class Request {
+    constructor() {
+		// Write your constructor here, if you nee
+		// Set up the api with the endpoint based on the environment and change this according to endpoint service
+		this.url = "{{url}}" // Set up the API path to the route endpoint
+    }
+
+	get request() {
+		return chai.request(new config().env().host)
+	}
+
+    // This method handles making the HTTP request based on given arguments.
+    async api(...args) {
+		// Send HTTP POST request to the specified path and send the required body with params extracted from args.
+		const response = await this.request.{{method}}(this.url){{query}}{{header}}{{payload}}
+
+		return response
+    }
+    {{body_section}}
+	
+	// This method used for provide expectation and return json schema
+    expect(cases="success") {
+		return new request_helper().getSchema(schema, cases)
+    }
+}
+
+module.exports = Request
