@@ -25,16 +25,27 @@ let eslintConfig =
 }`
 
 function projectModules() {
-    const packageJson = JSON.parse(fs.readFileSync('./package.json'))
-    return packageJson.type == undefined ? true : false
+    try {
+        const checkConfigImport = fs.readFileSync('./tests/utils/config.js').toString()
+        const checkHelperImport = fs.readFileSync('./tests/helpers/request.helper.js').toString()
+
+        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import dotenv from "dotenv"')) return false
+        return true
+    } catch (e) {
+        return true
+    }
 }
 
 async function existModuleType() {
-    const packageJson = JSON.parse(fs.readFileSync('./package.json'))
-    if (packageJson.type != undefined) {
-        return packageJson.type == 'module' ? "Javascript modules (import/export)" : "CommonJS (require/exports)"
+    try {
+        const checkConfigImport = fs.readFileSync('./tests/utils/config.js').toString()
+        const checkHelperImport = fs.readFileSync('./tests/helpers/request.helper.js').toString()
+
+        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import dotenv from "dotenv"')) return "Javascript modules (import/export)"
+        return "CommonJS (require/exports)"
+    } catch (e) {
+        return true
     }
-    return 'CommonJS (require/exports)'
 }
 
 function validateInputJson(input) {
@@ -322,19 +333,12 @@ if (argRunner == 'generate') {
 async function rebuildPackagejson(answers) {
     const scriptName = 'regression:dev'; // Name of your new script
     const scriptCommand = 'cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000'; // Command to execute your script
-    
-    const typeKey = 'type'; // Name of your new script
-    const typeValue = answers == "CommonJS (require/exports)" ? 'commonjs' : 'module'; // Command to execute your script
 
     // Read the package.json answers.jsonFileQ
     const packageJson = await JSON.parse(fs.readFileSync('./package.json'));
 
     // Add the new script to the scripts object
     packageJson.scripts[scriptName] = scriptCommand;
-    // Add type project
-    if (answers != undefined) {
-        packageJson[typeKey] = typeValue
-    }
 
     // Write the updated package.json answers.jsonFileQ
     fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
@@ -352,7 +356,7 @@ async function installPackage(strPack, npm, jsonfile, moduleQ, prettierExist) {
         }
 
         if (npm != '') {
-            await installDevPackge(npm, jsonfile, prettierExist)
+            await installDevPackge(npm, jsonfile, moduleQ, prettierExist)
         } else {
             //If the program reaches here, it means the install process was successful. Print a success message.
             console.log(`${'\x1b[32m'}Installation completed successfully!${'\x1b[0m'}`)
@@ -396,7 +400,6 @@ async function installDevPackge(npm, jsonfile, moduleQ, prettierExist) {
 }
 
 async function runPrettier(prettierExist) {
-    // console.log(prettierExist);
     if (!prettierExist) {
         const installProcess = exec('npm install --save-dev --save-exact prettier')
         //This code is registering a listener to the exit event of installProcess
