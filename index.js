@@ -29,7 +29,8 @@ function projectModules() {
         const checkConfigImport = fs.readFileSync('./tests/utils/config.js').toString()
         const checkHelperImport = fs.readFileSync('./tests/helpers/request.helper.js').toString()
 
-        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import dotenv from "dotenv"')) return false
+        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import fs from "fs"')) return false
+        if (checkConfigImport.includes('const dotenv = require("dotenv")') || checkHelperImport.includes('const fs = require("fs")')) return false
         return true
     } catch (e) {
         return true
@@ -41,7 +42,8 @@ async function existModuleType() {
         const checkConfigImport = fs.readFileSync('./tests/utils/config.js').toString()
         const checkHelperImport = fs.readFileSync('./tests/helpers/request.helper.js').toString()
 
-        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import dotenv from "dotenv"')) return "Javascript modules (import/export)"
+        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import fs from "fs"')) return "Javascript modules (import/export)"
+        
         return "CommonJS (require/exports)"
     } catch (e) {
         return true
