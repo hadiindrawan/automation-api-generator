@@ -43,7 +43,7 @@ class Request {
 
 	// This method used for provide attachment file and return object
 	async getMappedAttachment(...args) {
-		const defaultData = await new request_helper().getDefaultData(data.{{data_attach_name}})
+		const defaultData = new request_helper().getDefaultData(data.{{data_attach_name}})
 		const dataMapped = await new request_helper().mapObject(defaultData.driven.attachment, args);
 
 		return dataMapped
