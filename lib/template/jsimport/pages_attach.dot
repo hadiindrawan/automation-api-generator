@@ -18,8 +18,11 @@ class Request {
 
     // This method handles making the HTTP request based on given arguments.
     async api(...args) {
+		const payload = new request_helper().getPayload(args)
+    	const attachment = new request_helper().getAttachment(args)
+
 		// Send HTTP POST request to the specified path and send the required body with params extracted from args.
-		const response = await this.request.{{method}}(this.url){{query}}
+		let response = await this.request.{{method}}(this.url){{query}}
 		.set("Content-Type", "multipart/form-data"){{header}}
 
 		Object.keys(await this.getMappedBody(payload)).forEach( async (key) => {
