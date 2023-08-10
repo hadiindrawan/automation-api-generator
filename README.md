@@ -83,7 +83,8 @@ npm -v
     | What type of modules does your project use? | `Javascript modules (import/export)` <br> `CommonJS (require/exports)`  |
     | Do you want to install ESlint? | `Yes` <br> `No`  |
     | Do you want to install Mochawesome? | `Yes` <br> `No` |  
-    | Type your json file to be generate (example.json): | your json file path |  
+    | Type your json file to be generate (example.json): | your json file path | 
+    | Select one or more case or suite: | select your case or suite to be generate |
 
     P.S:
     - You can change the option with arrow key, based on your needs.
@@ -114,19 +115,19 @@ npm -v
         
          For example, in the folder structure visualization:
         ```js hl_lines="1 2"
-        ├───node_modules
-        ├───runner
         └───tests
                 ├───data
-                ├───helper
+                │   └───User
+                │       User.data.js
+                ├───helpers
                 ├───pages
                 │   └───User
                 │       POST_login.pages.js
                 ├───scenarios
                 │   └───User
                 │       POST_login.spec.js
-                ├───schema
-                |       └───User
+                ├───schemas
+                |   └───User
                 |       POST_login.schema.js
                 └───utils
         ```
@@ -190,7 +191,7 @@ After the template file is generated into your local directory, you can follow t
 1. Complete test files to meet your scenario needs --> folder: `/tests/scenario`
 2. Configure request in `pages` file (if needed) --> folder: `/tests/pages`
 3. Complete JSON-schema file to cover all your defined scenario --> folder: `/tests/schema`
-4. Configure runner based on the defined test order --> folder: `runner`
+4. Configure mocha configuration file if you want to customize files to be run
 5. Run your test
 
     You may use this command:
@@ -201,34 +202,42 @@ After the template file is generated into your local directory, you can follow t
 
 ## Folder Structure and Usage
 
-### /runner
-Folder to store runners for each group of test files. You may create a new file to categorize wach file tests based on the needs.
-
-> It is generated automatically, grouped by your request folder in Postman collection. It will be stored by the order in which the requests are in your collection.
-
-For example:
-
-```javascript
-//file /runner/user.js
-require('../tests/scenarios/User/POST_register.spec')()
-require('../tests/scenarios/User/POST_login.spec')()
-module.exports = () => {}
-```
-
-The simple explanation:
-- This file is generated from a collection with request folder called User and 2 requests inside, which are:
-    1. Register
-    2. Login
-- This `user` runner will run your test file with `register` and `login` test name. The `register` test will be run first, then the `login` test.
-- `module.exports = () => {}` code section is used to export this file so you can user it in your regression test file (if needed) or other runner files.
-
 ### /tests/data
 
-Folder to store data required for the tests. By default, there is an empty `file` folder. You can easily configure it based on your needs.
+Folder to store data required for the tests. There will be generating from your collection request body. And it will be use in the tests which has the body in their requests. The data file is suite file which the data body including in file. The data is using driven data, so there is a default structure which unable to change.
 
-### /tests/helper
+For example:
+  ```js
+  export const login_data = [
+    {
+      case: {
+        name: "Successful login with valid credentials",
+        schema: "success",
+        status: 200,
+        default: true
+      },
+      driven: { 
+        email: "pogen@mail.com", 
+        password: "password" 
+      },
+      attachment: {}
+    }
+  ];
+  ```
+`case` property contained test case name (name), key of schema (schema), status code expectation (status) and (default) is flag for data which generated from collection.
+`driven` property contained body or payload of the request. `attachment` property contained files or attachments if any.
 
-Folder to store required functions or methods for global use. Default will be filled with `request.helper.js` file (you may ignore this file) and `general.helper.js` file (you can create your method needed here).
+And you can organize another cases like negative cases with the same structure data, and just put in that array.
+
+| Key  | Required | Definition |
+| ------------- | ------------- | ---- |
+| <i>case</i>  | `true`  | `response` is a key that stored object with key-value of general configurations of each data test, which are the test case name and the expected validation<br> <br> you can configure the key-value inside object based on your needs, whether you need the default key (`name`, `schema`, `status`) or maybe you need other key-value, e.g `message`. For `default` is flag for data which generated from collection|
+| <i>driven</i>  | `true`  | object to store the combination of one data test |
+| <i>attachment</i>  | `false`  | `attachment` is a key that stored object with key-value of body request that needs to attach some files and needs to change the default of request defined in [`pages`](#pages) file |
+
+### /tests/helpers
+
+Folder to store required functions or methods for global use. Default will be filled with `request.helper.js` file (you may ignore this file).
 
 ### /tests/pages
 
@@ -238,7 +247,7 @@ Folder to store the detail request of each API. For detailed explanation, you ca
 
 Folder to store your test files. It is linked closely with pages file, especially with the same name files. For detailed explanation, you can go to [Scenarios](#scenarios) section.
 
-### /tests/schema
+### /tests/schemas
 
 It stores the JSON of response body (if any) that will be converted automatically into JSON-schema in `pages` file.
 
@@ -255,11 +264,15 @@ How to use this folder:
     //schema category -> success
     //it's json response
     {
-        "token": "1234567890",
-        "expires": "1970-01-01T00:00:00.00Z",
-        "status": "Success",
-        "result": "Success"
-    }
+        "user": {
+          "_id": "64c0dcaac88e770013420d7c",
+          "firstName": "po",
+          "lastName": "gen",
+          "email": "pogen@mail.com",
+          "__v": 1
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGMwZGNhYWM4OGU3NzAwMTM0MjBkN2MiLCJpYXQiOjE2OTA2MDE5Mzl9.tC91agJhr-0C0ocWvn5axNl2AeHtEFkzyTPsOV0SZgE"
+      }
     ```
     
 3. Copy the predefined JSON response to value of key that match the category
@@ -267,26 +280,19 @@ How to use this folder:
     For example:
     ```js
     //file_name: POST_login.schema.js
-    class schema {
-      json() {
-          const json = 
-          {
-            "success":
-            {
-                "token": "1234567890",
-                "expires": "1970-01-01T00:00:00.00Z",
-                "status": "Success",
-                "result": "Success"
-            },
-            "failed":
-            {
-                "example": "" 
-            }
-          }
-          return json
-      }
-    }
-    module.exports = schema
+    export const schema = {
+      success: {
+        "user": {
+          "_id": "64c0dcaac88e770013420d7c",
+          "firstName": "po",
+          "lastName": "gen",
+          "email": "pogen@mail.com",
+          "__v": 1
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGMwZGNhYWM4OGU3NzAwMTM0MjBkN2MiLCJpYXQiOjE2OTA2MDE5Mzl9.tC91agJhr-0C0ocWvn5axNl2AeHtEFkzyTPsOV0SZgE"
+      },
+      failed: {}
+    };
     ```
 
 ### /tests/utils
@@ -300,25 +306,21 @@ Scenarios are files that configured to manage your test
 ### Default templates
 
 ```javascript
-const expect = require('chai').expect
-const chai = require('chai')
-chai.use(require('chai-json-schema'))
-const pages = require('../../pages/User/GET_getuser.pages.js');
-const config = require('../../utils/config')
+const expect = require("chai").expect;
+const chai = require("chai");
+chai.use(require("chai-json-schema"));
+const Request = require("@page/User/GET_getlistuser.pages.js");
+const config = require("@util/config.js");
 
-module.exports = () => {
-    describe("Test Get User", () =>  {
-        
-        it('Success', (done) => {
-            new pages().request( 
-                (err, res) => {
-                    expect(res.status).to.equals(200);
-                    expect(res.body).to.be.jsonSchema(new pages().expect('success'))
-                    done();
-            })
-        });
-    })
-}
+describe("Test Get List User", () => {
+  it("Successful case", async () => {
+    const response = await new Request().api();
+
+    expect(response.status).to.equals(200);
+    expect(response.body).to.be.jsonSchema(new Request().expect("success"));
+  });
+});
+
 ```
 
 1. Import the package used, which is `chai`
@@ -327,7 +329,7 @@ module.exports = () => {
     The code section referred:
     
     ```javascript
-    const pages = require('../../pages/User/GET_getuser.pages.js');
+    const pages = require('@pages/User/GET_getlistuser.pages.js');
     ```
     
     This `pages` variable will be used to configure your request API in test needs.
@@ -337,22 +339,14 @@ module.exports = () => {
     The code section referred:
     
     ```js
-    const config = require('../../utils/config')
-    ```
-
-3. Exporting the module, so it can be used in your test runner
-
-    The code section referred:
-    
-    ```javascript
-    module.exports = () => { <your_test_section> }
+    const config = require('@utils/config')
     ```
 4. There is one test suite and named with format `Test <request_name_in_Postman_collection>`
     
     For example:
     
     ```javascript
-    describe("Test Get User", () => { <your_test_case_code_section> }) 
+    describe("Test Get List User", () => { <your_test_case_code_section> }) 
     ```
     
     P.S: you can add your suite test (or `describe` part) based on your needs, also you can change the suite name.
@@ -360,7 +354,7 @@ module.exports = () => {
     
     Example:
     ```javascript
-    it('Success', (done) => { <your_request_and_validation> })
+    it('Successful case', async () => { <your_request_and_validation> })
     ```
 
 6. Build and make a request to the defined API (it has been defined in pages file)
@@ -368,13 +362,13 @@ module.exports = () => {
     Example:
     
     ```javascript
-    new pages().request( (err, res) => { <your_response_validation> } )
+    const response = await new Request().api();
     ```
 
     How it's done:
-    - since the `pages` file consist a class, you can create a new object from the class to use the defined method. Specific code: `new pages()`
-    - to build request specification and execute the request, you may use the `request()` method defined in [`pages`](#pages) file
-    
+    - since the `pages` file consist a class, you can create a new object from the class to use the defined method. Specific code: `new Request()`
+    - to build request specification and execute the request, you may use the `api()` method defined in [`pages`](#pages) file
+    - the response after hit the endpoint will save in `response` variable.
 7. For response validation, the template create 2 default validations, which are:
     - status code
     - JSON schema for your body response
@@ -382,89 +376,79 @@ module.exports = () => {
     Example:
     
     ```js
-    expect(res.status).to.equal(200);
-    expect(res.body).to.be.jsonSchema(new pages().expect('success'));
+    expect(response.status).to.equals(200);
+    expect(response.body).to.be.jsonSchema(new Request().expect("success"));
     ```
     
-    The `new pages().expect('success')` section code will get the schema that has been defined in JSON schema file. If the value is `success`, the template will get the JSON schema value with key `success`.
+    The `new Request().expect('success')` section code will get the schema that has been defined in JSON schema file. If the value is `success`, the template will get the JSON schema value with key `success`.
     
 ### Default templates with body request
 
 If your request has body, the template will give you a template of DDT usage in your test script.
 
-The snippet of test file with DDT mechanism:
-
 ```js
-let data = [
-    { ddt: { example: "value_example", attachment: {"file": "tests/data/file/example.png"} }, response: { case: "Success cases", schema: "success", status: 200 } }
-]
+const expect = require("chai").expect;
+const chai = require("chai");
+chai.use(require("chai-json-schema"));
+const data = require("@data/Auth/auth.data.js");
+const Request = require("@page/Auth/POST_login.pages.js");
 
-module.exports = () => {
-    describe("Test Login", () =>  {
-        
-        data.forEach((datas) => {
-            it(datas.response.case, (done) => {
-                new pages().request(datas.ddt, 
-                    (err, res) => {
-                        expect(res.status).to.equals(datas.response.status);
-                        expect(res.body).to.be.jsonSchema(new pages().expect(datas.response.schema))
-                        done();
-                })
-            });
-        })
-        
-    })
-}
+describe("Test Login", () => {
+  data.login_data.forEach(async (data) => {
+    it(data.case.name, async () => {
+      const response = await new Request().api(data.driven);
+
+      expect(response.status).to.equals(data.case.status);
+      expect(response.body).to.be.jsonSchema(
+        new Request().expect(data.case.schema)
+      );
+    });
+  });
+});
+
 ```
-
+`data` variable contained data which inmported from data file in folder data.
 The difference with requests that do not have a body are, except the default template:
 1. `data` variable
     
     For simple explanation:
     - this variable is used to store the combination of data used for tests scenarios
-    - inside `data` array, there are many of object type data
-    - inside each object, there are several key defined:
+    - `data` is global import which all variable in file imported too.
+    - To use the data, you can call the variable with `case.variable_data_name`
+    - inside variable contained array which needed for your test
     
-    | Key  | Required | Definition |
-    | ------------- | ------------- | ---- |
-    | <i>ddt</i>  | `true`  | object to store the combination of one data test |
-    | <i>example</i>  | `false`  | `example` key and `value_key` value is the example of key-value usage if you want to change the value of specified key from body request. <br><br>if you do not specify this key-value, the request will be executed with the default request defined in [`pages`](#pages) file. |
-    | <i>attachment</i>  | `false`  | `attachment` is a key that stored object with key-value of body request that needs to attach some files and needs to change the default of request defined in [`pages`](#pages) file |
-    | <i>file</i>  | `true` if you use `attachment` key  | `file` is example of key from body request that stores the file attachment and you want to configure the value of file <br> <br> you may configure the key based on your request API and the value based on the path where your file is stored (relative to your local project directory path) |
-    | <i>response</i>  | `true`  | `response` is a key that stored object with key-value of general configurations of each data test, which are the test case name and the expected validation<br> <br> you can configure the key-value inside object based on your needs, whether you need the default key (`case`, `schema`, `status`) or maybe you need other key-value, e.g `message` |
-    
-2. Looping for each object `data`
+2. Looping for each object `data.variable_data_name`
 
-    After the data test is prepared in `data` variable, the script will do looping for each object inisde `data` array
+    After the data test is prepared in `data.variable_data_name` variable, the script will do looping for each object inside `data` array
     
-    The code section:
+    The example code section:
     
     ```js
-    data.forEach((datas) => { <it()_code_section> })
+    data.login_data.forEach((data) => { <it()_code_section> })
     ```
 
-    Each object from `data` variable will be stored in `datas` variable and will then be mapped based on needs.
-3. Mapping for each key from object `datas`
+    Each object from `data.login_data` variable will be stored in `data` variable and will then be mapped based on needs.
+3. Mapping for each key from object `data`
 
-    Each object in `datas` variable is then mapped, like the code below, the default are:
+    Each object in `data` variable is then mapped, like the code below, the default are:
     
     ```js
-    it(datas.response.case, (done) => {
-        new pages().request(datas.ddt, 
-            (err, res) => {
-                expect(res.status).to.equals(datas.response.status);
-                expect(res.body).to.be.jsonSchema(new pages().expect(datas.response.schema))
-                done();
-        })
+    it(data.case.name, async () => {
+      const response = await new Request().api(data.driven);
+
+      expect(response.status).to.equals(data.case.status);
+      expect(response.body).to.be.jsonSchema(
+        new Request().expect(data.case.schema)
+      );
     });
     ```
     
-    - `datas.response.case`: the stored test case name will be used as test case name in `it()` function
-    - `datas.ddt`: the stored `ddt` object will be used to detect the key-value of body request you want to change
-    - `datas.response.status`: the stored status code expected will be used to validate the status code of each response API
-    - `datas.response.schema`: validation of each JSON schema response will be referenced from this key
+    - `data.response.case`: the stored test case name will be used as test case name in `it()` function
+    - `data.ddt`: the stored `ddt` object will be used to detect the key-value of body request you want to change
+    - `data.response.status`: the stored status code expected will be used to validate the status code of each response API
+    - `data.response.schema`: validation of each JSON schema response will be referenced from this key
     
-    Except for the `datas.response.case` and `datas.ddt` mapping, you can configure the mapping freely based on the `data` variable you set up
+    Except for the `data.response.case` and `data.ddt` mapping, you can configure the mapping freely based on the `data.login_data` variable you set up
     
 P.S: You can see the detailed implementation in [Implementation](#implementation) page
 
@@ -476,39 +460,57 @@ Pages is a folder to store files that configured to manage your request details.
 ### Default templates
 
 ```js
-const chai = require('chai')
-chai.use(require('chai-http'))
-const schema = require('../../schema/User/GET_getuser.schema.js');
-const requestHelper = require('../../helper/request.helper.js');
-const config = require('../../utils/config.js')
+const chai = require("chai");
+chai.use(require("chai-http"));
+const request_helper = require("@helper/request.helper.js");
+const config = require("@util/config.js");
+const data = require("@data/Auth/auth.data.js");
+const { schema } = require("@schema/Auth/POST_login.schema.js");
 
-class pages {
-    constructor() {
-		this.api = chai.request(new config().env().host)
-		this.path = "/Account/v1/User/"
-    }
-    
-    request(...args) {
-		const response = this.api.get(this.path)
-		.end(new requestHelper().getExpectFunc(args))
-		
-		return response
-    }
-  
-    body(...args) {
-		let obj = ''
-		
-		new requestHelper().objectMapping(obj, args)
+class Request {
+  constructor() {
+    // Write your constructor here, if you nee
+    // Set up the api with the endpoint based on the environment and change this according to endpoint service
+    this.url = "/users/login"; // Set up the API path to the route endpoint
+  }
 
-		return obj
-    }
+  get request() {
+    return chai.request(new config().env().host);
+  }
 
-    expect(cases="success") {
-      	return new requestHelper().getSchema(new schema().json(), cases)
-    }
+  // This method handles making the HTTP request based on given arguments.
+  async api(...args) {
+    // Send HTTP POST request to the specified path and send the required body with params extracted from args.
+    const response = await this.request
+      .post(this.url)
+      .set("Content-Type", "application/json")
+      .send(
+        await this.getMappedBody(await new request_helper().getPayload(args))
+      );
+
+    return response;
+  }
+
+  // This method used for provide body or payload of the request and return object
+  async getMappedBody(...args) {
+    const defaultData = new request_helper().getDefaultData(
+      data.login_data
+    );
+    const dataMapped = await new request_helper().mapObject(
+      defaultData.driven,
+      args
+    );
+
+    return dataMapped;
+  }
+
+  // This method used for provide expectation and return json schema
+  expect(cases = "success") {
+    return new request_helper().getSchema(schema, cases);
+  }
 }
 
-module.exports = pages
+module.exports = Request;
 ```
 
 The template defines some general things, which are:
@@ -516,337 +518,294 @@ The template defines some general things, which are:
 1. Import JSON schema file with same name file and saving it to `schema` variable. 
 
     ```js
-    const schema = require('../../schema/User/GET_getuser.schema.js');
+    const schema = require('@schema/User/GET_getuser.schema.js');
     ```
 
     Furthermore, it will be used to get the defined response JSON body.
-2. `class pages{}`
+2. `class Request{}`
     
     This is the main content of page file. It will consist some default methods that will be explained below. If you want to use these methods, you can create a new object in your [`scenarios`](#scenarios) file.
 
     Code section:
     ```js
-    class pages{ <detail_of_api> }
+    class Request{ <detail_of_api> }
     ```
 
     There are several detail of API that will be defined as methods, which are:
     - `constructor()`
     - `request()`
-    - `body()`
+    - `api()`
+    - `getMappedBody()`
     - `expect()`
 3. Build `constructor(){}` section
    
    The `constructor()` method is a special method for creating and initializing objects created within a class.
 
-   By default, the template will generate the endpoint of request. It will get your defined host from `.env` file and build the path URL.
+   By default, build the path URL.
 
    The code section:
 
     ```js
     constructor() {
-      this.api = chai.request(new config().env().host)
-      this.path = "/Account/v1/User/"
+      this.path = "/users/login"
       }
     ```
 
-    This method contains a constant value of defined request, for example are `api` variable (to config the API host) and `path` variable (to config the path of API url).
-
+    This method contains a constant value of defined request, for example is `path` variable (to config the path of API url).
     > You can cofigure your constant or static value in this method.
-4.  Build `request(){}` section
+4. Get `request()` method
+
+    By default, the template will generate the endpoint of request. It will get your defined host from `.env` file
+    ```js
+      get request() {
+        return chai.request(new config().env().host);
+      }
+    ```
+5.  Build `api(){}` section
   This section is automatically generated and used to build API requests that can be recognized by chai, you can see in this code section:
 
     ```js
-    request(...args) {
-      const response = this.api.get(this.path)
-      .end(new requestHelper().getExpectFunc(args))
-      
-      return response
-      }
+    async api(...args) {
+      const response = await this.request
+        .post(this.url)
+        .send(
+          await this.getMappedBody(await new request_helper().getPayload(args))
+        );
+
+      return response;
+    }
     ```
 
     > It can vary according to the details of the request that is generated from your Postman collection.
 
     By default, here is how this template works:
-    - method `request()` will receive arguments from tests file that use this request file, the arguments stored in `args` variable
+    - method `api()` will receive arguments from tests file that use this request file, the arguments stored in `args` variable
     - this method build request API with common chai syntax, which is:
       ```js
-      const response = this.api.get(this.path) 
+      const response = await this.request.post(this.url) 
       ```
-    - `.end(new requestHelper().getExpectFunc(args))`
-      - this part is used to get the validation part of API which is recognized by an argument of type function.
-      - from tests file view, we can see it from this code section:
-          ```js
-          (err, res) => { <api_response_validation> }
-          ```
-5. Build `body(){}` section
+    - Payload
+        ```js
+          .send(
+            await this.getMappedBody(await new request_helper().getPayload(args))
+          );
+        ```
+      To send the payload, but the first get the mapped body if any changes using `this.getMappedBody()` which is send the body argument.
+    - Return reponse request which the format is JSON using `return response;`
+6. Build `getMappedBody(){}` section
    
    This code section is used to build your body data (if any). By default, if your request doesn't have body, the value of this method is:
 
    ```js
-   body(...args) {
-		let obj = ''
-		
-		new requestHelper().objectMapping(obj, args)
+    async getMappedBody(...args) {
+      const defaultData = new request_helper().getDefaultData(
+        data.login_data
+      );
+      const dataMapped = await new request_helper().mapObject(
+        defaultData.driven,
+        args
+      );
 
-		return obj
+      return dataMapped;
     }
    ``` 
    For detailed explanation:
-   - `obj` variable will store the raw JSON body that detected from your imported Postman request.
-     - If your request has no body, it will store empty string as above
+   - `defaultData` variable will store the raw JSON body that detected from your imported Postman request.
      - If the request has body, it will copy exactly same as body in Postman request. See more in this [Default templates with JSON body](#default-templates-with-json-body) subsection
-   - `new requestHelper().objectMapping(obj, args)` section will do mapping the changes of your body
-     - Instead of changing all the value in `obj` variable, `objectMapping()` method only changes the value of key you want to change. For example, see more in this [Default templates with JSON body](#default-templates-with-json-body) subsection
-6. Build `expect(){}` section
+   - `await new request_helper().mapObject(defaultData.driven, args` section will do mapping the changes of your body
+     - Instead of changing all the value in `defaultData` variable, `mapObject()` method only changes the value of key you want to change. For example, see more in this [Default templates with JSON body](#default-templates-with-json-body) subsection
+    - The mapped data saved in `dataMapped` and return it
+
+  > If the request did not have body or payload, then getMappedBody() method will not generate
+7. Build `expect(){}` section
     This code section is used to convert your JSON-body specified in schema file to JSON schema format. You may ignore this code section.
 
     Default value of this section:
     ```js
-    expect(cases="success") {
-      	return new requestHelper().getSchema(new schema().json(), cases)
+    expect(cases = "success") {
+      return new request_helper().getSchema(schema, cases);
     }
     ```
 
     For simple explanation:
     - `expect()` method will get argument from code section that called this method. The argument will be stored in `cases` variable.
-    - this method will call `getShcema()` method in `requestHelper` class which will return the converted JSON body from `json()` method in exported `schema()` class that matched with the `cases` value.
-7. `module.exports = request`
+    - this method will call `getSchema()` method in `request_helper` class which will return the converted JSON body from `json()` method in exported `schema()` class that matched with the `cases` value.
+8. `module.exports = Request`
   
     This section is used to export the request class so it can be used in your test file.
-
-### Default templates with JSON body
-
-Except the default value of template that defined above, this subsection will explain the example value of generated file if your request has JSON body.
-
-```js
-class request {
-    constructor() {
-      //constuctor method value
-    }
-
-    request(...args) {
-		const response = this.api.post(this.path)
-		.set("accept", "application/json")
-		.set("Content-Type", "application/json")
-		.send(this.body(new requestHelper().getParam(args)))
-		.end(new requestHelper().getExpectFunc(args))
-		
-		return response
-    }
-
-    body(...args) {
-		let obj = {
-  "username": "example",
-  "password": "example"
-}
-
-		new requestHelper().objectMapping(obj, args)
-		return obj
-    }
-
-    expect(cases="success") {
-      	return new requestHelper().getSchema(json_responses, cases)
-    }
-}
-
-module.exports = request
-```
-
-  From example above, we can see several things:
-  - The template will generate the default `request()` method in chai syntax
-
-    ```js
-    request(...args) {
-		const response = this.api.post(this.path)
-		.set("accept", "application/json")
-		.set("Content-Type", "application/json")
-		.send(this.body(new requestHelper().getParam(args)))
-		.end(new requestHelper().getExpectFunc(args))
-		
-		return response
-    } 
-    ```
-
-    This `request()` method build a request API with POST method to the `api` and `path` variable defined in `constructor()` method.
-    
-    Additionally, this method build a request with `.send()` chai syntax which will send the body defined in `body()` method below.
-
-    The code section:
-    ```js
-    .send(this.body(new requestHelper().getParam(args)))
-    ```
-
-    `body()` method will get an argument with value returned from `getParam()` method in `requestHelper()` class. The `getParam()` method will send an `args` variable from `request()` method argument.
-
-  - `body()` method
-
-    This method will returned the defined request body. `obj` variable stores the default key-value of request body.
-
-    For example:
-
-    ```js
-        let obj = {
-      "username": "example",
-      "password": "example"
-    }
-    ```
-
-    From above, the request has body with `username` and `password` keys. The default value of each keys is `example`.
-
-    > You can define the constant or static value of key body request in this part of code and make changes to test-related data in your scenarios file.
-
-  - `new requestHelper().objectMapping(obj, args)` section
-    
-    This code will do mapping of your changes of body request. The changes value is indicated from `args` variable and the default value from `obj` variable. 
-
-    This `args` value is passed from argument sent by `request()` method above.
 
 ### Default templates with attachment body
 
 For this case, it has a default template as before, but the main difference is that it separates the request builder of text type and file type of form-data. You can see in this code section:
 
 ```javascript
-class request {
-	constructor() {
-		//constructor method value
-	}
+const chai = require("chai");
+chai.use(require("chai-http"));
+const request_helper = require("@helper/request.helper.js");
+const config = require("@util/config.js");
+const data = require("@data/Invitation Salman/invitationsalman.data.js");
+const {
+  schema
+} = require("@schema/Invitation Salman/POST_uploadcsv.schema.js");
 
-	request(...args) {
-		let datas = new requestHelper().getParam(args)
-		let attaches = new requestHelper().getAttach(args)
+class Request {
+  constructor() {
+    // Write your constructor here, if you nee
+    // Set up the api with the endpoint based on the environment and change this according to endpoint service
+    this.url = "/upload/file/csv"; // Set up the API path to the route endpoint
+  }
 
-		let response = this.api.post(this.path)
-		.set("Content-Type", "multipart/form-data")
+  get request() {
+    return chai.request(new config().env().host);
+  }
 
-		Object.keys(this.body(datas)).forEach((key) => {
-		response = response.field(key, JSON.stringify(this.body(datas)[key]))
-		})
+  // This method handles making the HTTP request based on given arguments.
+  async api(...args) {
+    const payload = new request_helper().getPayload(args)
+    const attachment = new request_helper().getAttachment(args)
 
-		Object.keys(this.attach(attaches)).forEach((at) => {
-		if( typeof this.attach(attaches)[at] != 'object') {
-			let att = new requestHelper().getFile(this.attach(attaches)[at])
-			response = response.attach(at, att[0], att[1])
-		} else {
-			this.attach(attaches)[at].forEach((val) => {
-			let att = new requestHelper().getFile(val)
-			response = response.attach(at, att[0], att[1])
-			})
-		}
-		})
+    // Send HTTP POST request to the specified path and send the required body with params extracted from args.
+    const response = await this.request
+      .post(this.url)
+      .set("Content-Type", "multipart/form-data")
+      .set("Platform", "BACKOFFICE")
+      .set("Authorization", "Bearer {{access_token}}");
 
-		return response.end(new requestHelper().getExpectFunc(args))
-	}
+    Object.keys(await this.getMappedBody(payload)).forEach(async (key) => {
+      response = await response.field(key, JSON.stringify(await this.getMappedBody(payload)[key]));
+    });
 
-	body(...args) {
-		let obj = {
-			"username": "example",
-			"password": "example"
-		}
+    Object.keys(await this.getMappedAttachment(attachment)).forEach(
+      async (key) => {
+        if (
+          typeof (await this.getMappedAttachment(attachment)[key]) != "object"
+        ) {
+          const raw = await new request_helper().getFile(
+            await this.getMappedAttachment(attachment)[key]
+          );
+          response = await response.attach(key, raw.file, raw.name);
+        } else {
+          await this.getMappedAttachment(attachment)[key].forEach(
+            async (val) => {
+              const raw = await new request_helper().getFile(val);
+              response = await response.attach(key, raw.file, raw.name);
+            }
+          );
+        }
+      }
+    );
 
-		new requestHelper().objectMapping(obj, args)
-		return obj
-	}
+    return response;
+  }
 
-	attach(...args) {
-		let objAtt = {
-			"file": "<your_path_file>"
-		}
+  // This method used for provide body or payload of the request and return object
+  async getMappedBody(...args) {
+    const defaultData = await new request_helper().getDefaultData(
+      data.uploadcsv_data
+    );
+    const dataMapped = await new request_helper().mapObject(
+      defaultData.driven,
+      args
+    );
 
-		new requestHelper().objectMapping(objAtt, args)
-		return objAtt
-	}
+    return dataMapped;
+  }
 
-	expect(cases="success") {
-		return new requestHelper().getSchema(json_responses, cases)
-	}
+  // This method used for provide attachment file and return object
+  async getMappedAttachment(...args) {
+    const defaultData = await new request_helper().getDefaultData(
+      data.uploadcsv_data
+    );
+    const dataMapped = await new request_helper().mapObject(
+      defaultData.driven.attachment,
+      args
+    );
+
+    return dataMapped;
+  }
+
+  // This method used for provide expectation and return json schema
+  expect(cases = "success") {
+    return new request_helper().getSchema(schema, cases);
+  }
 }
 
-module.exports = request
+module.exports = Request;
+
 ```
 
 For detailed explanation:
-- `datas` variable - for text type data - you may ignore this section
+- `data` variable - for text type data - you may ignore this section
   
-  This variable is used to store the returned value from `getParam()` method in `requestHelper()` class. The `getParam()` method will separate `args` arguments specific to text type data.
+  This variable is used to store the returned value from `getPayload()` method in `request_helper()` class. The `getPayload()` method will separate `args` arguments specific to text type data.
   
-  `datas` variable will then be used to build the body request (`this.body(datas)` code part) and then be mapped in code section below:
+  `data` variable will then be used to build the body request (`this.getMappedBody(data)` code part) and then be mapped in code section below:
   
   ```js
-  Object.keys(this.body(datas)).forEach((key) => {
-		response = response.field(key, JSON.stringify(this.body(datas)[key]))
-		})
+  Object.keys(await this.getMappedBody(payload)).forEach(async (key) => {
+    response = await response.field(key, JSON.stringify(await this.getMappedBody(payload)[key]));
+  });
   ```
 
-  For each key-value in value returned from the `body()` method will be mapped to chai syntax `.field()` and later will be used to execute the request API.
+  For each key-value in value returned from the `getMappedBody()` method will be mapped to chai syntax `.field()` and later will be used to execute the request API.
 
-- `attaches` variable - for file type data - you may ignore this section
+- `attachment` variable - for file type data - you may ignore this section
 
-  If `data` variable is storing the text type data, `attaches` variable stores the file type data. If you read the [scenarios](#default-templates-with-body-request) section, it will get the object data of `attachment` keys.
+  If `data` variable is storing the text type data, `attachment` variable stores the file type data. If you read the [scenarios](#default-templates-with-body-request) section, it will get the object data of `attachment` keys.
 
-  Later, this variable will be used as an argument in `this.attach(attaches)` code section. For each key-value of file-type body request, it will be mapped to chai syntax `.attach()`.
+  Later, this variable will be used as an argument in `this.getMappedAttachment(attachment)` code section. For each key-value of file-type body request, it will be mapped to chai syntax `.attach()`.
 
   You can see that in this part code:
 
   ```js
-  Object.keys(this.attach(attaches)).forEach((at) => {
-		if( typeof this.attach(attaches)[at] != 'object') {
-			let att = new requestHelper().getFile(this.attach(attaches)[at])
-			response = response.attach(at, att[0], att[1])
-		} else {
-			this.attach(attaches)[at].forEach((val) => {
-			let att = new requestHelper().getFile(val)
-			response = response.attach(at, att[0], att[1])
-			})
-		}
-		}) 
-  ```
-  
-- `body()` method
-  
-  This method is used to build the key-value of body request that has text type data in form-data.
-
-  You can see the example below:
-
-  ```js
-  body(...args) {
-		let obj = {
-			"username": "example",
-			"password": "example"
-		}
-
-		new requestHelper().objectMapping(obj, args)
-		return obj
-	}
+  Object.keys(await this.getMappedAttachment(attachment)).forEach(
+    async (key) => {
+      if (
+        typeof (await this.getMappedAttachment(attachment)[key]) != "object"
+      ) {
+        const raw = await new request_helper().getFile(
+          await this.getMappedAttachment(attachment)[key]
+        );
+        response = await response.attach(key, raw.file, raw.name);
+      } else {
+        await this.getMappedAttachment(attachment)[key].forEach(
+          async (val) => {
+            const raw = await new request_helper().getFile(val);
+            response = await response.attach(key, raw.file, raw.name);
+          }
+        );
+      }
+    }
+  );
   ```
 
-  It has same specification as body in JSON body which are:
-  - you can define the static value of body request.
-  - you can only change the specific key-value of body that you want to change based on the test case.
-  
-- `attach()` method
+- `getMappedAttachment()` method
   
   It has the similar specification with `body()` method, as you can see:
 
   ```js
-  attach(...args) {
-		let objAtt = {
-			"file": "<your_path_file>"
-		}
+  async getMappedAttachment(...args) {
+    const defaultData = await new request_helper().getDefaultData(
+      data.uploadcsv_data
+    );
+    const dataMapped = await new request_helper().mapObject(
+      defaultData.driven.attachment,
+      args
+    );
 
-		new requestHelper().objectMapping(objAtt, args)
-		return objAtt
-	}
+    return dataMapped;
+  }
   ```
 
   For detailed explanation:
-  - This method has `objAtt` variable that will stores the key-value of body request that has file type.
+  - This method has `defaultData` variable that will stores the key-value of body request that has file type. It is assigned from default data.
     
     You can define the static of default value of request key in this variable. Also, you can use the relative or absolute path for the value, but it is recommended to use a relative path based on your project root.
-  - `objectMapping()` method of `requestHelper()` class will map the key-value defined in `objAtt` variable to the `args` variable of the arguments in `attach()` method.
+  - `mapObject()` method of `request_helper()` class will map the key-value defined in `defaultData` variable to the `args` variable of the arguments in `getMappedAttachment()` method.
 
 ### If You Need Other Arguments
 
-In case you need to pass data (except the `datas.ddt` and `(err, ress)` function) from scenario file to page file, you can use the [concept of rest argument](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters) in method/function, which are location sensitive based on the value passed from method usage and method definition.
+In case you need to pass data (except the `data.driven`) from scenario file to page file, you can use the [concept of rest argument](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters) in method/function, which are location sensitive based on the value passed from method usage and method definition.
 
 For example, you need to pass below data from scenario file to your request builder in page file:
 - token
@@ -856,30 +815,24 @@ For example, you need to pass below data from scenario file to your request buil
 - etc, something similar
 
 you can use this configuration steps:
-1. Define the value of argument in `request()` method in scenario file.
+1. Define the value of argument in `api()` method in scenario file.
    
     For example the token and id value:
     ```js
-    new pages().request(token_value, id_value, 
-      (err, res) => {});
+    await new Request().api(token, id, data.driven);
     ```
 
-1. Map the argument passed in `request()` method from scenario file to your request builder in page file.
+1. Map the argument passed in `api()` method from scenario file to your request builder in page file.
    
-   For above case, you want to map token and id value in your request API. The `request()` method in page file will look like this:
+   For above case, you want to map token and id value in your request API. The `api()` method in page file will look like this:
 
     ```js
-    constructor() {
-		this.api = chai.request(new config().env().host);
-		this.path = "/Account/v1/User/";
-    }
+    api(...args) {
+      const response = await this.request
+        .post(this.url + args[1])
+        .set("Authorization", "Bearer " + args[0])
     
-    request(...args) {
-		const response = this.api.get(this.path + args[1])
-		.set("Authorization", "Bearer " + args[0])
-		.end(new requestHelper().getExpectFunc(args))
-		
-		return response
+      return response
     }
     ```
 

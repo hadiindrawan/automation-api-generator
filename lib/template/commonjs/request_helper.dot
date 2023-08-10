@@ -31,7 +31,7 @@ class request_helper {
         return data
     }
 
-    async getDefaultData(data_array) {
+    getDefaultData(data_array) {
       return data_array.find(item => item.case.default);
     }
     
