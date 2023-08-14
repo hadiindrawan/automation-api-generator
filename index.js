@@ -340,8 +340,9 @@ async function rebuildPackagejson(answers) {
     const packageJson = await JSON.parse(fs.readFileSync('./package.json'));
 
     // Add the new script to the scripts object
-    packageJson.scripts[scriptName] = scriptCommand;
-
+    packageJson['scripts'] = packageJson['scripts'] || {}; // Initialize 'scripts' object if it doesn't exist
+    packageJson.scripts[scriptName] = scriptCommand; // Assign the script command to the given script name
+    
     // Write the updated package.json answers.jsonFileQ
     fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
 }
