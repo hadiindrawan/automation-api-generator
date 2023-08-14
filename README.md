@@ -33,6 +33,8 @@ This project has created to relieve work load as SDET or Automation Test Enginee
     - [Default templates with attachment body](#default-templates-with-attachment-body)
     - [If You Need Other Arguments](#if-you-need-other-arguments)
   - [Utils](#utils)
+  - [Configuration File](#configuration-file)
+  - [How to run the tests](#how-to-run-the-tests)
   - [Implementation](#implementation)
 
 ## Prerequisite
@@ -195,7 +197,7 @@ After the template file is generated into your local directory, you can follow t
 
     You may use this command:
     ```bash
-    npm run test:dev
+    npm run regression:dev
     ```
     Or you can configure new command in `package.json` file
 
@@ -863,7 +865,7 @@ How it works:
     You can see or configure it in `package.json` file specific in `scripts` key. By default, one of the values is:
 
     ```json
-    "test:dev": "cross-env NODE_ENV=dev mocha runner/regression.js --timeout 15000"
+    "regression:dev": "cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000"
     ```
 
     From above, we know that the `NODE_ENV` value is `dev`. Furthermore, this value will be used to recognize the `.env` file that has been created. In this case, it will get the value from `.env.dev` file.
@@ -922,6 +924,99 @@ So, if you want to configure and use your `.env` data, you can follow this step:
     - create new `config()` class
     - use the `env()` method
     - get the key defined (`.username`)
+
+## Configuration File
+    
+Configuration file is the important file to run the test. This is using the default Mocha config `.mocharc.js` which is include some options. Here is default file after generating the test.
+
+```js
+const runOptArgument = process.argv.indexOf("--specs");
+const runOpt =
+  runOptArgument !== -1 ? process.argv[runOptArgument + 1] : "Regression";
+
+const runTestsList = {
+  Auth: [
+    "tests/scenarios/Auth/POST_login.spec.js",
+    "tests/scenarios/Auth/POST_logout.spec.js"
+  ],
+  Base: ["tests/scenarios/GET_profile.spec.js"],
+  Regression: "tests/scenarios/**/*.spec.js"
+};
+
+const ignoreTestsList = [
+  // write your ignore tests here
+];
+
+function run(run_option) {
+  if (run_option.includes("/") || run_option in runTestsList) {
+    return runTestsList[run_option];
+  }
+
+  if (run_option.includes(",")) {
+    return run_option.split(",").flatMap((key) => runTestsList[key]);
+  }
+}
+
+module.exports = {
+  require: ["@babel/register"],
+  jobs: 1,
+  package: "./package.json",
+  reporter: "spec",
+  ignore: ignoreTestsList,
+  spec: run(runOpt),
+  "trace-warnings": true,
+  ui: "bdd"
+};
+
+```
+The config export some option for test. 
+- `require` import some dependencies needed
+- `jobs` the test run in one task on one time. If you want to run some test on one time, just add how much you want
+- `package` call the package.json
+- `reporter` report style for showing the result of tests
+- `ignore` list of ignore or skip test file. The list of tests path collected in variable `ignoreTestsList` which is array formatted
+- `spec` list of test file will be execute. There is funtion to filter input runner, and return array from `runTestsList` variabel. <br>
+  In `runTestsList` variabel there is some default keys. The keys has generated from suite in your JSON collection, for example `Auth` which include some path file. And the other key is `Base` which has generated if the test file does'nt have suite. And `Regression` key, it is key for run all test file in scenario folder
+- `trace-warnings` debug mode
+- `ui` style of the test using bdd.
+
+## How to run the tests
+
+Actually to run test is so easy. There is using script from `package.json` which is linked with config file. 
+
+```json
+"scripts": {
+  "regression:dev": "cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000"
+}
+```
+As default, the `regression:dev` will generate. Look at the scripts syntax, you can see `--specs` argument. It is use to identify the key of the `runTestsList` in config file. This is some way to run the test:
+- Run `only one test` file: 
+
+  ```json
+  "scripts": {
+    "login:dev": "cross-env NODE_ENV=dev mocha --specs tests/scenarios/Auth/POST_login.spec.js --timeout 15000"
+  }
+  ```
+
+  You just copy the path of your test file and put in `--specs` argument in scripts
+
+- Run a suite: 
+  ```json
+  "scripts": {
+    "somesuite:dev": "cross-env NODE_ENV=dev mocha --specs Auth --timeout 15000"
+  }
+  ``` 
+  You just call the suite name in `--specs` argument
+  
+- Run `some suite`:
+
+  ```json
+  "scripts": {
+    "somesuite:dev": "cross-env NODE_ENV=dev mocha --specs Auth,Base --timeout 15000"
+  }
+  ``` 
+
+  You can call the suites name in `--specs` argument, and you should serapate them with comma (`,`)
 
 ## Implementation
 
