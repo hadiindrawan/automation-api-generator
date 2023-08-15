@@ -29,7 +29,6 @@ This project has created to relieve work load as SDET or Automation Test Enginee
     - [Default templates with body request](#default-templates-with-body-request)
   - [Pages](#pages)
     - [Default templates](#default-templates-1)
-    - [Default templates with JSON body](#default-templates-with-json-body)
     - [Default templates with attachment body](#default-templates-with-attachment-body)
     - [If You Need Other Arguments](#if-you-need-other-arguments)
   - [Utils](#utils)
@@ -930,10 +929,6 @@ So, if you want to configure and use your `.env` data, you can follow this step:
 Configuration file is the important file to run the test. This is using the default Mocha config `.mocharc.js` which is include some options. Here is default file after generating the test.
 
 ```js
-const runOptArgument = process.argv.indexOf("--specs");
-const runOpt =
-  runOptArgument !== -1 ? process.argv[runOptArgument + 1] : "Regression";
-
 const runTestsList = {
   Auth: [
     "tests/scenarios/Auth/POST_login.spec.js",
@@ -947,13 +942,16 @@ const ignoreTestsList = [
   // write your ignore tests here
 ];
 
-function run(run_option) {
-  if (run_option.includes("/") || run_option in runTestsList) {
-    return runTestsList[run_option];
+function getSpecsList() {
+  const runOptArgument = process.argv.indexOf("--specs");
+  const runOpt = runOptArgument !== -1 ? process.argv[runOptArgument + 1] : "Regression";
+
+  if (runOpt.includes("/") || runOpt in runTestsList) {
+    return runTestsList[runOpt];
   }
 
-  if (run_option.includes(",")) {
-    return run_option.split(",").flatMap((key) => runTestsList[key]);
+  if (runOpt.includes(",")) {
+    return runOpt.split(",").flatMap((key) => runTestsList[key]);
   }
 }
 
@@ -963,7 +961,7 @@ module.exports = {
   package: "./package.json",
   reporter: "spec",
   ignore: ignoreTestsList,
-  spec: run(runOpt),
+  spec: getSpecsList(),
   "trace-warnings": true,
   ui: "bdd"
 };
@@ -1000,10 +998,10 @@ As default, the `regression:dev` will generate. Look at the scripts syntax, you 
 
   You just copy the path of your test file and put in `--specs` argument in scripts
 
-- Run a suite: 
+- Run `a suite`: 
   ```json
   "scripts": {
-    "somesuite:dev": "cross-env NODE_ENV=dev mocha --specs Auth --timeout 15000"
+    "asuite:dev": "cross-env NODE_ENV=dev mocha --specs Auth --timeout 15000"
   }
   ``` 
   You just call the suite name in `--specs` argument
