@@ -24,3 +24,7 @@ export const mochawesomeValidation = (answers: any, packagesExist: any): boolean
 export const jsonFileValidation = (input: any): boolean | string => {
     return input.includes('json') ? true : 'Please type correct answer, the file must be json format!'
 }
+
+export const envNameValidation = (input: any): boolean | string => {
+    return /[A-Z]/.test(input) ? 'Input must be lowercase!' : true
+}

@@ -1,19 +1,20 @@
 import fs from 'fs'
 import { promisify } from 'util';
 import path from 'path'
-import { asyncForEach } from 'utils/foreach.js';
 import { waitFor } from 'utils/wait';
 import { toLowerCase } from 'utils/string';
 import { log } from 'utils/logs';
-// import writeTest from './component/tests.js'
-// import writePages from './component/pages.js'
-// import writeData from './component/data.js'
-// import writeHelper from './component/helper.js'
-// import writeSchema from './component/schema.js'
-// import writeUtils from './component/utils.js';
-// import writeRunner from './component/runner.js';
-// import writeConfigs from './component/configs.js';
-// import { babel_config, prettier_ignore } from './template/config.js';
+import { writeHelper } from 'component/helper.component';
+import { writeUtils } from 'component/utils.component';
+import { writeRunner } from 'component/runner.component';
+import { writeConfigs } from 'component/configs.component';
+import { asyncForEach } from 'utils/foreach';
+import { babelConfig, prettierIgnoreConfig } from 'template/config';
+import { writePages } from 'component/pages.component';
+import { writeSchema } from 'component/schema.component';
+import { writeData } from 'component/data.component';
+import { writeTest } from 'component/tests.component';
+
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -23,8 +24,22 @@ interface optionInterface {
     jsonFileQ: string
 }
 
+interface writeParamsInterface {
+    items: any,
+    testPath: string,
+    testPathAlias: string,
+    pagesPath: string,
+    pagesPathAlias: string,
+    schemaPath: string,
+    schemaPathAlias: string,
+    dataPath: string,
+    dataPathAlias: string,
+    moduleType: string,
+    testsListCallback: any
+}
+
 // main generator
-async function generate(option: optionInterface, moduleType: any) {
+export const generate = async (option: optionInterface, moduleType: any) => {
     try {
         const optionKeys: string[] = option.customKey.map(key => key.split('-')[0].trimEnd())
         
@@ -57,8 +72,8 @@ async function generate(option: optionInterface, moduleType: any) {
             testslist.push(test)
         }
 
-        await loopWrite(
-            matchedKeys,
+        await loopWrite({
+            items: matchedKeys,
             testPath,
             testPathAlias,
             pagesPath,
@@ -69,12 +84,12 @@ async function generate(option: optionInterface, moduleType: any) {
             dataPathAlias,
             moduleType, 
             testsListCallback
-        )
+        })
         await waitFor(500)
         
         await writeRunner(testslist)
 
-        await writeConfigs([{ filename: '.babelrc', template: babel_config }, { filename: '.prettierignore', template: prettier_ignore }])
+        await writeConfigs([{ filename: '.babelrc', template: babelConfig }, { filename: '.prettierignore', template: prettierIgnoreConfig }])
         
         setTimeout(() => {
             log("~ All test cases have generated ~", "blue")
@@ -84,27 +99,43 @@ async function generate(option: optionInterface, moduleType: any) {
     }
 }
 
-async function loopWrite(items, testPath, testPathAlias, pagesPath, pagesPathAlias, schemaPath, schemaPathAlias, dataPath, dataPathAlias, moduleType, testsListCallback) {
-    await asyncForEach(items, async (element) => {
+async function loopWrite(params: writeParamsInterface) {
+    const {
+        items, testPath, testPathAlias, pagesPath, pagesPathAlias, schemaPath, schemaPathAlias, dataPath, dataPathAlias, moduleType, testsListCallback
+    } = params;
+
+    await asyncForEach(items, async (element: any) => {
         // write test dir
         const currentTestPath = path.join(testPath, element.name || '')
         const currentTestPathAlias = path.join(testPathAlias, element.name || '')
-        fs.mkdirSync(testPath, { recursive: true }, function (err) { if (err) throw err; })
+        fs.mkdirSync(testPath, { recursive: true })
         // write pages dir
         const currentPagesPath = path.join(pagesPath, element.name || '')
         const currentPagesPathAlias = path.join(pagesPathAlias, element.name || '')
-        fs.mkdirSync(pagesPath, { recursive: true }, function (err) { if (err) throw err; })
+        fs.mkdirSync(pagesPath, { recursive: true })
         // write schema dir
         const currentSchemaPath = path.join(schemaPath, element.name || '')
         const currentSchemaPathAlis = path.join(schemaPathAlias, element.name || '')
-        fs.mkdirSync(schemaPath, { recursive: true }, function (err) { if (err) throw err; })
+        fs.mkdirSync(schemaPath, { recursive: true })
         // write data dir
         const currentDataPath = path.join(dataPath, element.name || '')
         const currentDataPathAlis = path.join(dataPathAlias, element.name || '')
         const suiteDataPath = dataPath.replace(/\\/g, "/").split('/').slice(0, 3).join('/')
 
         if (element.hasOwnProperty('item')) {
-            await loopWrite(element.item, currentTestPath, currentTestPathAlias, currentPagesPath, currentPagesPathAlias, currentSchemaPath, currentSchemaPathAlis, currentDataPath, currentDataPathAlis, moduleType, testsListCallback)
+            await loopWrite({
+                items: element.item,
+                testPath: currentTestPath,
+                testPathAlias: currentTestPathAlias,
+                pagesPath: currentPagesPath,
+                pagesPathAlias: currentPagesPathAlias,
+                schemaPath: currentSchemaPath,
+                schemaPathAlias: currentSchemaPathAlis,
+                dataPath: currentDataPath,
+                dataPathAlias: currentDataPathAlis,
+                moduleType,
+                testsListCallback
+            })
         } else {
             const configPathAlias = '@util/config.js';
             const helperPathAlias = '@helper/request.helper.js';
@@ -112,13 +143,34 @@ async function loopWrite(items, testPath, testPathAlias, pagesPath, pagesPathAli
             testsListCallback(testPath.replace(/\\/g, "/") + '/' + element.request.method + '_' + toLowerCase(element.name) + '.spec.js')
 
             await Promise.all([
-                writePages(element, pagesPath, schemaPathAlias, dataPathAlias, helperPathAlias, moduleType, configPathAlias),
-                writeSchema(element, schemaPath, moduleType),
-                writeData(element, suiteDataPath, moduleType),
-                writeTest(element, testPath, pagesPathAlias, dataPathAlias, moduleType, configPathAlias)
+                writePages({
+                    element: element,
+                    path: pagesPath,
+                    schemaPath: schemaPathAlias,
+                    dataPath: dataPathAlias,
+                    helperPath: helperPathAlias,
+                    moduleType,
+                    configPath: configPathAlias,
+                }),
+                writeSchema({
+                    element: element,
+                    path: schemaPath,
+                    moduleType,
+                }),
+                writeData({
+                    element: element,
+                    path: suiteDataPath,
+                    moduleType,
+                }),
+                writeTest({
+                    element: element,
+                    path: testPath,
+                    pagesPath: pagesPathAlias,
+                    dataPath: dataPathAlias,
+                    moduleType,
+                    configPath: configPathAlias,
+                })
             ])
         }
     })
 }
-
-export default generate

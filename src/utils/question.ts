@@ -1,11 +1,13 @@
-import { jsonFileValidation, mochawesomeValidation, projectModulesValidation } from "./validation";
+import { CLIAutomationQuestionInterface } from "interface/question.interface";
+import { envNameValidation, jsonFileValidation, mochawesomeValidation, projectModulesValidation } from "./validation";
 
-export const CLIQuestion = (scriptArg: string = "", packageList: any): any => {
+export const CLIAutomationQuestion = async (params: CLIAutomationQuestionInterface): Promise<any> => {
 	const {
-		packagesExist,
+		argument,
+		packagesList,
 		mochaExist,
 		eslintExist
-	} = packageList;
+	} = params;
 
 	const commonQuestions = [
 		{
@@ -44,12 +46,31 @@ export const CLIQuestion = (scriptArg: string = "", packageList: any): any => {
 			name: 'mochaweQ',
 			message: 'Do you want to install Mochawesome?',
 			choices: ["Yes", "No"],
-			when: (answers: any) => mochawesomeValidation(answers, packagesExist)
+			when: (answers: any) => mochawesomeValidation(answers, packagesList)
 		},
 		...commonQuestions,
 	]
 
-	const questions = (scriptArg === "generate") ? commonQuestions : fullQuestions;
+	const questions = (argument === "generate") ? commonQuestions : fullQuestions;
 
 	return questions
+}
+
+export const CLIEnvironmentQuestion = async (): Promise<any> => {
+	return [
+		{
+			type: 'input',
+			name: 'jsonFileQ',
+			message: 'Input your json file to be generate (example.json):',
+			default: 'example-env.json',
+			validate: (answers: any) => jsonFileValidation(answers)
+		},
+		{
+			type: 'input',
+			name: 'envQ',
+			message: 'Input your environment name:',
+			default: 'dev',
+			validate: (answers: any) => envNameValidation(answers)
+		}
+	]
 }

@@ -1,4 +1,4 @@
-export const default_eslint: string =
+export const defaultEslintConfig: string =
 `{
     "env": {
         "browser": true,
@@ -14,7 +14,7 @@ export const default_eslint: string =
     }
 }`
 
-export const default_mocharc: string = 
+export const defaultMochaConfig: string = 
 `
 const runTestsList = {{runner}}
 
@@ -45,7 +45,7 @@ module.exports = {
 }
 `
 
-export const prettier_ignore: string = 
+export const prettierIgnoreConfig: string = 
 `**/.git
 **/.svn
 **/.hg
@@ -59,7 +59,7 @@ package.json
 prettier.config.js
 `
 
-export const babel_config: string = 
+export const babelConfig: string = 
 `{
   "presets": [
     [
