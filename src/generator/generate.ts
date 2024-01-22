@@ -9,7 +9,7 @@ import { writeUtils } from 'component/utils.component';
 import { writeRunner } from 'component/runner.component';
 import { writeConfigs } from 'component/configs.component';
 import { asyncForEach } from 'utils/foreach';
-import { babelConfig, prettierIgnoreConfig } from 'template/config';
+import { JSConfig, babelConfig, prettierIgnoreConfig } from 'template/config';
 import { writePages } from 'component/pages.component';
 import { writeSchema } from 'component/schema.component';
 import { writeData } from 'component/data.component';
@@ -56,7 +56,9 @@ export const generate = async (option: optionInterface, moduleType: any) => {
         await writeUtils(moduleType);
 
         // write .example.env file
-        await writeFile('.example.env.dev', 'MAIN=your_api_url');
+        const envFilename = '.example.env.dev';
+        const envFileContent = 'MAIN=your_api_url';
+        await writeFile(envFilename, envFileContent);
 
         const testPath = 'tests/scenarios';
         const testPathAlias = '@scenario';
@@ -66,7 +68,7 @@ export const generate = async (option: optionInterface, moduleType: any) => {
         const schemaPathAlias = '@schema';
         const dataPath = 'tests/data';
         const dataPathAlias = '@data';
-        let testslist: string[]  = []
+        const testslist: string[]  = []
 
         function testsListCallback(test: string) {
             testslist.push(test)
@@ -89,7 +91,12 @@ export const generate = async (option: optionInterface, moduleType: any) => {
         
         await writeRunner(testslist)
 
-        await writeConfigs([{ filename: '.babelrc', template: babelConfig }, { filename: '.prettierignore', template: prettierIgnoreConfig }])
+        const configList = [
+            { filename: '.babelrc', template: babelConfig },
+            { filename: '.prettierignore', template: prettierIgnoreConfig },
+            { filename: 'jsconfig.json', template: JSConfig },
+        ];
+        await writeConfigs(configList);
         
         setTimeout(() => {
             log("~ All test cases have generated ~", "blue")

@@ -77,7 +77,7 @@ export class PogenCommand {
 								message: 'Select one or more case or suite:',
 								pageSize: 10,
 								choices: option,
-								validate: function (value) {
+								validate: function (value: any) {
 									if (value.length === 0) {
 										return 'Please select at least one case or suite';
 									}

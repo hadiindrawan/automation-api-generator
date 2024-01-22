@@ -1,7 +1,8 @@
 import fs from 'fs';
 /**
- * @param {string} path - some text to console log
- * @param {string} fileName - color 
+ * @description Check the file is existed or not
+ * @param {string} path some text to console log
+ * @param {string} fileName color 
  * @returns {Promise<Array[boolean, string | null]>}
  */
 export async function isFileExisted(path: string, fileName: string): Promise<[boolean, string | null]> {

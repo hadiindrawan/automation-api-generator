@@ -91,3 +91,33 @@ export const babelConfig: string =
   ]
 }
 `
+export const JSConfig = 
+`
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "target": "ES6",
+    "baseUrl": "./tests",
+    "paths": {
+      "*": [
+        "*",
+        "tests/*"
+      ],
+      "@scenario/*": ["scenarios/*"],
+      "@page/*": ["pages/*"],
+      "@schema/*": ["schemas/*"],
+      "@helper/*": ["helpers/*"],
+      "@data/*": ["data/*"],
+      "@util/*": ["utils/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+  },
+  "include": [
+    "tests/**/*.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+`
