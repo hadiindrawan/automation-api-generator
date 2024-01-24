@@ -145,6 +145,7 @@ async function loopWrite(params: writeParamsInterface) {
             })
         } else {
             const configPathAlias = '@util/config.js';
+            const loggerPathAlias = '@util/logger.js';
             const helperPathAlias = '@helper/request.helper.js';
 
             testsListCallback(testPath.replace(/\\/g, "/") + '/' + element.request.method + '_' + toLowerCase(element.name) + '.spec.js')
@@ -158,6 +159,7 @@ async function loopWrite(params: writeParamsInterface) {
                     helperPath: helperPathAlias,
                     moduleType,
                     configPath: configPathAlias,
+                    loggerPath: loggerPathAlias,
                 }),
                 writeSchema({
                     element: element,

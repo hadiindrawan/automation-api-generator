@@ -100,7 +100,6 @@ export const JSConfig =
     "baseUrl": "./tests",
     "paths": {
       "*": [
-        "*",
         "tests/*"
       ],
       "@scenario/*": ["scenarios/*"],
