@@ -1,7 +1,7 @@
 const fs = require('fs')
 const toJsonSchema = require('to-json-schema');
 
-class request_helper {
+class requestHelper {
     constructor() {
         // Write your constructor here, if you need 
         this.waitFor = (ms) => new Promise(r => setTimeout(r, ms))
@@ -113,4 +113,4 @@ class request_helper {
     }
 }
 
-module.exports = request_helper
+module.exports = requestHelper

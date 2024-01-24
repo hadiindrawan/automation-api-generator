@@ -13,12 +13,13 @@ interface pagesComponentInterface {
     helperPath: string,
     moduleType: string,
     configPath: string,
+    loggerPath: string,
 }
 
 // Pages file generator
 export const writePages = async (params: pagesComponentInterface) => {
     const {
-        element, path, schemaPath, dataPath, helperPath, moduleType, configPath
+        element, path, schemaPath, dataPath, helperPath, moduleType, configPath, loggerPath
     } = params;
     // template dir name
     const templateDir = moduleType == "Javascript modules (import/export)" ? "lib/template/jsimport/pages.dot" : "lib/template/commonjs/pages.dot"
@@ -42,14 +43,14 @@ export const writePages = async (params: pagesComponentInterface) => {
     
     if (element.request.hasOwnProperty('body')) {
         if (requestBody?.mode === 'raw') {
-            payload = '\r\n\t\t.send(await this.getMappedBody(await new request_helper().getPayload(args)))';
+            payload = '\r\n\t\t.send(await this.getMappedBody(await new requestHelper().getPayload(args)))';
         } else if (requestBody?.mode === 'formdata') {
             const formData = requestBody.formdata;
             if (formData.some((data: any) => data.type === 'file')) {
                 contents = fs.readFileSync(basePath() + templateDirAttach, 'utf8');
             } else {
                 contents = fs.readFileSync(basePath() + templateDir, 'utf8');
-                payload = '\r\n\t\t.send(await this.getMappedBody(await new request_helper().getPayload(args)))';
+                payload = '\r\n\t\t.send(await this.getMappedBody(await new requestHelper().getPayload(args)))';
             }
         }
     }
@@ -112,8 +113,8 @@ export const writePages = async (params: pagesComponentInterface) => {
         code = code.replace("{{body_section}}", `
         // This method used for provide body or payload of the request and return object
         async getMappedBody(...args) {
-            const defaultData = new request_helper().getDefaultData(data.${name.replace('-', '_').replace('(', '').replace(')', '')}_data)
-            const dataMapped = await new request_helper().mapObject(defaultData.driven, args);
+            const defaultData = new requestHelper().getDefaultData(data.${name.replace('-', '_').replace('(', '').replace(')', '')}_data)
+            const dataMapped = await new requestHelper().mapObject(defaultData.driven, args);
 
             return dataMapped
         }
@@ -141,6 +142,7 @@ export const writePages = async (params: pagesComponentInterface) => {
 
     code = code.replace("{{path_helper}}", helperPath)
     code = code.replace("{{path_config}}", configPath)
+    code = code.replace("{{path_logger}}", loggerPath)
     
     // check if pages file exists
     if (element.request.hasOwnProperty('url')) {
