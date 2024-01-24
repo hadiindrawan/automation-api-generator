@@ -31,13 +31,25 @@ export class PogenCommand {
 			// Set packagesExist variable to list of object keys if packageList is not undefined, otherwise set packagesExist to an empty array
 			const packagesExist = packageList !== undefined ? Object.keys(packageList) : [];
 
-			let needPackage = ['@babel/preset-env', '@babel/register', 'babel-plugin-module-resolver', 'chai', 'mocha', 'chai-http', 'chai-json-schema', 'dotenv', 'to-json-schema', 'cross-env']
-			let matchedPack = needPackage.filter(key => !packagesExist.includes(key))
-			const stringPackage = matchedPack.join(' ')
+			const needPackage = [
+				'@babel/preset-env',
+				'@babel/register',
+				'babel-plugin-module-resolver',
+				'chai',
+				'mocha',
+				'chai-http',
+				'chai-json-schema',
+				'dotenv',
+				'to-json-schema',
+				'cross-env',
+				'winston',
+			];
+			const matchedPack = needPackage.filter(key => !packagesExist.includes(key));
+			const stringPackage = matchedPack.join(' ');
 
-			const mochaExist = packagesExist.includes('mocha') ? false : true
-			const eslintExist = packagesExist.includes('eslint') ? false : true
-			const prettierExist = packagesExist.includes('prettier') ? false : true
+			const mochaExist = packagesExist.includes('mocha') ? false : true;
+			const eslintExist = packagesExist.includes('eslint') ? false : true;
+			const prettierExist = packagesExist.includes('prettier') ? false : true;
 
 			async function question(this: PogenCommand) {
 				let allAnswer: any = {};
