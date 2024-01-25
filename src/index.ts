@@ -4,7 +4,7 @@ import { PogenCommand } from "command/pogen.command"
 
 const argument = process.argv[process.argv.length - 1];
 if (argument == 'generate' || argument == '') {
-    console.log('Initiating generation automation')
+    console.log('Initiating automation generation')
     /**
      * Run generate command
      * @param argument - custom argument on script
@@ -13,7 +13,7 @@ if (argument == 'generate' || argument == '') {
 } 
 
 if (argument == 'env-generate') {
-    console.log('Initiating generation environment')
+    console.log('Initiating environment generation')
     /**
      * Run generate command
      * @param argument - custom argument on script

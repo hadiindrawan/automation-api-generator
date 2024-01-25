@@ -51,6 +51,7 @@ export const prettierIgnoreConfig: string =
 **/.hg
 **.md
 **/node_modules
+**/logs
 .babelrc
 .eslintrc.json
 .prettierignore

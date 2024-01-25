@@ -5,7 +5,7 @@ import { basedir } from 'utils/path';
 import { waitFor } from 'utils/wait';
 
 // Asynchronous function to write data into directory
-export const writeConfigs = async (configList: any) => {
+export const writeConfigs = async (configList: any[]) => {
     await asyncForEach(configList, async (item: any) => {
         try {
             const [fileExists] = await isFileExisted(basedir(), `${item.filename}`);

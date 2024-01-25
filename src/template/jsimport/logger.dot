@@ -3,49 +3,45 @@ import { CustomFileTransport } from "./custom_file_transport";
 const { combine, timestamp, printf } = format;
 const colorizer = format.colorize();
 
+const logFormat = combine(
+  timestamp({
+    format: "YYYY-MM-DD HH:mm:ss"
+  }),
+  printf((output) =>
+    colorizer.colorize(
+      output.level,
+      `[${output.timestamp}] ${output.level.toUpperCase()}: ${output.message}`
+    )
+  )
+);
+
 export class Logger {
-    constructor() {
-        // Write your constructor here, if you need
-    }
+  constructor() {
+    // Write your constructor here, if you need
+  }
+
+  console = ({ service = "example", level = "debug" }) =>
+    createLogger({
+      level,
+      defaultMeta: { service },
+      format: logFormat,
+      transports: [
+        // Output logs to console in simple message format
+        new transports.Console()
+      ]
+    });
     
-    console = ({
-        service = 'example',
-        level = 'debug'
-    }) => 
-        createLogger({
-            level,
-            defaultMeta: { service },
-            format: combine(
-                timestamp({
-                    format: 'YYYY-MM-DD HH:mm:ss',
-                }),
-                printf((output) => colorizer.colorize(output.level, `[${output.timestamp}] ${output.level.toUpperCase()}: ${output.message}`)),
-            ),
-            transports: [
-                // Output logs to console in simple message format
-                new transports.Console(),
-            ],
-        });
-    file = ({
-        service = 'example',
-        type = 'response',
-        level = 'debug'
-    }) => 
-        createLogger({
-            level,
-            defaultMeta: { service },
-            format: combine(
-                timestamp({
-                    format: 'YYYY-MM-DD HH:mm:ss',
-                }),
-                printf((output) => colorizer.colorize(output.level, `[${output.timestamp}] ${output.level.toUpperCase()}: ${output.message}`)),
-            ),
-            transports: [
-                // Output logs to console in simple message format
-                new CustomFileTransport({
-                    format: winston.format.json(),
-                    filename: `./logs/${type}.json`,
-                }),
-            ],
-        });
+  file = ({ service = "example", type = "response", level = "debug" }) =>
+    createLogger({
+      level,
+      defaultMeta: { service },
+      format: logFormat,
+      transports: [
+        // Output logs to console in simple message format
+        new CustomFileTransport({
+          format: winston.format.json(),
+          filename: `./logs/${type}.json`
+        })
+      ]
+    });
 }

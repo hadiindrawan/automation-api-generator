@@ -9,4 +9,6 @@ mochawesome-report
 notes.txt
 *json
 !package.json
+!tsconfig.json
+!tsconfig.build.json
 .mocharc.js

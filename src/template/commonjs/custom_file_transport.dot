@@ -1,22 +1,14 @@
 const fs = require("fs");
 const winston = require("winston");
 
-// Create a custom transport that outputs logs to a JSON file based on their level
-export class CustomFileTransport extends winston.transports.File {
-    constructor(options) {
-        super(options);
-        // Create the logs directory if it doesn't exist
-        const logDirectory = "./logs";
-        if (!fs.existsSync(logDirectory)) {
-            fs.mkdirSync(logDirectory);
-        }
-    }
+const logDir = './logs';
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
 
-    log(info, callback) {
-        if (super.log) {
-            super.log(info, callback);
-        } else {
-            callback();
-        }
-    }
+export class CustomFileTransport extends winston.transports.File {
+  constructor(options) {
+    // Pass the options to the parent class constructor
+    super({ ...options, dirname: logDir });
+  }
 }
