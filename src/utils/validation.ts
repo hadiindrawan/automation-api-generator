@@ -1,17 +1,24 @@
 import fs from 'fs';
 
-export const projectModulesValidation = (): boolean => {
+const checkForImport = (filePath: string, searchStrings: string[]): boolean => {
     try {
-        const checkConfigImport = fs.readFileSync('./tests/utils/config.js').toString()
-        const checkHelperImport = fs.readFileSync('./tests/helpers/request.helper.js').toString()
-
-        if (checkConfigImport.includes('import dotenv from "dotenv"') || checkHelperImport.includes('import fs from "fs"')) return false
-        if (checkConfigImport.includes('const dotenv = require("dotenv")') || checkHelperImport.includes('const fs = require("fs")')) return false
-        return true
-    } catch (e) {
-        return true
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        return searchStrings.some((searchString) => fileContent.includes(searchString));
+    } catch {
+        return true;
     }
 }
+
+export const projectModulesValidation = (): boolean => {
+    const dotenvImportChecks = ['import dotenv from "dotenv"', 'const dotenv = require("dotenv")'];
+    const fsImportChecks = ['import fs from "fs"', 'const fs = require("fs")'];
+
+    if (checkForImport('./tests/utils/config.js', dotenvImportChecks)) return false;
+    if (checkForImport('./tests/helpers/request.helper.js', fsImportChecks)) return false;
+
+    return true;
+}
+
 
 export const mochawesomeValidation = (answers: any, packagesExist: any): boolean => {
     if (answers.hasOwnProperty('frameworkQ')) {

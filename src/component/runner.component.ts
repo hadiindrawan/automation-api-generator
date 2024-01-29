@@ -6,7 +6,7 @@ import { waitFor } from 'utils/wait';
 
 // Asynchronous function to write data into directory
 export const writeRunner = async (testsPath: any) => {
-    const mapTestbySuite = await testsPath.reduce((result: any, element: any) => {
+    const mapTestbySuite = await testsPath.reduce((result: any, element: any): Promise<void> => {
         const parts = element.split('/');
         const key = parts[2].includes('.js') ? 'Base' : parts[2].replace(/\s/g, '');
         if (!result[key]) {

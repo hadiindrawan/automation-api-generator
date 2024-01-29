@@ -17,7 +17,7 @@ interface pagesComponentInterface {
 }
 
 // Pages file generator
-export const writePages = async (params: pagesComponentInterface) => {
+export const writePages = async (params: pagesComponentInterface): Promise<void> => {
     const {
         element, path, schemaPath, dataPath, helperPath, moduleType, configPath, loggerPath
     } = params;

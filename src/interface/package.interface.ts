@@ -1,13 +1,13 @@
 export interface packageInstallInterface {
-    stringPackage: string,
+    stringPackage: boolean | string[] | string,
     stringDevPackage: string,
     jsonfile: any,
     moduleType: string,
-    prettierExist: boolean,
+    prettierExist: boolean | string[] | string,
 }
 export interface devPackageInstallInterface {
-    stringDevPackage: string,
+    stringDevPackage: boolean | string[] | string,
     jsonfile: any,
     moduleType: string,
-    prettierExist: boolean,
+    prettierExist: boolean | string[] | string,
 }

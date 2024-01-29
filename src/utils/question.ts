@@ -1,5 +1,9 @@
+import fs from 'fs'
+import { promisify } from 'util';
+import inquirer from 'inquirer';
 import { CLIAutomationQuestionInterface } from "interface/question.interface";
 import { envNameValidation, jsonFileValidation, mochawesomeValidation, projectModulesValidation } from "./validation";
+const readFile = promisify(fs.readFile);
 
 export const CLIAutomationQuestion = async (params: CLIAutomationQuestionInterface): Promise<any> => {
 	const {
@@ -56,6 +60,46 @@ export const CLIAutomationQuestion = async (params: CLIAutomationQuestionInterfa
 
 	return questions
 }
+
+export const CLIJSONQuestion = async (answers: any): Promise<any> => {
+	interface Item {
+		name: string;
+		item?: any;
+	}
+
+	try {
+		const data = await readFile(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, 'utf8');
+		const { item: items } = JSON.parse(data)
+
+		// Assuming that we want to push items with the 'item' property to the end of the array
+		const sortedArr: Item[] = items.sort((a: Item, b: Item) => {
+			return (a.item === undefined ? -1 : 0) + (b.item === undefined ? 0 : 1);
+		});
+
+		const option = sortedArr.map((item: Item) => ({
+			name: `${item.name} - ${item.hasOwnProperty('item') ? '(suite)' : '(test)'}`
+		}));
+
+		return inquirer.prompt([
+			{
+				type: 'checkbox',
+				name: 'customKey',
+				message: 'Select one or more case or suite:',
+				pageSize: 10,
+				choices: option,
+				validate: function (value: any) {
+					if (value.length === 0) {
+						return 'Please select at least one case or suite';
+					}
+
+					return true;
+				},
+			},
+		]);
+	} catch (error: any) {
+		console.error(`Error processing file: ${error.message}`);
+	}
+};
 
 export const CLIEnvironmentQuestion = async (): Promise<any> => {
 	return [

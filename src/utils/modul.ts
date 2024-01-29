@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { log } from './logs';
 /**
  * @description Check the file is existed or not
  * @param {string} path some text to console log
@@ -37,17 +38,23 @@ export const existModuleType = async (): Promise<boolean | string> =>{
     }
 }
 
-export const rebuildPackagejson = async () => {
+export const rebuildPackagejson = async (): Promise<void> => {
     const scriptName = 'regression:dev'; // Name of your new script
     const scriptCommand = 'cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000'; // Command to execute your script
 
-    // Read the package.json answers.jsonFileQ
-    const packageJson = await JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+    try {
+        // Read the package.json answers.jsonFileQ
+        const packageJson = await JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
-    // Add the new script to the scripts object
-    packageJson['scripts'] = packageJson['scripts'] || {}; // Initialize 'scripts' object if it doesn't exist
-    packageJson.scripts[scriptName] = scriptCommand; // Assign the script command to the given script name
+        // Add the new script to the scripts object
+        packageJson['scripts'] = packageJson['scripts'] || {}; // Initialize 'scripts' object if it doesn't exist
+        packageJson.scripts[scriptName] = scriptCommand; // Assign the script command to the given script name
 
-    // Write the updated package.json answers.jsonFileQ
-    fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
+        // Write the updated package.json answers.jsonFileQ
+        fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
+        
+        log(`Script updated in package.json`, 'green');
+    } catch (err) {
+        console.error('Failed to update package.json:', err);
+    }
 }

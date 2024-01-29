@@ -4,7 +4,7 @@ import { rebuildPackagejson } from 'utils/modul';
 import { devPackageInstallInterface, packageInstallInterface } from 'interface/package.interface';
 import { generate } from 'generator/generate';
 
-export const installPackage = async (packageInterface: packageInstallInterface) => {
+export const installPackage = async (packageInterface: packageInstallInterface): Promise<void> => {
 	const {
 		stringPackage,
 		stringDevPackage,
@@ -49,7 +49,7 @@ export const installPackage = async (packageInterface: packageInstallInterface) 
 	})
 }
 
-export const installDevPackge = async (devPackageInterface: devPackageInstallInterface) => {
+export const installDevPackge = async (devPackageInterface: devPackageInstallInterface): Promise<void> => {
 	const {
 		stringDevPackage,
 		jsonfile,

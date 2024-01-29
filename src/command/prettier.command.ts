@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 
-export const runPrettier = async (prettierExist: boolean) => {
+export const runPrettier = async (prettierExist: boolean | string[] | string): Promise<void> => {
     const command = 'npx prettier . --write --trailing-comma none';
     if (!prettierExist) {
         const installProcess = exec('npm install --save-dev --save-exact prettier', (err, stdout) => {

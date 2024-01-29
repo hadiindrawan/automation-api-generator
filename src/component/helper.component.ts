@@ -6,7 +6,7 @@ import { waitFor } from 'utils/wait';
 
 const writeFile = promisify(fs.writeFile);
 // Asynchronous function to write data into directory
-export const writeHelper = async (moduleType: string) => {
+export const writeHelper = async (moduleType: string): Promise<void> => {
 	// template dir name
 	const templateDirRequest = moduleType == "Javascript modules (import/export)" ? "lib/template/jsimport/request_helper.dot" : "lib/template/commonjs/request_helper.dot"
 	// create helper directory if it doesn't exists

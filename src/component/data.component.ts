@@ -25,7 +25,7 @@ interface ddtCaseInterface {
 }
 
 // This is an asynchronous function called writeData.
-export const writeData = async (params: dataComponentInterface) => {
+export const writeData = async (params: dataComponentInterface): Promise<void> => {
     const {
         element,
         path,

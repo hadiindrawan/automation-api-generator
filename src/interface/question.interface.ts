@@ -1,6 +1,6 @@
 export interface CLIAutomationQuestionInterface {
     argument: string | undefined,
-    packagesList: string[],
-    mochaExist: boolean,
-    eslintExist: boolean,
+    packagesList: boolean | string[] | string,
+    mochaExist: boolean | string[] | string,
+    eslintExist: boolean | string[] | string,
 }

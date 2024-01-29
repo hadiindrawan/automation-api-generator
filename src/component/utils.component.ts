@@ -5,7 +5,7 @@ import basePath from 'utils/path';
 import { waitFor } from 'utils/wait';
 
 // Asynchronous function to write data into directory
-export const writeUtils = async (moduleType: string) => {
+export const writeUtils = async (moduleType: string): Promise<void> => {
     // create helper directory if it doesn't exists
     const utilsDir = "tests/utils";
     fs.mkdirSync(utilsDir, { recursive: true });

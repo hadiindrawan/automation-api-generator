@@ -3,20 +3,22 @@
 import { PogenCommand } from "command/pogen.command"
 
 const argument = process.argv[process.argv.length - 1];
-if (argument == 'generate' || argument == '') {
-    console.log('Initiating automation generation')
-    /**
-     * Run generate command
-     * @param argument - custom argument on script
-     */
-    new PogenCommand(argument).automation()
-} 
+const pogenCommand = new PogenCommand(argument);
 
-if (argument == 'env-generate') {
-    console.log('Initiating environment generation')
-    /**
-     * Run generate command
-     * @param argument - custom argument on script
-     */
-    new PogenCommand(argument).environment()
+switch (argument) {
+    case 'generate':
+    case '':
+        console.log('Initiating automation generation');
+        pogenCommand.automation();
+        break;
+    case 'env-generate':
+        console.log('Initiating environment generation');
+        pogenCommand.environment();
+        break;
+    case 'curl':
+        console.log('Initiating curl generation');
+        pogenCommand.curl();
+        break;
+    default:
+        console.log(`Unknown argument: ${argument}`);
 }

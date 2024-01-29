@@ -16,7 +16,7 @@ interface pagesComponentInterface {
 }
 
 // Test file generator
-export const writeTest = async (params: pagesComponentInterface) => {
+export const writeTest = async (params: pagesComponentInterface): Promise<void> => {
     const {
         element, path, pagesPath, dataPath, moduleType, configPath
     } = params;

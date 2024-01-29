@@ -39,6 +39,7 @@
   "license": "MIT",
   "description": "This project has created to relieve work load as SDET or Automation Test Engineer. You just export the postman collection, and run this generator to write the automation code.",
   "dependencies": {
+    "@bany/curl-to-json": "^1.2.8",
     "inquirer": "^9.1.4"
   },
   "devDependencies": {

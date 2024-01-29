@@ -5,7 +5,7 @@ import { isFileExisted } from 'utils/modul.js';
 import { waitFor } from 'utils/wait';
 const readFile = promisify(fs.readFile);
 
-async function generateEnv(file: any, envName: any) {
+async function generateEnv(file: any, envName: any): Promise<void> {
     let envStr = ''
 
     const data: string = await readFile(file, 'utf8');

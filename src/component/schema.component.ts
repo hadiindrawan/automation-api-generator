@@ -10,7 +10,7 @@ interface schemaComponentInterface {
 }
 
 // Json schema file generator
-export const writeSchema = async (params: schemaComponentInterface) => {
+export const writeSchema = async (params: schemaComponentInterface): Promise<void> => {
     const {
         element, path, moduleType
     } = params;

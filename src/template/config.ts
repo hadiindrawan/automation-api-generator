@@ -92,7 +92,7 @@ export const babelConfig: string =
   ]
 }
 `
-export const JSConfig = 
+export const JSConfig: string = 
 `
 {
   "compilerOptions": {

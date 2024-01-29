@@ -56,7 +56,7 @@ class Request {
 	}
 	
 	// This method used for provide expectation and return json schema
-    expect(cases="success") {
+    expectedSchema(cases="success") {
 		return new requestHelper().getSchema(schema, cases)
     }
 }
