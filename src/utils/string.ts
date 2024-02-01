@@ -1,6 +1,7 @@
 /**
- * @param {string} text - some text change to camelcase
- * @returns {string} - camelcase text tranformed
+ * @description convert string to camelcase
+ * @param {string} text some text change to camelcase
+ * @returns {string} camelcase text tranformed
  */
 export function toCamelCase(text: string): string {
     const words: string[] = text.split(' ');
@@ -12,8 +13,9 @@ export function toCamelCase(text: string): string {
     return firstWord + restOfWords.join('');
 }
 /**
- * @param {string} text - some text change to lowercase
- * @returns {string} - lowercase text tranformed
+ * @description convert string to lowercase
+ * @param {string} text some text change to lowercase
+ * @returns {string} lowercase text tranformed
  */
 export function toLowerCase(text: string): string {
     let str: string = (text).toLowerCase().replace(/\s/g, '');

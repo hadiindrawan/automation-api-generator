@@ -4,6 +4,11 @@ import { rebuildPackagejson } from 'utils/modul';
 import { devPackageInstallInterface, packageInstallInterface } from 'interface/package.interface';
 import { generate } from 'generator/generate';
 
+/**
+ * @description package execution
+ * @param {packageInstallInterface} packageInterface included packacge, json file, and module type
+ * @returns {Promise<void>}
+ */
 export const installPackage = async (packageInterface: packageInstallInterface): Promise<void> => {
 	const {
 		stringPackage,
@@ -48,7 +53,11 @@ export const installPackage = async (packageInterface: packageInstallInterface):
 		}
 	})
 }
-
+/**
+ * @description dev package execution
+ * @param {devPackageInstallInterface} devPackageInterface included packacge, json file, and module type
+ * @returns {Promise<void>}
+ */
 export const installDevPackge = async (devPackageInterface: devPackageInstallInterface): Promise<void> => {
 	const {
 		stringDevPackage,

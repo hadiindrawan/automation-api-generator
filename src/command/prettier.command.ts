@@ -1,5 +1,10 @@
 import { exec } from 'child_process';
 
+/**
+ * @description prettier plugin execution
+ * @param {boolean | string[] | string} prettierExist prettier exist condition
+ * @returns {Promise<void>}
+ */
 export const runPrettier = async (prettierExist: boolean | string[] | string): Promise<void> => {
     const command = 'npx prettier . --write --trailing-comma none';
     if (!prettierExist) {

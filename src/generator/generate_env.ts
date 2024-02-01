@@ -5,7 +5,13 @@ import { isFileExisted } from 'utils/modul.js';
 import { waitFor } from 'utils/wait';
 const readFile = promisify(fs.readFile);
 
-async function generateEnv(file: any, envName: any): Promise<void> {
+/**
+ * @description main environment generator 
+ * @param {any} file json file (.json)
+ * @param {any} envName environment name
+ * @returns {Promise<void>}
+ */
+export const generateEnv = async (file: any, envName: any): Promise<void> => {
     let envStr = ''
 
     const data: string = await readFile(file, 'utf8');
@@ -38,5 +44,3 @@ async function generateEnv(file: any, envName: any): Promise<void> {
         })
         .catch((err) => console.log(err));
 }
-
-export default generateEnv

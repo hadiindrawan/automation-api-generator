@@ -38,7 +38,12 @@ interface writeParamsInterface {
     testsListCallback: any
 }
 
-// main generator
+/**
+ * @description main automation generator
+ * @param {optionInterface} option included custom key of collection and file (.json)
+ * @param {any} moduleType module type selected
+ * @returns {Promise<void>}
+ */
 export const generate = async (option: optionInterface, moduleType: any): Promise<void> => {
     try {
         const optionKeys: string[] = option.customKey.map(key => key.split('-')[0].trimEnd())
@@ -105,11 +110,15 @@ export const generate = async (option: optionInterface, moduleType: any): Promis
         console.error(err);
     }
 }
-
-async function loopWrite(params: writeParamsInterface) {
+/**
+ * @description mapping json collection
+ * @param {writeParamsInterface} writeFileParams included item and all base path
+ * @returns {Promise<void>}
+ */
+async function loopWrite(writeFileParams: writeParamsInterface): Promise<void> {
     const {
         items, testPath, testPathAlias, pagesPath, pagesPathAlias, schemaPath, schemaPathAlias, dataPath, dataPathAlias, moduleType, testsListCallback
-    } = params;
+    } = writeFileParams;
 
     await asyncForEach(items, async (element: any) => {
         // write test dir

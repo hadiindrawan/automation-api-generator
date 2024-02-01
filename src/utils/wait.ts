@@ -1,4 +1,6 @@
 /**
- * @param {number} ms - explicit time for wait
+ * @description explicit time for wait
+ * @param {number} ms number of time in millisecond
+ * @returns {Promise<void>}
  */
 export const waitFor = (ms: number): Promise<void> => new Promise(r => setTimeout(r, ms));

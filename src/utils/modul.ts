@@ -24,7 +24,10 @@ export async function isFileExisted(path: string, fileName: string): Promise<[bo
     }
     return [false, null];
 }
-
+/**
+ * @description Check JS module type
+ * @returns {Promise<boolean | string>}
+ */
 export const existModuleType = async (): Promise<boolean | string> =>{
     try {
         const checkConfigImport = fs.readFileSync('./tests/utils/config.js').toString()
@@ -37,7 +40,10 @@ export const existModuleType = async (): Promise<boolean | string> =>{
         return true
     }
 }
-
+/**
+ * @description Rebuild script package
+ * @returns {Promise<void>}
+ */
 export const rebuildPackagejson = async (): Promise<void> => {
     const scriptName = 'regression:dev'; // Name of your new script
     const scriptCommand = 'cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000'; // Command to execute your script

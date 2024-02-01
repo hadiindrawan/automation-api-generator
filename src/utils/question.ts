@@ -5,13 +5,18 @@ import { CLIAutomationQuestionInterface } from "interface/question.interface";
 import { envNameValidation, jsonFileValidation, mochawesomeValidation, projectModulesValidation } from "./validation";
 const readFile = promisify(fs.readFile);
 
-export const CLIAutomationQuestion = async (params: CLIAutomationQuestionInterface): Promise<any> => {
+/**
+ * @description questions list for automation generation
+ * @param {CLIAutomationQuestionInterface} automationQuestionParams included the script arguments and needed package states
+ * @returns {Promise<any>}
+ */
+export const CLIAutomationQuestion = async (automationQuestionParams: CLIAutomationQuestionInterface): Promise<any> => {
 	const {
 		argument,
 		packagesList,
 		mochaExist,
 		eslintExist
-	} = params;
+	} = automationQuestionParams;
 
 	const commonQuestions = [
 		{
@@ -60,7 +65,11 @@ export const CLIAutomationQuestion = async (params: CLIAutomationQuestionInterfa
 
 	return questions
 }
-
+/**
+ * @description questions list for json selected options
+ * @param {any} answers options
+ * @returns {Promise<any>}
+ */
 export const CLIJSONQuestion = async (answers: any): Promise<any> => {
 	interface Item {
 		name: string;
@@ -100,7 +109,10 @@ export const CLIJSONQuestion = async (answers: any): Promise<any> => {
 		console.error(`Error processing file: ${error.message}`);
 	}
 };
-
+/**
+ * @description questions list for environment generation
+ * @returns {Promise<any>}
+ */
 export const CLIEnvironmentQuestion = async (): Promise<any> => {
 	return [
 		{

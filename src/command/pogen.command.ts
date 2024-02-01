@@ -9,7 +9,7 @@ import { runPrettier } from './prettier.command';
 import { rebuildPackagejson } from 'utils/modul';
 import { installDevPackge, installPackage } from './package_install.command';
 import { log } from 'utils/logs';
-import generateEnv from 'generator/generate_env';
+import { generateEnv } from 'generator/generate_env';
 import { defaultEslintConfig } from 'template/config';
 import { generate } from 'generator/generate';
 
