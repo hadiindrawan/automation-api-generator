@@ -1,10 +1,13 @@
 import fs from 'fs'
-import { asyncForEach } from 'utils/foreach';
 import { isFileExisted } from 'utils/modul';
 import basePath from 'utils/path';
 import { waitFor } from 'utils/wait';
 
-// Asynchronous function to write data into directory
+/**
+ * @description asynchronous function to write utils into directory
+ * @param {string} moduleType module type will be used
+ * @returns {Promise<void>}
+ */
 export const writeUtils = async (moduleType: string): Promise<void> => {
     // create helper directory if it doesn't exists
     const utilsDir = "tests/utils";

@@ -4,8 +4,12 @@ import { isFileExisted } from 'utils/modul';
 import { basedir } from 'utils/path';
 import { waitFor } from 'utils/wait';
 
-// Asynchronous function to write data into directory
-export const writeRunner = async (testsPath: any) => {
+/**
+ * @description asynchronous function to write runner into directory
+ * @param {any[]} testsPath all generated test path
+ * @returns {Promise<void>}
+ */
+export const writeRunner = async (testsPath: any[]): Promise<void>  => {
     const mapTestbySuite = await testsPath.reduce((result: any, element: any): Promise<void> => {
         const parts = element.split('/');
         const key = parts[2].includes('.js') ? 'Base' : parts[2].replace(/\s/g, '');

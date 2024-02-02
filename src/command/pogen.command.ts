@@ -151,8 +151,7 @@ export class PogenCommand {
 				}
 			})
 			.catch(async (err) => {
-				console.log(err);
-				console.log('Please type correct answer!');
+				log('Please type correct answer!', 'yellow')
 				await this.automation()
 			})
 	}
@@ -160,17 +159,16 @@ export class PogenCommand {
 	environment = async (): Promise<void> => {
 		inquirer
 			.prompt(await CLIEnvironmentQuestion())
-			.then((answers) => {
+			.then(async (answers) => {
 				//Print message indicating environment test generation has started..
 				log(`Generating environment test..`, 'blue')
 
 				//Call the generate function to generate environment tests.
-				generateEnv(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.envQ)
+				await generateEnv(answers.jsonFileQ.includes('"') ? answers.jsonFileQ.replace(/"/g, '') : answers.jsonFileQ, answers.envQ)
 			})
-			.catch((err) => {
-				console.log(err);
+			.catch(async (err) => {
 				log('Please type correct answer!', 'yellow')
-				this.environment()
+				await this.environment()
 			})
 	}
 

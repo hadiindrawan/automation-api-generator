@@ -15,12 +15,15 @@ interface pagesComponentInterface {
     configPath: string,
     loggerPath: string,
 }
-
-// Pages file generator
-export const writePages = async (params: pagesComponentInterface): Promise<void> => {
+/**
+ * @description asynchronous function to write pages into directory
+ * @param {pagesComponentInterface} writePagesParams included element json and all needed path
+ * @returns {Promise<void>}
+ */
+export const writePages = async (writePagesParams: pagesComponentInterface): Promise<void> => {
     const {
         element, path, schemaPath, dataPath, helperPath, moduleType, configPath, loggerPath
-    } = params;
+    } = writePagesParams;
     // template dir name
     const templateDir = moduleType == "Javascript modules (import/export)" ? "lib/template/jsimport/pages.dot" : "lib/template/commonjs/pages.dot"
     const templateDirAttach = moduleType == "Javascript modules (import/export)" ? "lib/template/jsimport/pages_attach.dot" : "lib/template/commonjs/pages_attach.dot"

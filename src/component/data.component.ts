@@ -23,14 +23,17 @@ interface ddtCaseInterface {
     status: number,
     default?: boolean
 }
-
-// This is an asynchronous function called writeData.
-export const writeData = async (params: dataComponentInterface): Promise<void> => {
+/**
+ * @description asynchronous function to write data into directory
+ * @param {dataComponentInterface} writeDataParams included element json, path and module type
+ * @returns {Promise<void>}
+ */
+export const writeData = async (writeDataParams: dataComponentInterface): Promise<void> => {
     const {
         element,
         path,
         moduleType
-    } = params;
+    } = writeDataParams;
 
     // Here, a constant variable dataDir is declared and assigned to the string 'tests/data/file'.
     // console.log({ element, path });

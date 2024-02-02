@@ -2,8 +2,8 @@ import fs from 'fs';
 import { log } from './logs';
 /**
  * @description Check the file is existed or not
- * @param {string} path some text to console log
- * @param {string} fileName color 
+ * @param {string} path the path for destination
+ * @param {string} fileName filename which want to search
  * @returns {Promise<Array[boolean, string | null]>}
  */
 export async function isFileExisted(path: string, fileName: string): Promise<[boolean, string | null]> {

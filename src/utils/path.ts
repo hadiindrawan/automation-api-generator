@@ -1,8 +1,15 @@
-export default function basePath() {
-    const env = 'dev'
-    return env == 'dev' ? '../' : './node_modules/@dot.indonesia/po-gen/'
+/**
+ * @description base path in debug or production
+ * @returns {string}
+ */
+export default function basePath(): string {
+    const env = 'debug'
+    return env == 'debug' ? '../' : './node_modules/@dot.indonesia/po-gen/'
 }
-
-export function basedir() {
+/**
+ * @description base dir
+ * @returns {string}
+ */
+export function basedir(): string {
     return process.cwd()
 }

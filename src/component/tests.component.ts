@@ -1,12 +1,11 @@
 import fs from "fs"
-import { promisify } from 'util';
 import { log } from "utils/logs";
 import { isFileExisted } from "utils/modul";
 import basePath from "utils/path";
 import { toLowerCase } from "utils/string";
 import { waitFor } from "utils/wait";
 
-interface pagesComponentInterface {
+interface testComponentInterface {
     element: any,
     path: string,
     pagesPath: string,
@@ -14,12 +13,15 @@ interface pagesComponentInterface {
     moduleType: string,
     configPath: string,
 }
-
-// Test file generator
-export const writeTest = async (params: pagesComponentInterface): Promise<void> => {
+/**
+ * @description asynchronous function to write tests into directory
+ * @param {testComponentInterface} writeTestParams included element json and all needed path
+ * @returns {Promise<void>}
+ */
+export const writeTest = async (writeTestParams: testComponentInterface): Promise<void> => {
     const {
         element, path, pagesPath, dataPath, moduleType, configPath
-    } = params;
+    } = writeTestParams;
     // template dir name
     const templateDir = moduleType == "Javascript modules (import/export)" ? "lib/template/jsimport/spec.dot" : "lib/template/commonjs/spec.dot"
     // read template fileimport { log } from './../utils/logs';

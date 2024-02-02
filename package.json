@@ -3,8 +3,7 @@
   "version": "2.1.2",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:regression-dev": "mocha runner/regression.js --timeout 15000",
+    "test": "mocha runner/regression.js --timeout 15000",
     "build": "rm -rf lib && tsc && tsc --build tsconfig.build.json && tsc-alias && tscp"
   },
   "type": "module",

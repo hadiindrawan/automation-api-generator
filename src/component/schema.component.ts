@@ -8,12 +8,15 @@ interface schemaComponentInterface {
     path: string,
     moduleType: string
 }
-
-// Json schema file generator
-export const writeSchema = async (params: schemaComponentInterface): Promise<void> => {
+/**
+ * @description asynchronous function to write schema into directory
+ * @param {schemaComponentInterface} writeSchemaParams included element json, path, and module type
+ * @returns {Promise<void>}
+ */
+export const writeSchema = async (writeSchemaParams: schemaComponentInterface): Promise<void> => {
     const {
         element, path, moduleType
-    } = params;
+    } = writeSchemaParams;
     // template dir name
     const templateDir = moduleType == "Javascript modules (import/export)" ? "lib/template/jsimport/schema.dot" : "lib/template/commonjs/schema.dot"
     // The following code creates a variable called 'name' and assigns it the value obtained from the 'name' property of the 'element' object, which is then converted to lowercase and all spaces in it are removed.
