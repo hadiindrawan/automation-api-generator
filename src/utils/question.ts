@@ -60,8 +60,7 @@ export const CLIAutomationQuestion = async (automationQuestionParams: CLIAutomat
 		...commonQuestions,
 	]
 
-	// ontest
-	const questions = (argument !== "generate") ? commonQuestions : fullQuestions;
+	const questions = (argument === "generate") ? commonQuestions : fullQuestions;
 
 	return questions
 }

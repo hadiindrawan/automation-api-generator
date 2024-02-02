@@ -1,0 +1,12 @@
+**/.git
+**/.svn
+**/.hg
+**.md
+**/node_modules
+**/logs
+.babelrc
+.eslintrc.json
+.prettierignore
+package-lock.json
+package.json
+prettier.config.js

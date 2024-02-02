@@ -1,0 +1,9 @@
+const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('chai-json-schema')){{data_path}}
+const Request = require('{{page_path}}')
+const config = require('{{config_path}}')
+
+describe("{{describe}}", () =>  {
+    {{test_section}}
+})

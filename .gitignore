@@ -1,14 +1,11 @@
-/node_modules
-/lib
-/test
+**/node_modules
 package-lock.json
-.env
-.example.env
+.env.*
 runner
 mochawesome-report
 notes.txt
 *json
 !package.json
 !tsconfig.json
+!jsconfig.json
 !tsconfig.build.json
-.mocharc.js
