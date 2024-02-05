@@ -2,7 +2,6 @@ import fs from 'fs'
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import inquirer from 'inquirer';
-import curl2Json from '@bany/curl-to-json';
 import { CLIAutomationQuestion, CLIEnvironmentQuestion, CLIJSONQuestion } from 'utils/question';
 import { existModuleType } from 'utils/modul';
 import { runPrettier } from './prettier.command';
@@ -170,51 +169,5 @@ export class PogenCommand {
 				log('Please type correct answer!', 'yellow')
 				await this.environment()
 			})
-	}
-
-	curl = async () => {
-		const result = curl2Json(`
-		curl --location 'https://thinking-tester-contact-list.herokuapp.com/users/login' \
-			--header 'Content-Type: application/json' \
-			--data-raw '{
-				"email": "shafnaifr@gmail.com",
-				"password": "@Rica2ambon"
-			}'
-		`)
-
-		const mappingJsonExample = 	{
-		"item": [
-			{
-				"name": "Auth",
-				"item": [
-					{
-						"name": "Login",
-						"event": [],
-						"request": {
-							"method": "POST",
-							"header": [],
-							"body": {
-								"mode": "raw",
-								"raw": "{\r\n    \"email\": \"fashion@mail.com\",\r\n    \"password\": \"\"\r\n}",
-								"options": {
-									"raw": {
-										"language": "json"
-									}
-								}
-							},
-							"url": {
-								"raw": "https://thinking-tester-contact-list.herokuapp.com/users/login",
-								"protocol": "https",
-								"host": ["thinking-tester-contact-list", "herokuapp", "com"],
-								"path": ["users", "login"]
-							}
-						},
-						"response": []
-					}
-				]
-			}
-		]}
-
-		console.log(await this.initiation())
 	}
 }

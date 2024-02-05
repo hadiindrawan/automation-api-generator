@@ -6,5 +6,4 @@ export declare class PogenCommand {
     }>;
     automation: () => Promise<void>;
     environment: () => Promise<void>;
-    curl: () => Promise<void>;
 }

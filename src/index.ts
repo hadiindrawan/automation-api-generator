@@ -15,10 +15,6 @@ switch (argument) {
         console.log('Initiating environment generation');
         pogenCommand.environment();
         break;
-    case 'curl':
-        console.log('Initiating curl generation');
-        pogenCommand.curl();
-        break;
     default:
         console.log(`Unknown argument: ${argument}`);
 }
