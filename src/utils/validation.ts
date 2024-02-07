@@ -6,12 +6,12 @@ import fs from 'fs';
  * @param {string[]} searchStrings string will be searched
  * @returns {boolean} check result
  */
-const checkImportType = (filePath: string, searchStrings: string[]): boolean => {
+const checkImportType = (filePath: string, searchStrings: string[]): boolean | number => {
     try {
         const fileContent = fs.readFileSync(filePath, 'utf8');
         return searchStrings.some((searchString) => fileContent.includes(searchString));
     } catch {
-        return true;
+        return 0;
     }
 }
 /**
@@ -22,10 +22,11 @@ export const projectModulesValidation = (): boolean => {
     const dotenvImportChecks = ['import dotenv from "dotenv"', 'const dotenv = require("dotenv")'];
     const fsImportChecks = ['import fs from "fs"', 'const fs = require("fs")'];
 
-    if (checkImportType('./tests/utils/config.js', dotenvImportChecks)) return false;
-    if (checkImportType('./tests/helpers/request.helper.js', fsImportChecks)) return false;
+    let result
+    result = checkImportType('./tests/utils/config.js', dotenvImportChecks) === 0 ? true : false;
+    result = checkImportType('./tests/helpers/request.helper.js', fsImportChecks) === 0 ? true : false;
 
-    return true;
+    return result;
 }
 /**
  * @description check mocha package is existed
