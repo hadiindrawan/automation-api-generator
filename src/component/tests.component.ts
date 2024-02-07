@@ -40,7 +40,7 @@ export const writeTest = async (writeTestParams: testComponentInterface): Promis
                 const response = await new Request().api(data.driven)
 
                 expect(response.status).to.equals(data.case.status)
-                expect(response.body).to.be.jsonSchema(new Request().expect(data.case.schema))
+                expect(response.body).to.be.jsonSchema(new Request().expectedSchema(data.case.schema))
             })
         })
         `
@@ -50,7 +50,7 @@ export const writeTest = async (writeTestParams: testComponentInterface): Promis
             const response = await new Request().api()
 
             expect(response.status).to.equals(200)
-            expect(response.body).to.be.jsonSchema(new Request().expect("success"))
+            expect(response.body).to.be.jsonSchema(new Request().expectedSchema("success"))
         })
         `
     }
