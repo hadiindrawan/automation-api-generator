@@ -1,6 +1,6 @@
 {
   "name": "@dot.indonesia/po-gen",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha runner/regression.js --timeout 15000",

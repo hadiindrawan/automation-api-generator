@@ -4,7 +4,7 @@
  */
 export default function basePath(): string {
     const isProd = true
-    return isProd ? '../' : './node_modules/@dot.indonesia/po-gen/'
+    return isProd ? './node_modules/@dot.indonesia/po-gen/' : '../'
 }
 /**
  * @description base dir
