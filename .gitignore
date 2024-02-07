@@ -1,4 +1,5 @@
 **/node_modules
+**/prod-test
 package-lock.json
 .env.*
 runner
