@@ -1,0 +1,10 @@
+import { expect } from 'chai'
+import chai from 'chai'
+import chaiJsonSchema from 'chai-json-schema'
+import Request from '{{page_path}}'
+import config from '{{config_path}}'{{data_path}}
+chai.use(chaiJsonSchema)
+
+describe("{{describe}}", () =>  {
+    {{test_section}}
+})

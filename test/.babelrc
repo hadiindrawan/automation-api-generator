@@ -1,0 +1,30 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": 18
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": ["."],
+        "alias": {
+          "@root": ".",
+          "@tests": "./tests",
+          "@scenario": "./tests/scenarios",
+          "@page": "./tests/pages",
+          "@schema": "./tests/schemas",
+          "@helper": "./tests/helpers",
+          "@data": "./tests/data",
+          "@util": "./tests/utils"
+        }
+      }
+    ]
+  ]
+}

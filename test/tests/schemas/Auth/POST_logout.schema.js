@@ -1,0 +1,8 @@
+export const schema = {
+  success: {
+    example: "example"
+  },
+  failed: {
+    example: "example"
+  }
+};

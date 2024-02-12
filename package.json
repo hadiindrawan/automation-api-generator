@@ -1,14 +1,14 @@
 {
   "name": "@dot.indonesia/po-gen",
-  "version": "2.1.2",
-  "main": "index.js",
+  "version": "3.0.7",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:regression-dev": "mocha runner/regression.js --timeout 15000"
+    "test": "mocha runner/regression.js --timeout 15000",
+    "build": "rm -rf lib && tsc && tsc --build tsconfig.build.json && tsc-alias && tscp"
   },
   "type": "module",
   "bin": {
-    "generate": "index.js"
+    "generate": "lib/index.js"
   },
   "files": [
     "lib",
@@ -39,5 +39,16 @@
   "description": "This project has created to relieve work load as SDET or Automation Test Engineer. You just export the postman collection, and run this generator to write the automation code.",
   "dependencies": {
     "inquirer": "^9.1.4"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "eslint": "^8.56.0",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.3.3",
+    "typescript-cp": "^0.1.9"
   }
 }

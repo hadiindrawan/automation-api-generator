@@ -1,0 +1,30 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "regression:dev": "cross-env NODE_ENV=dev mocha --specs Regression --timeout 15000",
+    "auth:dev": "cross-env NODE_ENV=dev mocha --specs Auth --timeout 15000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/preset-env": "^7.23.8",
+    "@babel/register": "^7.23.7",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "chai": "^4.4.1",
+    "chai-http": "^4.4.0",
+    "chai-json-schema": "^1.5.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.0",
+    "mocha": "^10.2.0",
+    "to-json-schema": "^0.2.5",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "prettier": "3.2.4"
+  }
+}
